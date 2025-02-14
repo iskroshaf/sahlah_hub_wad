@@ -25,7 +25,7 @@ class CustomUser(AbstractUser):
     birthdate = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='P') 
     role = models.CharField(max_length=1, choices=ROLE_CHOICES, default='C') 
-    image_avatar = models.ImageField(upload_to='image_avatars/', default='image_avatars/anonymousUserAvatar.jpeg')
+    image_avatar = models.ImageField(upload_to='image_avatars/', blank=True, null=True)
 
     groups = models.ManyToManyField('auth.Group', blank=True)
     user_permissions = models.ManyToManyField('auth.Permission', blank=True)

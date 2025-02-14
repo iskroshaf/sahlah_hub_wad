@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}Sahlan Hub - {{ title }} {% endblock title %}
 
 {% block content %}
@@ -10,23 +12,29 @@
 <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <div>
-        <img id="image-preview" src="{{ user.image_avatar.url }}" alt="{{ user.username }}" width="100px">
+
+        <img id="image-preview" 
+             src="{% if image_avatar %}{{ image_avatar }}{% else %}{% static 'img/anonymousUserAvatar.jpeg' %}{% endif %}" 
+             alt="{{ user.username }}" width="100px">
+        
+
+
         <button type="button" id="change-photo">Change</button>
         <input type="file" id="id_photo" name="image_avatar" accept=".jpg, .jpeg, .png" hidden>
     </div>
-    
+
     <script>
         document.getElementById('change-photo').addEventListener('click', function () {
             document.getElementById('id_photo').click();
         });
-    
+
         document.getElementById('id_photo').addEventListener('change', function () {
             const preview = document.getElementById('image-preview');
             preview.src = URL.createObjectURL(this.files[0]);
         });
     </script>
-    
-    
+
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const profileLink = document.getElementById("profile-link");

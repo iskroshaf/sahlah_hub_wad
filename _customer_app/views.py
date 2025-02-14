@@ -32,14 +32,17 @@ def user_profile(request):
     title = 'Profile'
     user = request.user
     form = ProfileUpdateForm(instance=user)
+
     if request.method == 'POST':
-        form = ProfileUpdateForm(request.POST,request.FILES, instance=user)
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
             print("Profile Updated")
             return redirect('profile')
         else:
             print(form.errors)
-            form = ProfileUpdateForm(instance=user)
-    context = {'title':title,'user':user,'form':form,'image_avatar':user.image_avatar.url}
-    return render(request,'_customer_app/profile.html',context)
+
+    image_url = user.image_avatar.url if user.image_avatar else None
+    
+    context = {'title': title, 'user': user, 'form': form, 'image_avatar': image_url}
+    return render(request, '_customer_app/profile.html', context)

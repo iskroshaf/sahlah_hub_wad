@@ -6,9 +6,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Sahlan Hub{% endblock %}</title>
-    {% if debug %}
+    
+    {% if debug and "django_browser_reload" in INSTALLED_APPS %}
     <script src="http://127.0.0.1:8000/__reload__/reload.js"></script>
     {% endif %}
+    
   </head>
 
   <body>
