@@ -19,7 +19,6 @@ class Seller(CustomUser):
         if not self.seller_id:
             random_number = str(uuid.uuid4().int)[:5]  
             self.seller_id = 'sel' + random_number 
-        
         super().save(*args, **kwargs)
 
 

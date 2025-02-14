@@ -14,5 +14,4 @@ class Customer(CustomUser):
         if not self.customer_id:
             random_number = str(uuid.uuid4().int)[:5]  
             self.customer_id = 'cus' + random_number 
-        
         super().save(*args, **kwargs)

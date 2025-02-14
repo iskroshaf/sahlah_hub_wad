@@ -6,6 +6,54 @@
 
 <h2>{{ title }}</h2>
 
+<form method="POST">
+    {% csrf_token %}
+    <div>
+        <img id="image-preview" src="{{ restaurant.restaurant_bg_photo.url }}" alt="restaurant_bg_photo " width="100px">
 
+        <button type="button" id="change-photo">Change</button>
+        <input type="file" id="id_photo" name="image_avatar" accept=".jpg, .jpeg, .png" hidden>
+    </div>
+
+    <div>
+        <img id="image-preview" src="{{ restaurant.restaurant_logo.url }}" alt="restaurant_logo" width="100px">
+
+        <button type="button" id="change-photo">Change</button>
+        <input type="file" id="id_photo" name="image_avatar" accept=".jpg, .jpeg, .png" hidden>
+    </div>
+
+    <script>
+        document.getElementById('change-photo').addEventListener('click', function () {
+            document.getElementById('id_photo').click();
+        });
+
+        document.getElementById('id_photo').addEventListener('change', function () {
+            const preview = document.getElementById('image-preview');
+            preview.src = URL.createObjectURL(this.files[0]);
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const profileLink = document.getElementById("profile-link");
+            const currentURL = window.location.href;
+
+            if (currentURL.includes("/userProfile")) {
+                profileLink.classList.add("active");
+            }
+        });
+    </script>
+
+    {{ form.restaurant_name }}
+
+    {{ form.restaurant_phone_number }}
+
+    {{ form.restaurant_category }}
+
+    {{ form.restaurant_desc }}
+
+    <button>Register</button>
+</form>
 
 {% endblock %}

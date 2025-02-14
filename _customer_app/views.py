@@ -42,7 +42,7 @@ def user_profile(request):
         else:
             print(form.errors)
 
-    image_url = user.image_avatar.url if user.image_avatar else None
+    image_avatar = user.image_avatar.url if user.image_avatar else None
     
-    context = {'title': title, 'user': user, 'form': form, 'image_avatar': image_url}
+    context = {'title': title, 'user': user, 'form': form, 'image_avatar': image_avatar}
     return render(request, '_customer_app/profile.html', context)
