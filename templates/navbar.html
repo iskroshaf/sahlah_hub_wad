@@ -1,0 +1,23 @@
+<nav>
+    <a href="{% url 'home' %}">Home</a> |
+
+    {% if request.user.role == 'C' %}
+    <a href="{% url 'customer_home' %}">Customer Homepage</a> |
+    {% elif request.user.role == 'S'  %}
+    <a href="{% url 'seller_dashboard' %}">Dashboard</a> |
+    {% endif %}
+
+    <a href="{% url 'about' %}">About</a> |
+    <a href="{% url 'contact' %}">Contact</a>
+
+    {% if title != 'Login' and title != 'Register' %}
+    {% if user.is_authenticated %}
+    |
+    <a href="{% url 'logout' %}">Logout</a> |
+    <a href="{% url 'profile' %}">Profile</a>
+    {% else %}
+    |
+    <a href="{% url 'login' %}">Login</a>
+    {% endif %}
+    {% endif %}
+</nav>
