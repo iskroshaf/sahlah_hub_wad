@@ -6,9 +6,12 @@
 
 <h2>{{ title }}</h2>
 
-<a href="{% url 'shop_register' %}">Shop Registration</a>
+{{ total_shop }}
 
-<a href="{% url 'shop_list' %}">Shop List</a>
+{% for shop in shops %}
 
+<a href="{% url 'shop_dashboard' shop.shop_id %}">{{ shop.shop_name }}</a>
+
+{% endfor %}
 
 {% endblock %}

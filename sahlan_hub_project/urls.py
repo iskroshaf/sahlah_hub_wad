@@ -14,11 +14,7 @@ urlpatterns = i18n_patterns(
     path('customer/', include('_customer_app.urls')),
     path('seller/', include('_seller_app.urls')),
     path('shop/', include('_shop_app.urls')),
-
-    # Language switcher
     path('set-language/', set_language, name='set_language'),
-
-    # Hot reloading
     path("__reload__/", include("django_browser_reload.urls")),
 )
 

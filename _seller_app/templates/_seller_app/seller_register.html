@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Sahlan Hub - {{ title }} {% endblock title %}
 
@@ -10,7 +11,24 @@
     {{ form.username }}
     {{ form.email }}
     {{ form.phone_number }}
-    {{ form.business_license }}
+    <div>
+        <img id="image-preview" src="" alt="business_license" width="100px" style="display: none;">
+        <input type="file" id="id_photo" name="business_license" accept=".jpg, .jpeg, .png" required>
+    </div>
+    <script>
+        document.getElementById('id_photo').addEventListener('change', function () {
+            const preview = document.getElementById('image-preview');
+            const file = this.files[0];
+    
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = "block";
+            } else {
+                preview.src = "";
+                preview.style.display = "none";
+            }
+        });
+    </script>
     {{ form.password1 }}
     {{ form.password2 }}
     <button type="submit">Register</button>

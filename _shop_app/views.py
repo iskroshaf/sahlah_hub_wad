@@ -1,6 +1,7 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from _shop_app.forms import ShopForm
+from _shop_app.models import Shop
 
 
 def shop_register_view(request):
@@ -16,9 +17,24 @@ def shop_register_view(request):
             shop.save()  
 
             print('Shop Register Successful')
-            return redirect('shop_register')
+            return redirect('seller_dashboard')
         else:
             print(form.errors)
 
     context = {'title': title, 'form': form,}
     return render(request, '_shop_app/shop_register.html', context)
+
+def shop_list_view(request):
+    title = 'Shop List'
+    seller = request.user.seller
+    shops = Shop.objects.filter(seller = seller)
+    total_shop = shops.count()
+    context = {'title': title , 'shops' : shops , 'total_shop': total_shop}
+    return render(request, '_shop_app/shop_list.html',context)
+
+def shop_dashboard_view(request, pk):
+    title = 'Shop Dashboard'
+    shop = get_object_or_404(Shop, shop_id = pk)
+    
+    context = {'title': title, 'shop': shop}
+    return render(request, '_shop_app/shop_dashboard.html',context)

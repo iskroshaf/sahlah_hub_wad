@@ -16,8 +16,6 @@
         <img id="image-preview" 
              src="{% if image_avatar %}{{ image_avatar }}{% else %}{% static 'img/anonymousUserAvatar.jpeg' %}{% endif %}" 
              alt="{{ user.username }}" width="100px">
-        
-
 
         <button type="button" id="change-photo">Change</button>
         <input type="file" id="id_photo" name="image_avatar" accept=".jpg, .jpeg, .png" hidden>
@@ -34,17 +32,6 @@
         });
     </script>
 
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const profileLink = document.getElementById("profile-link");
-            const currentURL = window.location.href;
-
-            if (currentURL.includes("/userProfile")) {
-                profileLink.classList.add("active");
-            }
-        });
-    </script>
     <div>
         <div>
             <label for="username">User ID: </label>

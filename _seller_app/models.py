@@ -6,7 +6,7 @@ from _authentication_app.models import CustomUser
 class Seller(CustomUser):
     seller_id = models.CharField(max_length=8, unique=True)
     is_approved = models.BooleanField(default=False)
-    business_license = models.FileField(upload_to='file_business_licenses/', blank=True, null=True)
+    business_license = models.FileField(upload_to='file_business_licenses/')
 
     class Meta:
         db_table = "seller"

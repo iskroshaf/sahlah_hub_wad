@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Sahlan Hub - {{ title }} {% endblock title %}
 
@@ -8,15 +9,19 @@
 
 <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
-    
+
     <div>
-        <img id="bg-preview" src="{{ shop.shop_bg_photo.url }}" alt="shop_bg_photo" width="100px">
+        <img id="bg-preview"
+            src="{% static 'img/anonymousUserAvatar.jpeg' %}"
+            alt="shop_bg_photo" width="100px">
         <button type="button" id="change-bg-photo">Change</button>
         <input type="file" id="bg-photo" name="shop_bg_photo" accept=".jpg, .jpeg, .png" hidden>
     </div>
 
     <div>
-        <img id="logo-preview" src="{{ shop.shop_logo.url }}" alt="shop_logo" width="100px">
+        <img id="logo-preview"
+            src="{% static 'img/anonymousUserAvatar.jpeg' %}"
+            alt="shop_logo" width="100px">
         <button type="button" id="change-logo-photo">Change</button>
         <input type="file" id="logo-photo" name="shop_logo" accept=".jpg, .jpeg, .png" hidden>
     </div>
