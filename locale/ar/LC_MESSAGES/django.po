@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-26 16:45+0800\n"
+"POT-Creation-Date: 2025-02-27 14:23+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Arabic <LL@li.org>\n"
@@ -23,34 +23,34 @@ msgstr ""
 msgid "Welcome to Sahlan Hub!"
 msgstr "مرحبًا بك في سهلان هب!"
 
-#: templates/navbar.html:4
+#: templates/navbar.html:5
 msgid "Home"
 msgstr "الرئيسية"
 
-#: templates/navbar.html:7
+#: templates/navbar.html:8
 msgid "Customer Homepage"
 msgstr "الصفحة الرئيسية للعميل"
 
-#: templates/navbar.html:9
+#: templates/navbar.html:10
 msgid "Dashboard"
 msgstr "لوحة التحكم"
 
-#: templates/navbar.html:12
+#: templates/navbar.html:13
 msgid "About"
 msgstr "معلومات عنا"
 
-#: templates/navbar.html:13
+#: templates/navbar.html:14
 msgid "Contact"
 msgstr "اتصل بنا"
 
-#: templates/navbar.html:18
+#: templates/navbar.html:19
 msgid "Logout"
 msgstr "تسجيل الخروج"
 
-#: templates/navbar.html:19
+#: templates/navbar.html:20
 msgid "Profile"
 msgstr "الملف الشخصي"
 
-#: templates/navbar.html:22
+#: templates/navbar.html:23
 msgid "Login"
 msgstr "تسجيل الدخول"

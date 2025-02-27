@@ -6,54 +6,48 @@
 
 <h2>{{ title }}</h2>
 
-<form method="POST">
+<form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
+    
     <div>
-        <img id="image-preview" src="{{ restaurant.restaurant_bg_photo.url }}" alt="restaurant_bg_photo " width="100px">
-
-        <button type="button" id="change-photo">Change</button>
-        <input type="file" id="id_photo" name="image_avatar" accept=".jpg, .jpeg, .png" hidden>
+        <img id="bg-preview" src="{{ shop.shop_bg_photo.url }}" alt="shop_bg_photo" width="100px">
+        <button type="button" id="change-bg-photo">Change</button>
+        <input type="file" id="bg-photo" name="shop_bg_photo" accept=".jpg, .jpeg, .png" hidden>
     </div>
 
     <div>
-        <img id="image-preview" src="{{ restaurant.restaurant_logo.url }}" alt="restaurant_logo" width="100px">
-
-        <button type="button" id="change-photo">Change</button>
-        <input type="file" id="id_photo" name="image_avatar" accept=".jpg, .jpeg, .png" hidden>
+        <img id="logo-preview" src="{{ shop.shop_logo.url }}" alt="shop_logo" width="100px">
+        <button type="button" id="change-logo-photo">Change</button>
+        <input type="file" id="logo-photo" name="shop_logo" accept=".jpg, .jpeg, .png" hidden>
     </div>
 
     <script>
-        document.getElementById('change-photo').addEventListener('click', function () {
-            document.getElementById('id_photo').click();
+        document.getElementById('change-bg-photo').addEventListener('click', function () {
+            document.getElementById('bg-photo').click();
         });
 
-        document.getElementById('id_photo').addEventListener('change', function () {
-            const preview = document.getElementById('image-preview');
+        document.getElementById('bg-photo').addEventListener('change', function () {
+            const preview = document.getElementById('bg-preview');
+            preview.src = URL.createObjectURL(this.files[0]);
+        });
+
+        document.getElementById('change-logo-photo').addEventListener('click', function () {
+            document.getElementById('logo-photo').click();
+        });
+
+        document.getElementById('logo-photo').addEventListener('change', function () {
+            const preview = document.getElementById('logo-preview');
             preview.src = URL.createObjectURL(this.files[0]);
         });
     </script>
 
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const profileLink = document.getElementById("profile-link");
-            const currentURL = window.location.href;
-
-            if (currentURL.includes("/userProfile")) {
-                profileLink.classList.add("active");
-            }
-        });
-    </script>
-
-    {{ form.restaurant_name }}
-
-    {{ form.restaurant_phone_number }}
-
-    {{ form.restaurant_category }}
-
-    {{ form.restaurant_desc }}
+    {{ form.shop_name }}
+    {{ form.shop_phone_number }}
+    {{ form.shop_category }}
+    {{ form.shop_desc }}
 
     <button>Register</button>
 </form>
+
 
 {% endblock %}

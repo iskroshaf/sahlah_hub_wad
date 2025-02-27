@@ -1,21 +1,21 @@
 from django.shortcuts import redirect, render
 
-from _shop_app.forms import RestaurantForm
+from _shop_app.forms import ShopForm
 
 
 def shop_register_view(request):
     title = 'Shop Register'
-    form = RestaurantForm()
+    form = ShopForm()
 
     if request.method == 'POST':
-        form = RestaurantForm(request.POST, request.FILES)
+        form = ShopForm(request.POST, request.FILES)
         if form.is_valid():
             seller = request.user.seller
-            restaurant = form.save(commit=False)
-            restaurant.seller = seller  
-            restaurant.save()  
+            shop = form.save(commit=False)
+            shop.seller = seller  
+            shop.save()  
 
-            print('Restaurant Register Successful')
+            print('Shop Register Successful')
             return redirect('shop_register')
         else:
             print(form.errors)

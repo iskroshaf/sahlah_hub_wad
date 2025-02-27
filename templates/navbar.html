@@ -1,7 +1,6 @@
 {% load i18n %}
 
-<nav dir="ltr">
-
+<nav>
     <a href="{% url 'home' %}">{% trans "Home" %}</a> |
 
     {% if request.user.role == 'C' %}
@@ -24,12 +23,13 @@
         {% endif %}
     {% endif %}
 
-    <!-- Language Switcher -->
-    <form action="{% url 'set_language' %}" method="post">
+    <form action="{% url 'set_language' %}" method="POST">
         {% csrf_token %}
         <select name="language" onchange="this.form.submit()">
+            <option value="en" {% if request.LANGUAGE_CODE == 'en' %}selected{% endif %}>English</option>
             <option value="ms" {% if request.LANGUAGE_CODE == 'ms' %}selected{% endif %}>Bahasa Melayu</option>
             <option value="ar" {% if request.LANGUAGE_CODE == 'ar' %}selected{% endif %}>العربية</option>
         </select>
     </form>
+    
 </nav>

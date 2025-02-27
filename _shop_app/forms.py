@@ -1,44 +1,44 @@
 from django import forms
 from django.forms import ModelForm, FileInput
 
-from _shop_app.models import Restaurant
+from _shop_app.models import Shop
 
 
-class RestaurantForm(ModelForm):
-    restaurant_name = forms.CharField(
+class ShopForm(ModelForm):
+    shop_name = forms.CharField(
         label='',
-        widget=forms.TextInput(attrs={'placeholder': 'Restaurant Name'}),
+        widget=forms.TextInput(attrs={'placeholder': 'Shop Name'}),
         )
     
-    restaurant_bg_photo = forms.ImageField(
+    shop_bg_photo = forms.ImageField(
         label= '',
         widget=FileInput,
         required=False
         )
     
-    restaurant_logo = forms.ImageField(
+    shop_logo = forms.ImageField(
         label= '',
         widget=FileInput,
         required=False
         )
     
-    restaurant_phone_number = forms.CharField(
+    shop_phone_number = forms.CharField(
         label= '',
         widget=forms.TextInput(attrs={'placeholder': 'Phone Number (e.g., 0123456789)'}),
         )
     
     
-    restaurant_desc = forms.CharField(
+    shop_desc = forms.CharField(
         required=False,
         label='',
         widget=forms.Textarea(attrs={'rows': 3,'placeholder': 'Description'})
         )
     
-    restaurant_category = forms.CharField(
+    shop_category = forms.CharField(
         label='',
         widget=forms.TextInput(attrs={'placeholder': 'Category'}),
         )
     
     class Meta:
-        model = Restaurant
-        fields = ['restaurant_name', 'restaurant_bg_photo','restaurant_phone_number','restaurant_category','restaurant_logo','restaurant_desc']
+        model = Shop
+        fields = ['shop_name', 'shop_bg_photo','shop_phone_number','shop_category','shop_logo','shop_desc']

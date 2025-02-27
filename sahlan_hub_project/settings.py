@@ -135,13 +135,14 @@ AUTH_PASSWORD_VALIDATORS = [
 
 from django.utils.translation import gettext_lazy as _
 
-# Add supported languages
+
 LANGUAGES = [
+    ('en', _('English')),
     ('ms', _('Malay')),
     ('ar', _('Arabic')),
 ]
 
-LANGUAGE_CODE = 'ms'
+LANGUAGE_CODE = 'en' 
 
 TIME_ZONE = 'UTC'
 
