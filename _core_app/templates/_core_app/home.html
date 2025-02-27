@@ -1,9 +1,10 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block title %}Sahlan Hub - {{ title }} {% endblock title %}
 
 {% block content %}
 <p>
-    Ini adalah halaman utama.
+    {% trans 'Welcome to Sahlan Hub!' %}
 </p>
 {% endblock %}
