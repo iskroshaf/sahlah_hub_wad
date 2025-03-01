@@ -39,6 +39,5 @@ def shop_list_view(request):
 def shop_dashboard_view(request, pk):
     title = 'Shop Dashboard'
     shop = get_object_or_404(Shop, shop_id = pk)
-    
     context = {'title': title, 'shop': shop}
     return render(request, '_shop_app/shop_dashboard.html',context)

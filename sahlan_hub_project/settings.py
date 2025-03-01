@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+## Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -51,6 +55,7 @@ INSTALLED_APPS = [
     # Third-party apps
     # 'debug_toolbar',
     'django_browser_reload',
+    'parler',
 ]
 
 MIDDLEWARE = [
@@ -137,11 +142,14 @@ AUTH_PASSWORD_VALIDATORS = [
 from django.utils.translation import gettext_lazy as _
 
 
-LANGUAGES = [
-    ('en', _('English')),
-    ('ms', _('Malay')),
-    ('ar', _('Arabic')),
-]
+PARLER_LANGUAGES = {
+    None: (
+        {'code': 'en', 'name': 'English'},
+        {'code': 'ms', 'name': 'Malay'},
+        {'code': 'ar', 'name': 'Arabic'},
+    ),
+}
+
 
 LANGUAGE_CODE = 'en' 
 
@@ -183,3 +191,8 @@ MEDIA_URL = '/media/'
 INTERNAL_IPS = [
     "127.0.0.1",  # Localhost
 ]
+
+## Load Google Cloud credentials from environment variable
+GOOGLE_CLOUD_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_CLOUD_CREDENTIALS
+

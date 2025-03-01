@@ -12,5 +12,8 @@ staticfiles/
 
 myenv/
 
+config/
+
 .vscode/
 .idea/
+
