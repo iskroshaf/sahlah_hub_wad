@@ -1,35 +1,42 @@
 {% load i18n %}
 
 <nav>
-    <a href="{% url 'home' %}">{% trans "Home" %}</a> |
-
-    {% if request.user.role == 'C' %}
-    <a href="{% url 'customer_home' %}">{% trans "Customer Homepage" %}</a> |
-    {% elif request.user.role == 'S' %}
-    <a href="{% url 'seller_dashboard' %}">{% trans "Dashboard" %}</a> |
-    {% endif %}
-
-    <a href="{% url 'about' %}">{% trans "About" %}</a> |
-    <a href="{% url 'contact' %}">{% trans "Contact" %}</a>
-
-    {% if title != 'Login' and title != 'Register' %}
-        {% if user.is_authenticated %}
-        |
-        <a href="{% url 'logout' %}">{% trans "Logout" %}</a> |
-        <a href="{% url 'profile' %}">{% trans "Profile" %}</a>
-        {% else %}
-        |
-        <a href="{% url 'login' %}">{% trans "Login" %}</a>
+    <ul>
+        {% if not user.is_authenticated %}
+        <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
+        <li><a href="{% url 'about' %}">{% trans "About" %}</a></li>
+        <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
         {% endif %}
-    {% endif %}
 
-    <form action="{% url 'set_language' %}" method="POST">
-        {% csrf_token %}
-        <select name="language" onchange="this.form.submit()">
-            <option value="en" {% if request.LANGUAGE_CODE == 'en' %}selected{% endif %}>English</option>
-            <option value="ms" {% if request.LANGUAGE_CODE == 'ms' %}selected{% endif %}>Bahasa Melayu</option>
-            <option value="ar" {% if request.LANGUAGE_CODE == 'ar' %}selected{% endif %}>العربية</option>
-        </select>
-    </form>
-    
+        {% if request.user.role == 'C' %}
+        <li><a href="{% url 'customer_home' %}">{% trans "Customer Homepage" %}</a></li>
+        {% elif request.user.role == 'S' %}
+        {% if shop %}
+        <li>{{ shop.shop_name }}</li>
+        {% endif %}
+        <li><a href="{% url 'seller_dashboard' %}">{% trans "Dashboard" %}</a></li>
+        {% endif %}
+
+        {% if title != 'Login' and title != 'Register' %}
+        {% if user.is_authenticated %}
+        <li><a href="{% url 'profile' %}">{% trans "Profile" %}</a></li>
+        <li><a href="{% url 'logout' %}">{% trans "Logout" %}</a></li>
+        {% else %}
+        <li><a href="{% url 'login' %}">{% trans "Login" %}</a></li>
+        {% endif %}
+        {% endif %}
+
+        <li>
+            <form action="{% url 'set_language' %}" method="POST">
+                {% csrf_token %}
+                <select name="language" onchange="this.form.submit()">
+                    {% for code, name in languages %}
+                    <option value="{{ code }}" {% if request.LANGUAGE_CODE in code %}selected{% endif %}>
+                        {{ name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </li>
+    </ul>
 </nav>

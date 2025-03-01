@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
 
-{% block title %}Sahlan Hub - {{ title }} {% endblock title %}
+{% block title %}Sahlan Hub - {{ title|default:"Dashboard" }}{% endblock %}
 
 {% block content %}
-
-<h2>{{ title }}</h2>
-
-<a href="{% url 'shop_register' %}">Shop Registration</a>
-
-<a href="{% url 'shop_list' %}">Shop List</a>
-
+<h2>{{ title|default:"Dashboard" }}</h2>
+<nav>
+    Shop Management
+    <ul>
+        <li><a href="{% url 'shop_register' %}">Shop Registration</a></li>
+        <li><a href="{% url 'shop_list' %}">My Shop</a></li>
+    </ul>
+</nav>
 
 {% endblock %}

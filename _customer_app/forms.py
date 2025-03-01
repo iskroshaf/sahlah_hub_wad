@@ -2,7 +2,7 @@ from datetime import datetime
 from django import forms
 from django.forms import FileInput
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from _authentication_app.models import CustomUser
+from _user_app.models import CustomUser
 from _customer_app.models import Customer
 
 class CustomerRegisterForm(UserCreationForm):

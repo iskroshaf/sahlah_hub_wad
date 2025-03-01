@@ -6,7 +6,19 @@
 
 <h2>{{ title }}</h2>
 
-{{ shop.shop_name }}
+<nav>
+    Product Management
+    <ul>
+        <li><a href="{% url 'product_list' %}">My Products</a></li>
+    </ul>
+
+    Order Management
+    <ul>
+        <li><a href="">View Orders</a></li>
+        <li><a href="">Order History</a></li>
+    </ul>
+</nav>
+
 
 
 {% endblock %}

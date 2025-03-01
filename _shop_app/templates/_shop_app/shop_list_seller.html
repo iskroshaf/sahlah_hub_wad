@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Sahlan Hub - {{ title }} {% endblock title %}
+
+{% block content %}
+
+<h2>{{ title }}</h2>
+
+{{ total_shop }}
+
+{% for shop in shops %}
+
+<a href="{% url 'shop_dashboard' shop.shop_id %}">{{ shop.shop_name }}</a>
+
+{% endfor %}
+
+{% endblock %}

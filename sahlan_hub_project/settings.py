@@ -34,10 +34,11 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
 
     '_core_app',
-    '_authentication_app',
+    '_user_app',
     '_customer_app',
     '_seller_app',
     '_shop_app',
+    '_product_app',
 
     # Built-in Django apps
     'django.contrib.admin',
@@ -172,7 +173,7 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ##
-AUTH_USER_MODEL = '_authentication_app.CustomUser'
+AUTH_USER_MODEL = '_user_app.CustomUser'
 
 ##
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

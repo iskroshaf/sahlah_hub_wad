@@ -1,6 +1,6 @@
 import uuid
 from django.db import models
-from _authentication_app.models import CustomUser
+from _user_app.models import CustomUser
 
 class Customer(CustomUser):
     customer_id = models.CharField(max_length=8, unique=True)
