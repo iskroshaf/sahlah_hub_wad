@@ -69,7 +69,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
-    # LiveReload should be at the end
     'django_browser_reload.middleware.BrowserReloadMiddleware',
 ]
 

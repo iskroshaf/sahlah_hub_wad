@@ -13,6 +13,7 @@ urlpatterns = [
     path('user/', include('_user_app.urls')),
     path('customer/', include('_customer_app.urls')),
     path('seller/', include('_seller_app.urls')),
+
     path('shops/', include('_shop_app.urls')),
 
     path('set-language/', set_language, name='set_language'),

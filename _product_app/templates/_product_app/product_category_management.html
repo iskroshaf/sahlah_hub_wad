@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Sahlan Hub - {{ title }} {% endblock title %}
+
+{% block content %}
+
+<h2>{{ title }}</h2>
+
+<form action="" method="POST">
+    {% csrf_token %}
+
+    {{ form.product_category_name }}
+
+    <button>Add</button>
+</form>
+
+<h3>Existing Categories</h3>
+<ul>
+    {% for category in product_categories %}
+        <li>
+            {{ category.product_category_name }}
+        </li>
+    {% endfor %}
+</ul>
+
+
+{% endblock %}
