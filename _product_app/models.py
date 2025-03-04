@@ -1,6 +1,7 @@
 from google.cloud import translate_v2 as translate
 from django.db import models
 from parler.models import TranslatableModel, TranslatedFields
+from langdetect import detect
 from _core_app.utils import generate_unique_id
 
 def translate_text(text, target_language):
@@ -12,21 +13,37 @@ def translate_text(text, target_language):
     result = client.translate(text, target_language=target_language)
     return result["translatedText"]
 
-
 class BaseTranslatableModel(TranslatableModel):
     """Base model for automatic translation into multiple languages."""
 
-    def auto_translate(self, fields, target_languages=['ar', 'ms']):
+    def auto_translate(self, fields):
         """Automatically translates specified fields into target languages."""
         translations = {}
-
+        detected_lang = 'en'  # Default language
+        
+        for field in fields:
+            original_text = getattr(self, field, "")
+            if original_text:
+                detected_lang = detect(original_text)  # Detect language
+                break  # Detect once from any non-empty field
+        
+        if detected_lang == 'en':
+            source_language = 'en'
+            target_languages = ['ms', 'ar']
+        else:
+            source_language = detected_lang
+            target_languages = ['en', 'ar']
+        
+        translations[source_language] = {}
+        for field in fields:
+            translations[source_language][field] = getattr(self, field, "")
+        
         for lang in target_languages:
             translations[lang] = {}
             for field in fields:
-                original_text = getattr(self, field, "")
-                translated_text = translate_text(original_text, lang)
+                translated_text = translate_text(translations[source_language][field], lang)
                 translations[lang][field] = translated_text
-
+        
         super().save()  # Save the instance first
 
         # Save translations
@@ -89,4 +106,3 @@ class ProductCategory(BaseTranslatableModel):
 
     class Meta:
         db_table = "product_category"
-

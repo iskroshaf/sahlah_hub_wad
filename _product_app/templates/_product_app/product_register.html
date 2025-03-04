@@ -6,4 +6,15 @@
 
 <h2>{{ title }}</h2>
 
+<form action="" method="POST">
+    {% csrf_token %}
+    {{ form.product_name }}
+    {{ form.product_price }}
+    {{ form.product_category_name }}
+
+    {{ form.product_description }}
+
+    <button>Add</button>
+</form>
+
 {% endblock %}

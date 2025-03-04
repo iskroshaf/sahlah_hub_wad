@@ -6,6 +6,19 @@
 
 <h2>{{ title }}</h2>
 
+<ul>
+    {% for product in products %}
+    <li>
+        {{ product.product_name }}
+        {{ product.product_price }}
+        {{ product.product_category_name }}
+        {{ product.product_description }}
+    </li>
+    {% empty %}
+    <li>No products available.</li>
+    {% endfor %}
+</ul>
+
 <a href="{% url 'product_register' shop.shop_id %}">Product Register</a>
 
 {% endblock %}

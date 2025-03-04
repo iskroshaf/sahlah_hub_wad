@@ -1,28 +1,30 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}Sahlan Hub{% endblock %}</title>
-    
-    {% if debug and "django_browser_reload" in INSTALLED_APPS %}
-    <script src="http://127.0.0.1:8000/__reload__/reload.js"></script>
-    {% endif %}
-    
-  </head>
+<html lang="{{ request.LANGUAGE_CODE }}" {% if request.LANGUAGE_CODE == 'ar' %}dir="rtl" {% else %}dir="ltr" {% endif %}>
 
-  <body>
-    <header>
-      <h1>{{ SITE_NAME }}</h1>
-      {% include 'navbar.html' %}
-    </header>
-    <main>
-      {% block content %}
-      <p>Default content goes here.</p>
-      {% endblock content %}
-    </main>
-    {% include 'footer.html' %}
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Sahlan Hub{% endblock %}</title>
+
+  {% if debug and "django_browser_reload" in INSTALLED_APPS %}'
+  <script src="http://127.0.0.1:8000/__reload__/reload.js"></script>
+  {% endif %}
+
+</head>
+
+<body>
+  <header>
+    <h1>{{ SITE_NAME }}</h1>
+    {% include 'navbar.html' %}
+  </header>
+  <main>
+    {% block content %}
+    <p>Default content goes here.</p>
+    {% endblock content %}
+  </main>
+  {% include 'footer.html' %}
+</body>
+
 </html>
