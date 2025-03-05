@@ -1,20 +1,18 @@
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
-# Define language name translations
 LANGUAGE_NAMES = {
-    'en': {'en': 'English', 'ms': 'Malay', 'ar': 'Arabic'},
-    'ms': {'en': 'Bahasa Inggeris', 'ms': 'Bahasa Melayu', 'ar': 'Bahasa Arab'},
-    'ar': {'en': 'الإنجليزية', 'ms': 'الملايو', 'ar': 'العربية'}
+    'en': {'en': _('English'), 'ms': _('Malay'), 'ar': _('Arabic')},
+    'ms': {'en': _('Bahasa Inggeris'), 'ms': _('Bahasa Melayu'), 'ar': _('Bahasa Arab')},
+    'ar': {'en': _('الإنجليزية'), 'ms': _('الملايو'), 'ar': _('العربية')}
 }
 
 def global_settings(request):
-    current_language = request.LANGUAGE_CODE  # Get the active language
-
-    languages = []
-    for lang in settings.PARLER_LANGUAGES[None]:
-        code = lang['code']
-        name = LANGUAGE_NAMES.get(current_language, {}).get(code, lang['name'])
-        languages.append((code, name))
+    current_language = request.LANGUAGE_CODE
+    languages = [
+        (lang['code'], LANGUAGE_NAMES.get(current_language, {}).get(lang['code'], _(lang['name'])))
+        for lang in settings.PARLER_LANGUAGES.get(None, [])
+    ]
 
     return {
         'SITE_NAME': 'Sahlan Hub',

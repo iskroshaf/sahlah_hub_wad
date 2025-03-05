@@ -1,12 +1,29 @@
 from google.cloud import translate_v2 as translate
 from django.db import models
 from parler.models import TranslatableModel, TranslatedFields
-from langdetect import detect
 from _core_app.utils import generate_unique_id
+
+def detect_language(text):
+    """Detect language using Google Cloud Translation API with restricted choices."""
+    if not text:
+        return "en"  # Default to English if empty
+    
+    client = translate.Client()
+    result = client.detect_language(text)
+    
+    detected_lang = result.get("language", "en")  # Default to English if detection fails
+    
+    # Force detection to only consider 'en', 'ms', and 'ar'
+    if detected_lang not in ['en', 'ms', 'ar']:
+        detected_lang = "en"  # Default fallback
+        print('Undetect',detected_lang)
+    return detected_lang
+
+
 
 def translate_text(text, target_language):
     """Translate text using Google Cloud Translation API."""
-    if not text:  # Avoid translating empty values
+    if not text:
         return ""
     
     client = translate.Client()
@@ -19,20 +36,26 @@ class BaseTranslatableModel(TranslatableModel):
     def auto_translate(self, fields):
         """Automatically translates specified fields into target languages."""
         translations = {}
-        detected_lang = 'en'  # Default language
+        detected_lang = 'en'
         
         for field in fields:
             original_text = getattr(self, field, "")
             if original_text:
-                detected_lang = detect(original_text)  # Detect language
+                detected_lang = detect_language(original_text)  # Detect language using Google API
                 break  # Detect once from any non-empty field
         
         if detected_lang == 'en':
             source_language = 'en'
             target_languages = ['ms', 'ar']
-        else:
-            source_language = detected_lang
+        elif detected_lang == 'ms':
+            source_language = 'ms'
             target_languages = ['en', 'ar']
+        elif detected_lang == 'ar':
+            source_language = 'ar'
+            target_languages = ['en', 'ms']
+        else:
+            source_language = 'en'
+            target_languages = ['ms', 'ar']
         
         translations[source_language] = {}
         for field in fields:
@@ -45,7 +68,7 @@ class BaseTranslatableModel(TranslatableModel):
                 translations[lang][field] = translated_text
         
         super().save()  # Save the instance first
-
+        
         # Save translations
         for lang, translated_fields in translations.items():
             self.set_current_language(lang)
@@ -70,7 +93,7 @@ class Product(BaseTranslatableModel):
 
     def save(self, *args, **kwargs):
         if not self.product_id:
-            self.product_id = generate_unique_id(Product,'prd', 'product_id')
+            self.product_id = generate_unique_id(Product, 'prd', 'product_id')
 
         is_new = self._state.adding  # Check if it's a new instance
         super().save(*args, **kwargs)
