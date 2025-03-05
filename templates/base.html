@@ -1,11 +1,14 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="{{ request.LANGUAGE_CODE }}" {% if request.LANGUAGE_CODE == 'ar' %}dir="rtl" {% else %}dir="ltr" {% endif %}>
+<html lang="{{ request.LANGUAGE_CODE }}">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="iskndrrosmi" />
+  <meta name="keywords" content="Sahlan" />
+  
   <title>{% block title %}Sahlan Hub{% endblock %}</title>
 
   {% if debug and "django_browser_reload" in INSTALLED_APPS %}'

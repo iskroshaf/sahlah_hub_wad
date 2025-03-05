@@ -13,7 +13,7 @@
     {% csrf_token %}
     <div>
         <img id="image-preview" 
-             src="{% if image_avatar %}{{ image_avatar }}{% else %}{% static 'img/anonymousUserAvatar.jpeg' %}{% endif %}" 
+             src="{% if image_avatar %}{{ image_avatar }}{% else %}{% static 'images/anonymousUserAvatar.jpeg' %}{% endif %}" 
              alt="{{ user.username }}" width="100px">
 
         <button type="button" id="change-photo">Change</button>

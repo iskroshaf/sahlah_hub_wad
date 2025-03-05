@@ -1,5 +1,4 @@
-{% extends 'base.html' %} {% block title %}Sahlan Hub - {{ title }} {% endblock
-title %} {% block content %}
+{% extends 'base.html' %} {% block title %}Sahlan Hub - {{ title }} {% endblock title %} {% block content %}
 
 <h2>{{ title }}</h2>
 
@@ -10,7 +9,9 @@ title %} {% block content %}
 </ul>
 
 <form action="" method="POST">
-    {% csrf_token %} {{ form.product_category_name }}
+    {% csrf_token %} 
+    
+    {{ form.product_category_name }}
 
     <button>Add</button>
 </form>
