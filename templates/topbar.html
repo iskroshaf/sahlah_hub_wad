@@ -1,0 +1,91 @@
+{% load static %}
+{% load i18n %}
+
+<div class="tf-topbar style-2 line-bt">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-xl-3 d-none d-xl-block">
+                <ul class="tf-social-icon style-fill">
+                    <li><a href="#" class="social-facebook"><i class="icon icon-fb"></i></a></li>
+                    <li><a href="#" class="social-twiter"><i class="icon icon-x"></i></a></li>
+                    <li><a href="#" class="social-instagram"><i class="icon icon-instagram"></i></a></li>
+                    <li><a href="#" class="social-tiktok"><i class="icon icon-tiktok"></i></a></li>
+                    <li><a href="#" class="social-amazon"><i class="icon icon-amazon"></i></a></li>
+                    <li><a href="#" class="social-pinterest"><i class="icon icon-pinterest"></i></a></li>
+                </ul>
+            </div>
+            <div class="col-xl-6 col-12 text-center">
+                <div dir="ltr" class="swiper tf-sw-top_bar" data-preview="1" data-space="0" data-loop="true"
+                    data-speed="1000" data-auto-play="true" data-delay="2000">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <p class="top-bar-text text-line-clamp-1 text-btn-uppercase fw-semibold letter-1">
+                                Free shipping on all orders over <span class="text-primary">$20.00</span></p>
+                        </div>
+                        <div class="swiper-slide">
+                            <p class="top-bar-text text-line-clamp-1 text-btn-uppercase fw-semibold letter-1">
+                                Midseason Sale: 20% Off - Auto Applied at Checkout - Limited Time Only.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 d-none d-xl-block">
+                <div class="tf-cur justify-content-end">
+                    <div class="tf-currencies">
+                        <select class="image-select center style-default type-currencies">
+                            <option selected data-thumbnail="{% static 'images/country/us.svg' %}">USD</option>
+                            <option data-thumbnail="{% static 'images/country/vn.svg' %}">VND</option>
+                        </select>
+                    </div>
+                    <div class="tf-languages">
+                        <select class="image-select center style-default type-languages">
+                            <option>English</option>
+                            <option>Vietnam</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <nav>
+    <ul>
+        {% if not user.is_authenticated %}
+            <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
+            <li><a href="{% url 'about' %}">{% trans "About" %}</a></li>
+            <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
+        {% endif %}
+
+        {% if request.user.role == 'C' %}
+            <li><a href="{% url 'customer_home' %}">{% trans "Customer Homepage" %}</a></li>
+        {% elif request.user.role == 'S' %}
+            {% if shop %}
+                <li>{{ shop.shop_name }}</li>
+            {% endif %}
+            <li><a href="{% url 'seller_dashboard' %}">{% trans "Dashboard" %}</a></li>
+        {% endif %}
+
+        {% if title not in 'Login Register' %}
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'profile' %}">{% trans "Profile" %}</a></li>
+                <li><a href="{% url 'logout' %}">{% trans "Logout" %}</a></li>
+            {% else %}
+                <li><a href="{% url 'login' %}">{% trans "Login" %}</a></li>
+            {% endif %}
+        {% endif %}
+
+        <li>
+            <form action="{% url 'set_language' %}" method="POST">
+                {% csrf_token %}
+                <select name="language" onchange="this.form.submit()">
+                    {% for code, name in languages %}
+                        <option value="{{ code }}" {% if request.LANGUAGE_CODE == code %}selected{% endif %}>
+                            {{ name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </li>
+    </ul>
+</nav> -->

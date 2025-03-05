@@ -3,7 +3,6 @@ from django.contrib.auth import authenticate, login, logout
 from _user_app.decorators import redirect_authenticated_user
 from _customer_app.forms import ProfileUpdateForm
 
-@redirect_authenticated_user
 def user_login(request):
     title = 'Login'
     if request.method == 'POST':
