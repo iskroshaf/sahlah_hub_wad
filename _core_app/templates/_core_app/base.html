@@ -9,23 +9,98 @@
     <meta name="author" content="iskndrrosmi" />
     <meta name="keywords" content="Sahlan" />
 
-    <link rel="shortcut icon" href="{% static 'images/logo/favicon.png' %}">
-    <link rel="apple-touch-icon-precomposed" href="{% static 'images/logo/favicon.png' %}">
+    <link rel="shortcut icon" href="{% static 'customer_theme/images/logo/favicon.png' %}">
+    <link rel="apple-touch-icon-precomposed" href="{% static 'customer_theme/images/logo/favicon.png' %}">
 
-    {% block styles %}{% endblock %}
+    {% if theme == "customer_theme" %}
+    <link rel="stylesheet" href="{% static 'customer_theme/fonts/fonts.css' %}">
+    <link rel="stylesheet" href="{% static 'customer_theme/fonts/font-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'customer_theme/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'customer_theme/css/swiper-bundle.min.css' %}">
+    <link rel="stylesheet" href="{% static 'customer_theme/css/animate.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'customer_theme/css/styles.css' %}" />
+
+    {% elif theme == "admin_seller_theme" %}
+
+    <link rel="stylesheet" href="{% static 'admin_seller_theme/fonts/inter/inter.css' %}" id="main-font-link" />
+    <link rel="stylesheet" href="{% static 'admin_seller_theme/fonts/phosphor/duotone/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'admin_seller_theme/fonts/tabler-icons.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'admin_seller_theme/fonts/feather.css' %}" />
+    <link rel="stylesheet" href="{% static 'admin_seller_theme/fonts/fontawesome.css' %}" />
+    <link rel="stylesheet" href="{% static 'admin_seller_theme/fonts/material.css' %}" />
+    <link rel="stylesheet" href="{% static 'admin_seller_theme/css/style.css' %}" id="main-style-link" />
+    <link rel="stylesheet" href="{% static 'admin_seller_theme/css/style-preset.css' %}" />
+
+    {% endif %}
+
 
     <title>{% block title %}Sahlan Hub{% endblock %}</title>
 
-    {% if debug and "django_browser_reload" in INSTALLED_APPS %}'
+    {% if debug and "django_browser_reload" in INSTALLED_APPS %}
     <script src="http://127.0.0.1:8000/__reload__/reload.js"></script>
     {% endif %}
 </head>
 
-{% block content %}
+<body>
+    {% if theme == "customer_theme"%}
+    {% include '_core_app/layouts/header.html' %}
+    {% elif theme == "admin_seller_theme" %}
+    {% include '_core_app/layouts/admin_seller_sidebar.html' %}
+    {% include '_core_app/layouts/admin_seller_header.html' %}
+    {% endif %}
+
+    {% block content %}
+    {% endblock content %}
+
+    {% if theme == "customer_theme"%}
+    {% include '_core_app/layouts/footer.html' %}
+    {% elif theme == "admin_seller_theme" %}
+    {% include '_core_app/layouts/admin_seller_footer.html' %}
+    {% endif %}
+
+    {% if theme == "customer_theme" %}
+    <script type="text/javascript" src="{% static 'customer_theme/js/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'customer_theme/js/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'customer_theme/js/swiper-bundle.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'customer_theme/js/carousel.js' %}"></script>
+    <script type="text/javascript" src="{% static 'customer_theme/js/bootstrap-select.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'customer_theme/js/lazysize.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'customer_theme/js/count-down.js' %}"></script>
+    <script type="text/javascript" src="{% static 'customer_theme/js/wow.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'customer_theme/js/multiple-modal.js' %}"></script>
+    <script type="text/javascript" src="{% static 'customer_theme/js/main.js' %}"></script>
+    
+    {% elif theme == "admin_seller_theme" %}
+
+    <script src="{% static 'admin_seller_theme/js/plugins/apexcharts.min.js' %}"></script>
+    <script src="{% static 'admin_seller_theme/js/pages/dashboard-default.js' %}"></script>
+
+    <script src="{% static 'admin_seller_theme/js/plugins/popper.min.js' %}"></script>
+    <script src="{% static 'admin_seller_theme/js/plugins/simplebar.min.js' %}"></script>
+    <script src="{% static 'admin_seller_theme/js/plugins/bootstrap.min.js' %}"></script>
+    <script src="{% static 'admin_seller_theme/js/fonts/custom-font.js' %}"></script>
+    <script src="{% static 'admin_seller_theme/js/pcoded.js' %}"></script>
+    <script src="{% static 'admin_seller_theme/js/plugins/feather.min.js' %}"></script>
+
+    <script>
+        layout_change('light');
+        change_box_container('false');
+        layout_caption_change('true');
+        layout_rtl_change('false');
+        preset_change('preset-1');
+        main_layout_change('vertical');
+    </script>
 
 
-{% endblock content %}
+    {% endif %}
 
-{% block scripts %}{% endblock %}
+    {% if theme == "customer_theme"%}
+    {% include '_core_app/modals/mobile_menu_modal.html' %}
+    {% include '_core_app/modals/search_modal.html' %}
+    {% include '_core_app/modals/shopping_cart_modal.html' %}
+    {% include '_core_app/modals/quick_view_modal.html' %}
+    {% endif %}
+
+</body>
 
 </html>

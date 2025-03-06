@@ -5,6 +5,7 @@ from _customer_app.forms import ProfileUpdateForm
 
 def user_login(request):
     title = 'Login'
+    theme = 'customer_theme'
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -19,7 +20,7 @@ def user_login(request):
                     return redirect('seller_dashboard')
         else:
             print('Login Fail')
-    context = {'title': title}
+    context = {'title': title, 'theme': theme}
     return render(request, '_user_app/user_login.html', context)
 
 def user_logout(request):

@@ -12,17 +12,15 @@
     {% csrf_token %}
 
     <div>
-        <img id="bg-preview"
-            src="{% static 'images/anonymousUserAvatar.jpeg' %}"
-            alt="shop_bg_photo" width="100px">
+        <img id="bg-preview" src="{% static  'customer_theme/images/avatar/user-default.jpg' %}" alt="shop_bg_photo"
+            width="100px">
         <button type="button" id="change-bg-photo">Change</button>
         <input type="file" id="bg-photo" name="shop_bg_photo" accept=".jpg, .jpeg, .png" hidden>
     </div>
 
     <div>
-        <img id="logo-preview"
-            src="{% static 'images/anonymousUserAvatar.jpeg' %}"
-            alt="shop_logo" width="100px">
+        <img id="logo-preview" src="{% static 'customer_theme/images/avatar/user-default.jpg' %}" alt="shop_logo"
+            width="100px">
         <button type="button" id="change-logo-photo">Change</button>
         <input type="file" id="logo-photo" name="shop_logo" accept=".jpg, .jpeg, .png" hidden>
     </div>
