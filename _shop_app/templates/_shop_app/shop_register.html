@@ -6,52 +6,5 @@
 
 {% block content %}
 
-<h2>{{ title }}</h2>
-
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-
-    <div>
-        <img id="bg-preview" src="{% static  'customer_theme/images/avatar/user-default.jpg' %}" alt="shop_bg_photo"
-            width="100px">
-        <button type="button" id="change-bg-photo">Change</button>
-        <input type="file" id="bg-photo" name="shop_bg_photo" accept=".jpg, .jpeg, .png" hidden>
-    </div>
-
-    <div>
-        <img id="logo-preview" src="{% static 'customer_theme/images/avatar/user-default.jpg' %}" alt="shop_logo"
-            width="100px">
-        <button type="button" id="change-logo-photo">Change</button>
-        <input type="file" id="logo-photo" name="shop_logo" accept=".jpg, .jpeg, .png" hidden>
-    </div>
-
-    <script>
-        document.getElementById('change-bg-photo').addEventListener('click', function () {
-            document.getElementById('bg-photo').click();
-        });
-
-        document.getElementById('bg-photo').addEventListener('change', function () {
-            const preview = document.getElementById('bg-preview');
-            preview.src = URL.createObjectURL(this.files[0]);
-        });
-
-        document.getElementById('change-logo-photo').addEventListener('click', function () {
-            document.getElementById('logo-photo').click();
-        });
-
-        document.getElementById('logo-photo').addEventListener('change', function () {
-            const preview = document.getElementById('logo-preview');
-            preview.src = URL.createObjectURL(this.files[0]);
-        });
-    </script>
-
-    {{ form.shop_name }}
-    {{ form.shop_phone_number }}
-    {{ form.shop_category }}
-    {{ form.shop_desc }}
-
-    <button>Register</button>
-</form>
-
 
 {% endblock %}

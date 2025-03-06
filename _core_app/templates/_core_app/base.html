@@ -49,8 +49,28 @@
     {% include '_core_app/layouts/admin_seller_header.html' %}
     {% endif %}
 
-    {% block content %}
-    {% endblock content %}
+    {% if theme == "admin_seller_theme"%}
+    <div class="pc-container">
+        <div class="pc-content">
+            {% endif %}
+
+            {% block content %}
+
+
+
+            {% endblock content %}
+
+            {% if theme == "admin_seller_theme"%}
+        </div>
+    </div>
+    <div class="pct-c-btn">
+        <a href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvas_pc_layout">
+            <i class="ph-duotone ph-gear-six"></i>
+        </a>
+    </div>
+    {% include '_core_app/modals/admin_seller_theme_layout_settings_modal.html' %}
+    {% include '_core_app/modals/admin_seller_anouncement_modal.html' %}
+    {% endif %}
 
     {% if theme == "customer_theme"%}
     {% include '_core_app/layouts/footer.html' %}
@@ -69,10 +89,11 @@
     <script type="text/javascript" src="{% static 'customer_theme/js/wow.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'customer_theme/js/multiple-modal.js' %}"></script>
     <script type="text/javascript" src="{% static 'customer_theme/js/main.js' %}"></script>
-    
+
     {% elif theme == "admin_seller_theme" %}
 
     <script src="{% static 'admin_seller_theme/js/plugins/apexcharts.min.js' %}"></script>
+
     <script src="{% static 'admin_seller_theme/js/pages/dashboard-default.js' %}"></script>
 
     <script src="{% static 'admin_seller_theme/js/plugins/popper.min.js' %}"></script>
@@ -81,6 +102,7 @@
     <script src="{% static 'admin_seller_theme/js/fonts/custom-font.js' %}"></script>
     <script src="{% static 'admin_seller_theme/js/pcoded.js' %}"></script>
     <script src="{% static 'admin_seller_theme/js/plugins/feather.min.js' %}"></script>
+
 
     <script>
         layout_change('light');

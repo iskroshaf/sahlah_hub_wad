@@ -1,5 +1,6 @@
 // 'use strict';
 var flg = '0';
+var staticUrl = "/static/admin_seller_theme/";
 
 // Function to handle menu click events (collpase menus and it's submenu also collapse)
 if (!main_layout_change('horizontal')) {
@@ -228,18 +229,18 @@ function setLayout() {
     var script = document.createElement('script');
     if (layout === 'horizontal') {
       document.querySelector('.pc-sidebar').classList.add('d-none');
-      script.src = '../assets/js/layout-horizontal.js'; // Load script for horizontal layout
+      script.src = staticUrl + 'js/layout-horizontal.js'; // Load script for horizontal layout
       document.body.appendChild(script);
     } else if (layout === 'color-header') {
       // Change logo color for color-header layout
       if (document.querySelector('.pc-sidebar .m-header .logo-lg')) {
-        document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', '../assets/images/logo-white.svg');
+        document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', staticUrl + 'images/logo-white.svg');
       }
     } else if (layout === 'compact') {
-      script.src = '../assets/js/layout-compact.js'; // Load script for compact layout
+      script.src = staticUrl + 'js/layout-compact.js'; // Load script for compact layout
       document.body.appendChild(script);
     } else if (layout === 'tab') {
-      script.src = '../assets/js/layout-tab.js'; // Load script for tab layout
+      script.src = staticUrl + 'js/layout-tab.js'; // Load script for tab layout
       document.body.appendChild(script);
     }
   }
@@ -365,8 +366,9 @@ for (var t = 0; t < tc.length; t++) {
 // Change authentication logo
 var tc = document.querySelectorAll('.auth-main.v2 .img-brand');
 for (var t = 0; t < tc.length; t++) {
-  tc[t].setAttribute('src', '../assets/images/logo-white.svg');
+  tc[t].setAttribute('src', staticUrl + 'images/logo-white.svg');
 }
+
 
 // =======================================================
 // =======================================================
@@ -528,7 +530,6 @@ function layout_rtl_change(value) {
   }
 }
 
-// Function to handle layout change (dark/light) and update related elements
 function layout_change(layout) {
   // Set layout attribute and update related elements (e.g., logos)
   var control = document.querySelector('.pct-offcanvas');
@@ -538,47 +539,55 @@ function layout_change(layout) {
   if (btn_control) {
     btn_control.classList.remove('active');
   }
-  if (layout == 'dark') {
-    dark_flag = true;
-    if (document.querySelector('.pc-sidebar .m-header .logo-lg')) {
-      document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', '../assets/images/logo-white.svg');
-    }
 
-    if (document.querySelector('.navbar-brand .logo-lg')) {
-      document.querySelector('.navbar-brand .logo-lg').setAttribute('src', '../assets/images/logo-white.svg');
+  var logoWhite = staticUrl + 'images/logo-white.svg';
+  var logoDark = staticUrl + 'images/logo-dark.svg';
+
+  if (layout === 'dark') {
+    dark_flag = true;
+
+    if (document.querySelector('.pc-sidebar .m-header .logo-lg')) {
+      document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', logoWhite);
     }
-    if (document.querySelector('.auth-main.v1 .auth-sidefooter')) {
-      document.querySelector('.auth-main.v1 .auth-sidefooter img').setAttribute('src', '../assets/images/logo-white.svg');
+    if (document.querySelector('.navbar-brand .logo-lg')) {
+      document.querySelector('.navbar-brand .logo-lg').setAttribute('src', logoWhite);
+    }
+    if (document.querySelector('.auth-main.v1 .auth-sidefooter img')) {
+      document.querySelector('.auth-main.v1 .auth-sidefooter img').setAttribute('src', logoWhite);
     }
     if (document.querySelector('.footer-top .footer-logo')) {
-      document.querySelector('.footer-top .footer-logo').setAttribute('src', '../assets/images/logo-white.svg');
+      document.querySelector('.footer-top .footer-logo').setAttribute('src', logoWhite);
     }
+
     var control = document.querySelector('.theme-layout .btn.active');
     if (control) {
-      document.querySelector('.theme-layout .btn.active').classList.remove('active');
+      control.classList.remove('active');
       document.querySelector(".theme-layout .btn[data-value='false']").classList.add('active');
     }
   } else {
     dark_flag = false;
+
     if (document.querySelector('.pc-sidebar .m-header .logo-lg')) {
-      document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', '../assets/images/logo-dark.svg');
+      document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', logoDark);
     }
     if (document.querySelector('.navbar-brand .logo-lg')) {
-      document.querySelector('.navbar-brand .logo-lg').setAttribute('src', '../assets/images/logo-dark.svg');
+      document.querySelector('.navbar-brand .logo-lg').setAttribute('src', logoDark);
     }
-    if (document.querySelector('.auth-main.v1 .auth-sidefooter')) {
-      document.querySelector('.auth-main.v1 .auth-sidefooter img').setAttribute('src', '../assets/images/logo-dark.svg');
+    if (document.querySelector('.auth-main.v1 .auth-sidefooter img')) {
+      document.querySelector('.auth-main.v1 .auth-sidefooter img').setAttribute('src', logoDark);
     }
     if (document.querySelector('.footer-top .footer-logo')) {
-      document.querySelector('.footer-top .footer-logo').setAttribute('src', '../assets/images/logo-dark.svg');
+      document.querySelector('.footer-top .footer-logo').setAttribute('src', logoDark);
     }
+
     var control = document.querySelector('.theme-layout .btn.active');
     if (control) {
-      document.querySelector('.theme-layout .btn.active').classList.remove('active');
+      control.classList.remove('active');
       document.querySelector(".theme-layout .btn[data-value='true']").classList.add('active');
     }
   }
 }
+
 
 // Function to toggle box container class based on value (true/false)
 function change_box_container(value) {

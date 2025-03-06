@@ -6,6 +6,7 @@ from _shop_app.models import Shop
 
 def shop_register_view(request):
     title = 'Shop Register'
+    theme = 'admin_seller_theme'
     form = ShopForm()
     if request.method == 'POST':
         form = ShopForm(request.POST, request.FILES)
@@ -18,7 +19,7 @@ def shop_register_view(request):
             return redirect('seller_dashboard')
         else:
             print(form.errors)
-    context = {'title': title, 'form': form,}
+    context = {'title': title, 'theme': theme, 'form': form,}
     return render(request, '_shop_app/shop_register.html', context)
 
 def shop_list_view(request):
