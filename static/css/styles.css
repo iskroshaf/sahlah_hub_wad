@@ -2367,6 +2367,7 @@ a:focus, a:hover {
   border-right: 1px solid var(--line);
 }
 .canvas-mb .site-nav-icon {
+  width: 100%;
   padding: 0 9px;
   line-height: 40px;
   border: solid 1px var(--line);
@@ -2834,7 +2835,7 @@ header.header-bg {
   display: block;
 }
 .nav-account .dropdown-login {
-  left: -200px;
+  left: -265px;
   min-width: 290px;
   padding: 24px;
 }

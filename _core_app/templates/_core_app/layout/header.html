@@ -4,11 +4,9 @@
     <div class="container">
         <div class="row wrapper-header align-items-center">
             <div class="col-md-4 col-3 d-xl-none">
-                {% if user.is_authenticated %}
                 <a href="#mobileMenu" class="mobile-menu" data-bs-toggle="offcanvas" aria-controls="mobileMenu">
                     <i class="icon icon-categories"></i>
                 </a>
-                {% endif %}
 
             </div>
             <div class="col-xl-3 col-md-4 col-6">
@@ -28,10 +26,19 @@
                     </ul>
                 </nav>
                 {% endif %}
-
             </div>
             <div class="col-xl-3 col-md-4 col-3">
                 <ul class="nav-icon d-flex justify-content-end align-items-center">
+                    <div class="col-xl-3 d-none d-xl-block">
+                        <div class="tf-cur justify-content-end">
+                            <div class="tf-languages">
+                                <select class="image-select center style-default type-languages">
+                                    <option>English</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    {% if user.is_authenticated %}
                     <li class="nav-search"><a href="#search" data-bs-toggle="modal" class="nav-icon-item">
                             <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -41,9 +48,12 @@
                                 <path d="M21.35 21.0004L17 16.6504" stroke="#181818" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
-                        </a></li>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if not user.is_authenticated %}
                     <li class="nav-account">
-                        <a href="{% url 'login' %}" class="nav-icon-item">
+                        <div class="nav-icon-item">
                             <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -53,19 +63,21 @@
                                     d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z"
                                     stroke="#181818" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
-                        </a>
+                        </div>
                         <div class="dropdown-account dropdown-login">
                             <div class="sub-top">
                                 <a href="{% url 'login' %}" class="tf-btn btn-reset">Login</a>
                                 <p class="text-center text-secondary-2">Don’t have an account? <a
-                                        href="register.html">Register</a></p>
+                                        href="{% url 'customer_register' %}">Register</a></p>
                             </div>
                             <div class="sub-bot">
                                 <span class="body-text-">Support</span>
                             </div>
                         </div>
                     </li>
-                    <li class="nav-wishlist"><a href="wish-list.html" class="nav-icon-item">
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                    <li class="nav-wishlist"><a href="" class="nav-icon-item">
                             <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -83,6 +95,19 @@
                             </svg>
                             <span class="count-box">1</span></a>
                     </li>
+                    <li class="nav-account">
+                        <div class="nav-icon-item">
+                            <img src="{% static 'images/avatar/user-default.jpg' %}" alt="avatar" class="rounded-circle"
+                                width="35" height="35">
+                        </div>
+                        <div class="dropdown-account dropdown-login">
+                            <div class="sub-bot">
+                                <a href="{% url 'logout' %}" class="tf-btn btn-reset">Logout</a>
+
+                            </div>
+                        </div>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

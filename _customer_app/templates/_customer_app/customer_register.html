@@ -1,18 +1,96 @@
-{% extends 'base.html' %}
+{% extends '_core_app/base.html' %}
+
+{% load static %}
 
 {% block title %}Sahlan Hub - {{ title }} {% endblock title %}
 
-{% block content %}
+{%block content%}
 
-<h2>Customer Register</h2>
-<form method="POST">
-    {% csrf_token %}
-    {{ form.username }}
-    {{ form.email }}
-    {{ form.password1 }}
-    {{ form.password2 }}
-    <button type="submit">Register</button>
-</form>
-<a href="{% url 'login' %}">Login</a>
+<div class="page-title" style="background-image: url(/static/images/section/page-title.jpg);">
+    <div class="container-full">
+        <div class="row">
+            <div class="col-12">
+                <h3 class="heading text-center">Create An Account</h3>
+                <ul class="breadcrumbs d-flex align-items-center justify-content-center">
+                    <li>
+                        <a class="link" href="">Homepage</a>
+                    </li>
+                    <li>
+                        <i class="icon-arrRight"></i>
+                    </li>
+                    <li>
+                        <a class="link" href="#">Pages</a>
+                    </li>
+                    <li>
+                        <i class="icon-arrRight"></i>
+                    </li>
+                    <li>
+                        Register
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 
-{% endblock %}
+<section class="flat-spacing">
+    <div class="container">
+        <div class="login-wrap">
+            <div class="left">
+                <div class="heading">
+                    <h4>Register</h4>
+                </div>
+                <form action="#" method="POST" class="form-login form-has-password">
+                    {% csrf_token %}
+                    <div class="wrap">
+                        <fieldset class="">
+                            {{ form.username }}
+                        </fieldset>
+                        <fieldset class="">
+                            {{ form.email }}
+                        </fieldset>
+                        <fieldset class="position-relative password-item">
+                            {{ form.password1 }}
+                            <span class="toggle-password unshow">
+                                <i class="icon-eye-hide-line"></i>
+                            </span>
+                        </fieldset>
+                        <fieldset class="position-relative password-item">
+                            {{ form.password2 }}
+                            <span class="toggle-password unshow">
+                                <i class="icon-eye-hide-line"></i>
+                            </span>
+                        </fieldset>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="tf-cart-checkbox">
+                                <div class="tf-checkbox-wrapp">
+                                    <input checked class="" type="checkbox" id="login-form_agree" name="agree_checkbox">
+                                    <div>
+                                        <i class="icon-check"></i>
+                                    </div>
+                                </div>
+                                <label for="login-form_agree">
+                                    Remember me
+                                </label>
+                            </div>
+                            <a href="" class="font-2 text-button forget-password link">Forgot Your
+                                Password?</a>
+                        </div>
+                    </div>
+                    <div class="button-submit">
+                        <button class="tf-btn btn-fill" type="submit">
+                            <span class="text text-button">Register</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="right">
+                <h4 class="mb_8">Already have an account?</h4>
+                <p class="text-secondary">Welcome back. Sign in to access your personalized experience, saved preferences, and more. We're thrilled to have you with us again!</p>
+                <a href="{% url 'login' %}" class="tf-btn btn-fill"><span class="text text-button">Login</span></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{%endblock%}

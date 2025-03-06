@@ -25,7 +25,7 @@ def user_login(request):
 def user_logout(request):
     logout(request)
     print('Logout Successful')
-    return redirect('login')
+    return redirect('home')
 
 def user_profile(request):
     title = 'Profile'

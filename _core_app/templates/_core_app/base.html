@@ -1,0 +1,31 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="{{ request.LANGUAGE_CODE }}" lang="{{ request.LANGUAGE_CODE }}">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta name="author" content="iskndrrosmi" />
+    <meta name="keywords" content="Sahlan" />
+
+    <link rel="shortcut icon" href="{% static 'images/logo/favicon.png' %}">
+    <link rel="apple-touch-icon-precomposed" href="{% static 'images/logo/favicon.png' %}">
+
+    {% block styles %}{% endblock %}
+
+    <title>{% block title %}Sahlan Hub{% endblock %}</title>
+
+    {% if debug and "django_browser_reload" in INSTALLED_APPS %}'
+    <script src="http://127.0.0.1:8000/__reload__/reload.js"></script>
+    {% endif %}
+</head>
+
+{% block content %}
+
+
+{% endblock content %}
+
+{% block scripts %}{% endblock %}
+
+</html>

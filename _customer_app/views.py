@@ -1,8 +1,6 @@
 from django.shortcuts import render, redirect
-from _user_app.decorators import redirect_authenticated_user
-from _customer_app.forms import CustomerRegisterForm, ProfileUpdateForm
+from _customer_app.forms import CustomerRegisterForm
 
-@redirect_authenticated_user
 def customer_register_view(request):
     title = 'Register'
     if request.method == 'POST':
