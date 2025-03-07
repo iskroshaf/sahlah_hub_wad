@@ -226,117 +226,14 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-9">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-2">
-                    <div class="flex-grow-1">
-                        <h5 class="mb-0">Repeat customer rate</h5>
-                    </div>
-                    <div class="flex-shrink-0 ms-3">
-                        <div class="dropdown">
-                            <a class="avtar avtar-s btn-link-secondary dropdown-toggle arrow-none" href="#"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="ti ti-dots f-18"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item" href="#">Today</a>
-                                <a class="dropdown-item" href="#">Weekly</a>
-                                <a class="dropdown-item" href="#">Monthly</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <h5 class="text-end my-2">5.44% <span class="badge bg-success">+2.6%</span> </h5>
-                <div id="customer-rate-graph"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Project - Able Pro</h5>
-            </div>
-            <div class="card-body">
-                <div class="mb-4">
-                    <p class="mb-2">Release v1.2.0<span class="float-end">70%</span></p>
-                    <div class="progress progress-primary" style="height: 8px">
-                        <div class="progress-bar" style="width: 70%"></div>
-                    </div>
-                </div>
-                <div class="d-grid gap-2">
-                    <a href="#" class="btn btn-link-secondary">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <span class="p-1 d-block bg-warning rounded-circle">
-                                    <span class="visually-hidden">New alerts</span>
-                                </span>
-                            </div>
-                            <div class="flex-grow-1 mx-2">
-                                <p class="mb-0 d-grid text-start">
-                                    <span class="text-truncate w-100">Horizontal Layout</span>
-                                </p>
-                            </div>
-                            <div class="badge bg-light-secondary f-12"><i class="ti ti-paperclip text-sm"></i> 2
-                            </div>
-                        </div>
-                    </a>
-                    <a href="#" class="btn btn-link-secondary">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <span class="p-1 d-block bg-warning rounded-circle">
-                                    <span class="visually-hidden">New alerts</span>
-                                </span>
-                            </div>
-                            <div class="flex-grow-1 mx-2">
-                                <p class="mb-0 d-grid text-start">
-                                    <span class="text-truncate w-100">Invoice Generator</span>
-                                </p>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="#" class="btn btn-link-secondary">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <span class="p-1 d-block bg-warning rounded-circle">
-                                    <span class="visually-hidden">New alerts</span>
-                                </span>
-                            </div>
-                            <div class="flex-grow-1 mx-2">
-                                <p class="mb-0 d-grid text-start">
-                                    <span class="text-truncate w-100">Package Upgrades</span>
-                                </p>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="#" class="btn btn-link-secondary">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <span class="p-1 d-block bg-success rounded-circle">
-                                    <span class="visually-hidden">New alerts</span>
-                                </span>
-                            </div>
-                            <div class="flex-grow-1 mx-2">
-                                <p class="mb-0 d-grid text-start">
-                                    <span class="text-truncate w-100">Figma Auto Layout</span>
-                                </p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="d-grid mt-3">
-                    <button class="btn btn-primary d-flex align-items-center justify-content-center gap-2"><i
-                            class="ti ti-plus"></i> Add task</button>
-                </div>
-            </div>
-        </div>
-    </div>
+
+
 
     <div class="col-md-6">
         <div class="card">
             <div class="card-body border-bottom pb-0">
                 <div class="d-flex align-items-center justify-content-between">
-                    <h5 class="mb-0">Transactions</h5>
+                    <h5 class="mb-0">Shops</h5>
                     <div class="dropdown">
                         <a class="avtar avtar-s btn-link-secondary dropdown-toggle arrow-none" href="#"
                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -353,12 +250,12 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="analytics-tab-1" data-bs-toggle="tab"
                             data-bs-target="#analytics-tab-1-pane" type="button" role="tab"
-                            aria-controls="analytics-tab-1-pane" aria-selected="true">All Transaction</button>
+                            aria-controls="analytics-tab-1-pane" aria-selected="true">All</button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="analytics-tab-2" data-bs-toggle="tab"
                             data-bs-target="#analytics-tab-2-pane" type="button" role="tab"
-                            aria-controls="analytics-tab-2-pane" aria-selected="false">Success</button>
+                            aria-controls="analytics-tab-2-pane" aria-selected="false">Active</button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="analytics-tab-3" data-bs-toggle="tab"
@@ -719,13 +616,13 @@
                     <div class="col-md-6">
                         <div class="d-grid">
                             <button class="btn btn-outline-secondary d-grid"><span class="text-truncate w-100">View all
-                                    Transaction History</span></button>
+                                    Shop</span></button>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="d-grid">
                             <button class="btn btn-primary d-grid"><span class="text-truncate w-100">Create new
-                                    Transaction</span></button>
+                                    Shop</span></button>
                         </div>
                     </div>
                 </div>

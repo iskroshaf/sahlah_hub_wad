@@ -1,10 +1,9 @@
 {% load static %}
 
 <header class="pc-header">
-    <div class="header-wrapper"> <!-- [Mobile Media Block] start -->
+    <div class="header-wrapper">
         <div class="me-auto pc-mob-drp">
             <ul class="list-unstyled">
-                <!-- ======= Menu collapse Icon ===== -->
                 <li class="pc-h-item pc-sidebar-collapse">
                     <a href="#" class="pc-head-link ms-0" id="sidebar-hide">
                         <i class="ti ti-menu-2"></i>
@@ -20,7 +19,7 @@
         </div>
         <div class="ms-auto">
             <ul class="list-unstyled">
-                <li class="dropdown pc-h-item">
+                <!-- <li class="dropdown pc-h-item">
                     <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#"
                         role="button" aria-haspopup="false" aria-expanded="false">
                         <svg class="pc-icon">
@@ -47,17 +46,18 @@
                             <span>Default</span>
                         </a>
                     </div>
-                </li>
+                </li> -->
                 
-                <li class="pc-h-item">
+                <!-- <li class="pc-h-item">
                     <a href="#" class="pc-head-link me-0" data-bs-toggle="offcanvas" data-bs-target="#announcement"
                         aria-controls="announcement">
                         <svg class="pc-icon">
                             <use xlink:href="#custom-flash"></use>
                         </svg>
                     </a>
-                </li>
-                <li class="dropdown pc-h-item">
+                </li> -->
+
+                <!-- <li class="dropdown pc-h-item">
                     <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#"
                         role="button" aria-haspopup="false" aria-expanded="false">
                         <svg class="pc-icon">
@@ -172,11 +172,11 @@
                             <a href="#!" class="link-danger">Clear all Notifications</a>
                         </div>
                     </div>
-                </li>
+                </li> -->
                 <li class="dropdown pc-h-item header-user-profile">
                     <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#"
                         role="button" aria-haspopup="false" data-bs-auto-close="outside" aria-expanded="false">
-                        <img src="{% static 'admin_seller_theme/images/user/avatar-2.jpg' %}" alt="user-image" class="user-avtar" />
+                        <img src="{% static 'images/user-default.jpg' %}" alt="user-image" class="user-avtar" />
                     </a>
                     <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
                         <div class="dropdown-header d-flex align-items-center justify-content-between">
@@ -187,7 +187,7 @@
                                 style="max-height: calc(100vh - 225px)">
                                 <div class="d-flex mb-1">
                                     <div class="flex-shrink-0">
-                                        <img src="{% static 'admin_seller_theme/images/user/avatar-2.jpg' %}" alt="user-image"
+                                        <img src="{% static 'images/user-default.jpg' %}" alt="user-image"
                                             class="user-avtar wid-35" />
                                     </div>
                                     <div class="flex-grow-1 ms-3">
@@ -210,6 +210,14 @@
                                     </div>
                                 </div>
                                 <p class="text-span">Manage</p>
+                                 <a href="#" class="dropdown-item">
+                                    <span>
+                                        <svg class="pc-icon text-muted me-2">
+                                            <use xlink:href="#custom-setting-outline"></use>
+                                        </svg>
+                                        <span>My Profile</span>
+                                    </span>
+                                </a>
                                 <a href="#" class="dropdown-item">
                                     <span>
                                         <svg class="pc-icon text-muted me-2">
@@ -226,6 +234,7 @@
                                         <span>Share</span>
                                     </span>
                                 </a>
+                               
                                 <a href="#" class="dropdown-item">
                                     <span>
                                         <svg class="pc-icon text-muted me-2">

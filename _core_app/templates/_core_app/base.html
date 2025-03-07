@@ -9,7 +9,7 @@
     <meta name="author" content="iskndrrosmi" />
     <meta name="keywords" content="Sahlan" />
 
-    <link rel="shortcut icon" href="{% static 'customer_theme/images/logo/favicon.png' %}">
+    <link rel="shortcut icon" href="{% static 'images/favicon.png' %}">
     <link rel="apple-touch-icon-precomposed" href="{% static 'customer_theme/images/logo/favicon.png' %}">
 
     {% if theme == "customer_theme" %}
@@ -63,12 +63,8 @@
             {% if theme == "admin_seller_theme"%}
         </div>
     </div>
-    <div class="pct-c-btn">
-        <a href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvas_pc_layout">
-            <i class="ph-duotone ph-gear-six"></i>
-        </a>
-    </div>
-    {% include '_core_app/modals/admin_seller_theme_layout_settings_modal.html' %}
+
+    <!-- {% include '_core_app/modals/admin_seller_theme_layout_settings_modal.html' %} -->
     {% include '_core_app/modals/admin_seller_anouncement_modal.html' %}
     {% endif %}
 
@@ -93,17 +89,13 @@
     {% elif theme == "admin_seller_theme" %}
 
     <script src="{% static 'admin_seller_theme/js/plugins/apexcharts.min.js' %}"></script>
-
     <script src="{% static 'admin_seller_theme/js/pages/dashboard-default.js' %}"></script>
-
     <script src="{% static 'admin_seller_theme/js/plugins/popper.min.js' %}"></script>
     <script src="{% static 'admin_seller_theme/js/plugins/simplebar.min.js' %}"></script>
     <script src="{% static 'admin_seller_theme/js/plugins/bootstrap.min.js' %}"></script>
     <script src="{% static 'admin_seller_theme/js/fonts/custom-font.js' %}"></script>
     <script src="{% static 'admin_seller_theme/js/pcoded.js' %}"></script>
     <script src="{% static 'admin_seller_theme/js/plugins/feather.min.js' %}"></script>
-
-
     <script>
         layout_change('light');
         change_box_container('false');
@@ -112,7 +104,6 @@
         preset_change('preset-1');
         main_layout_change('vertical');
     </script>
-
 
     {% endif %}
 

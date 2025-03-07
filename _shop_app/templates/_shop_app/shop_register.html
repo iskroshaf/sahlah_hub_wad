@@ -6,5 +6,112 @@
 
 {% block content %}
 
+<div class="card">
+    <div class="card-header">
+        <h5>Shop Registration</h5>
+    </div>
+    <div class="card-body">
+        <form>
+            <div class="row">
+                <!-- <div class="col-12">
+                    <div class="alert alert-primary d-flex align-items-center" role="alert">
+                        <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+                            <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+                                <path
+                                    d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z">
+                                </path>
+                            </symbol>
+                        </svg>
+                        <svg class="bi flex-shrink-0 me-2" width="24" height="24">
+                            <use xlink:href="#info-fill"></use>
+                        </svg>
+                        <div> When working with the Bootstrap grid system, be sure to place form elements within column
+                            classes. </div>
+                    </div>
+                </div> -->
+                <div class="mb-3 col-md-6">
+                    <label class="form-label" for="shop_name">Name</label>
+                    {{ form.shop_name }}
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label" for="shop_phone_number">Phone No</label>
+                    {{ form.shop_phone_number }}
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <label class="form-label" for="shop_bg_photo">Background</label>
+                    {{ form.shop_bg_photo }}
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label" for="shop_logo">Logo</label>
+                    {{ form.shop_logo }}
+
+                </div>
+            </div>
+            <div class="card social-profile">
+                <img src="{% static 'admin_seller_theme/images/application/img-profile-cover.jpg' %}" alt=""
+                    class="w-100 card-img-top" />
+                <div class="card-body pt-0">
+                    <div class="row align-items-end">
+                        <div class="col-md-auto text-md-start">
+                            <img class="img-fluid img-profile-avtar"
+                                src="{% static 'admin_seller_theme/images/user/avatar-5.jpg' %}" alt="User image" />
+                        </div>
+                        <div class="col">
+                            <div class="row justify-content-between align-items-end">
+                                <div class="col-md-auto soc-profile-data">
+                                    <h5 class="mb-1">Stebin Ben</h5>
+                                    <p class="mb-0">UI/UX Designer</p>
+                                </div>
+                                <div class="col-md-auto">
+                                    <button class="btn btn-primary me-1">Message</button>
+                                    <button class="btn btn-outline-secondary">Follow</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="">Address 1</label>
+                <input type="text" class="form-control"  />
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="">Address 2</label>
+                <input type="text" class="form-control"/>
+            </div>
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <label class="form-label" for="inputCity">City</label>
+                    <input type="text" class="form-control" id="inputCity" />
+                </div>
+                <div class="mb-3 col-md-4">
+                    <label class="form-label" for="inputState">State</label>
+                    <select id="inputState" class="form-select">
+                        <option selected>Kulai</option>
+                        <option>Batu Pahat</option>
+                    </select>
+                </div>
+                <div class="mb-3 col-md-2">
+                    <label class="form-label" for="inputZip">Zip</label>
+                    <input type="text" class="form-control" id="inputZip" />
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="shop_category">Category</label>
+                {{ form.shop_category }}
+            </div>
+            <div class="mb-3">
+                <label for="shop_desc" class="form-label">Description</label>
+                {{ form.shop_desc }}
+            </div>
+
+            <button type="submit" class="btn btn-primary">Sign in</button>
+        </form>
+    </div>
+</div>
 
 {% endblock %}

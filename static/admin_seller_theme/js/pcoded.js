@@ -234,7 +234,7 @@ function setLayout() {
     } else if (layout === 'color-header') {
       // Change logo color for color-header layout
       if (document.querySelector('.pc-sidebar .m-header .logo-lg')) {
-        document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', staticUrl + 'images/logo-white.svg');
+        document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src','/static/images/logo-white.svg');
       }
     } else if (layout === 'compact') {
       script.src = staticUrl + 'js/layout-compact.js'; // Load script for compact layout
