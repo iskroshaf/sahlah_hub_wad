@@ -25,6 +25,7 @@ def shop_register_view(request):
 def shop_list_view(request):
     if request.user.role == 'S':
         title = 'My Shop'
+        theme = 'admin_seller_theme'
         seller = request.user.seller
         shops = Shop.objects.filter(seller = seller)
         total_shop = shops.count()
@@ -34,7 +35,7 @@ def shop_list_view(request):
         shops = Shop.objects.all()
         total_shop = shops.count()
         template = '_shop_app/shop_list_seller.html'
-    context = {'title': title , 'shops' : shops , 'total_shop': total_shop}
+    context = {'title': title , 'theme': theme,'shops' : shops , 'total_shop': total_shop}
     return render(request, template, context)
 
 def shop_dashboard_view(request, pk):

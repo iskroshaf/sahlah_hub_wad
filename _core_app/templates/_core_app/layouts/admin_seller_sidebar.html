@@ -5,21 +5,20 @@
 
         <div class="m-header">
             <a href="" class="b-brand text-primary">
-                <img src="{% static 'images/logo.svg' %}" class="img-fluid logo-lg"
-                    alt="logo" />
+                <img src="{% static 'images/logo.svg' %}" class="img-fluid logo-lg" alt="logo" />
             </a>
         </div>
         <div class="navbar-content">
-          
+
 
             <ul class="pc-navbar">
 
                 <li class="pc-item">
-                    <a href="" class="pc-link">
+                    <a href="{% url 'seller_dashboard' %}" class="pc-link">
                         <span class="pc-micon">
-                            <svg class="pc-icon">
-                                <use xlink:href="#custom-story"></use>
-                            </svg>
+                            <span class="material-icons">
+                                grid_view
+                            </span>
                         </span>
                         <span class="pc-mtext">Dashboard</span>
                     </a>
@@ -28,24 +27,25 @@
                 <li class="pc-item pc-hasmenu">
                     <a href="#!" class="pc-link">
                         <span class="pc-micon">
-                            <svg class="pc-icon">
-                                <use xlink:href="#custom-document"></use>
-                            </svg>
+                            <span class="material-icons">
+                                storefront
+                            </span>
                         </span>
                         <span class="pc-mtext">Shop Management</span>
                         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                     </a>
                     <ul class="pc-submenu">
-                        <li class="pc-item"><a class="pc-link" href="">Shop List</a></li>
-                        <li class="pc-item"><a class="pc-link" href="{% url 'shop_register' %}">Shop Registration</a></li>
+                        <li class="pc-item"><a class="pc-link" href="{% url 'shop_list' %}">Shop List</a></li>
+                        <li class="pc-item"><a class="pc-link" href="{% url 'shop_register' %}">Shop Registration</a>
+                        </li>
                     </ul>
                 </li>
                 <li class="pc-item">
                     <a href="" class="pc-link">
                         <span class="pc-micon">
-                            <svg class="pc-icon">
-                                <use xlink:href="#custom-story"></use>
-                            </svg>
+                            <span class="material-icons">
+                                show_chart
+                            </span>
                         </span>
                         <span class="pc-mtext">Statistics</span>
                         <span class="pc-badge">2</span>
@@ -54,9 +54,9 @@
                 <li class="pc-item">
                     <a href="" class="pc-link">
                         <span class="pc-micon">
-                            <svg class="pc-icon">
-                                <use xlink:href="#custom-story"></use>
-                            </svg>
+                            <span class="material-icons">
+                                attach_money
+                            </span>
                         </span>
                         <span class="pc-mtext">Finance</span>
                     </a>
@@ -64,9 +64,9 @@
                 <li class="pc-item">
                     <a href="" class="pc-link">
                         <span class="pc-micon">
-                            <svg class="pc-icon">
-                                <use xlink:href="#custom-story"></use>
-                            </svg>
+                            <span class="material-icons">
+                                display_settings
+                            </span>
                         </span>
                         <span class="pc-mtext">Settings</span>
                     </a>

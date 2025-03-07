@@ -234,7 +234,7 @@ function setLayout() {
     } else if (layout === 'color-header') {
       // Change logo color for color-header layout
       if (document.querySelector('.pc-sidebar .m-header .logo-lg')) {
-        document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src','/static/images/logo-white.svg');
+        document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src','/static/images/logo.svg');
       }
     } else if (layout === 'compact') {
       script.src = staticUrl + 'js/layout-compact.js'; // Load script for compact layout
@@ -540,8 +540,8 @@ function layout_change(layout) {
     btn_control.classList.remove('active');
   }
 
-  var logoWhite = staticUrl + 'images/logo-white.svg';
-  var logoDark = staticUrl + 'images/logo-dark.svg';
+  var logoWhite = '/static/images/logo-white.svg';
+  var logoDark = '/static/images/logo.svg';
 
   if (layout === 'dark') {
     dark_flag = true;

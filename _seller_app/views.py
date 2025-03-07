@@ -25,8 +25,10 @@ def seller_register_view(request):
 def seller_dashboard_view(request):
     title = "Seller Dashboard"
     theme = "admin_seller_theme"
+    user = request.user
     context = {
         "title": title,
         "theme": theme,
+        "user": user,
     }
     return render(request, "_seller_app/seller_dashboard.html", context)

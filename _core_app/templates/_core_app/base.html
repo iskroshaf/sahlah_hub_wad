@@ -12,6 +12,8 @@
     <link rel="shortcut icon" href="{% static 'images/favicon.png' %}">
     <link rel="apple-touch-icon-precomposed" href="{% static 'customer_theme/images/logo/favicon.png' %}">
 
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
     {% if theme == "customer_theme" %}
     <link rel="stylesheet" href="{% static 'customer_theme/fonts/fonts.css' %}">
     <link rel="stylesheet" href="{% static 'customer_theme/fonts/font-icons.css' %}">
@@ -30,6 +32,7 @@
     <link rel="stylesheet" href="{% static 'admin_seller_theme/fonts/material.css' %}" />
     <link rel="stylesheet" href="{% static 'admin_seller_theme/css/style.css' %}" id="main-style-link" />
     <link rel="stylesheet" href="{% static 'admin_seller_theme/css/style-preset.css' %}" />
+
 
     {% endif %}
 
@@ -64,7 +67,7 @@
         </div>
     </div>
 
-    <!-- {% include '_core_app/modals/admin_seller_theme_layout_settings_modal.html' %} -->
+    {% include '_core_app/modals/admin_seller_theme_layout_settings_modal.html' %}
     {% include '_core_app/modals/admin_seller_anouncement_modal.html' %}
     {% endif %}
 
