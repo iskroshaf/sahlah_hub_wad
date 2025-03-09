@@ -13,19 +13,18 @@
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
                         <li class="breadcrumb-item"><a href="javascript:void(0)">Shop Management</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Shop Registration</li>
+                        <li class="breadcrumb-item active" aria-current="page">Shop List</li>
                     </ul>
                 </nav>
                 <div class="page-header-title">
-                    <h2 class="mb-0">Shop Registration</h2>
+                    <h2 class="mb-0">Shop List</h2>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-12">
+
         <div class="card">
             <div class="card-body">
                 <ul class="nav nav-tabs invoice-tab border-bottom mb-3" id="myTab" role="tablist">
@@ -41,7 +40,7 @@
                         <button class="nav-link" id="analytics-tab-2" data-bs-toggle="tab"
                             data-bs-target="#analytics-tab-2-pane" type="button" role="tab"
                             aria-controls="analytics-tab-2-pane" aria-selected="false">
-                            <span class="d-flex align-items-center gap-2">Paid <span
+                            <span class="d-flex align-items-center gap-2">Active <span
                                     class="avtar rounded-circle bg-light-success">2</span></span>
                         </button>
                     </li>
@@ -49,7 +48,7 @@
                         <button class="nav-link" id="analytics-tab-3" data-bs-toggle="tab"
                             data-bs-target="#analytics-tab-3-pane" type="button" role="tab"
                             aria-controls="analytics-tab-3-pane" aria-selected="false">
-                            <span class="d-flex align-items-center gap-2">Unpaid <span
+                            <span class="d-flex align-items-center gap-2">Pending <span
                                     class="avtar rounded-circle bg-light-warning">2</span></span>
                         </button>
                     </li>
@@ -57,7 +56,7 @@
                         <button class="nav-link" id="analytics-tab-4" data-bs-toggle="tab"
                             data-bs-target="#analytics-tab-4-pane" type="button" role="tab"
                             aria-controls="analytics-tab-4-pane" aria-selected="false">
-                            <span class="d-flex align-items-center gap-2">Cancelled <span
+                            <span class="d-flex align-items-center gap-2">Inactive <span
                                     class="avtar rounded-circle bg-light-danger">1</span></span>
                         </button>
                     </li>
@@ -70,10 +69,9 @@
                                 <thead>
                                     <tr>
                                         <th>No.</th>
-                                        <th>User Name</th>
-                                        <th>Create Date</th>
-                                        <th>Due Date</th>
-                                        <th>Quantity</th>
+                                        <th>Shop</th>
+                                        <th>Category</th>
+                                        <th>Phone No</th>
                                         <th>Status</th>
                                         <th class="text-end">Actions</th>
                                     </tr>
@@ -85,32 +83,21 @@
                                         <td>
                                             <div class="row align-items-center">
                                                 <div class="col-auto pe-0">
-                                                    <img src="{{ shop.shop_logo.url }}" alt="shop avatar"
-                                                        class="wid-40 hei-40 rounded-circle" />
+                                                    <img src="{% if shop.shop_logo %}{{ shop.shop_logo.url }}{% else %}{% static 'images/user-default.jpg' %}{% endif %}" alt="shop avatar"
+                                                        class="wid-40 hei-40 rounded-circle object-fit-cover"/>
                                                 </div>
                                                 <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">
-                                                            {{ shop.shop_name}}</span>
-                                                    </h6>
-
+                                                    {{ shop.shop_name}}
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>5/5/2022</td>
-                                        <td>7/11/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-success">Paid</span></td>
+                                        <td>{{shop.shop_category}}</td>
+                                        <td>{{shop.shop_phone_number}}</td>
+                                        <td><span class="badge bg-light-success">Active</span></td>
                                         <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-
-                                            </ul>
+                                            <a href="{% url 'shop_dashboard' shop.shop_id %}" class="avtar avtar-s btn-link-success btn-pc-default">
+                                                <i class="ti ti-edit f-20"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -1136,11 +1123,8 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
-<script src="{% static 'admin_seller_theme/js/plugins/apexcharts.min.js' %}"></script>
 
-<script src="{% static 'admin_seller_theme/js/plugins/simple-datatables.js' %}"></script>
-<script src="{% static 'admin_seller_theme/js/pages/invoice-list.js'%}"></script>
+
+<!-- <script src="{% static 'admin_seller_theme/js/plugins/simple-datatables.js' %}"></script>
+<script src="{% static 'admin_seller_theme/js/pages/invoice-list.js'%}"></script> -->
 {% endblock %}
-

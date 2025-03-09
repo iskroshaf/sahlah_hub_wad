@@ -14,7 +14,7 @@ urlpatterns = [
     path('user/', include('_user_app.urls')),
     path('customer/', include('_customer_app.urls')),
     path('seller/', include('_seller_app.urls')),
-    path('', include('_shop_app.urls')),
+    path('shop/', include('_shop_app.urls')),
 
     path('set-language/', set_language, name='set_language'),
     path("__reload__/", include("django_browser_reload.urls")),

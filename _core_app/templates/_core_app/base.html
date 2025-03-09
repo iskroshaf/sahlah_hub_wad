@@ -12,7 +12,7 @@
     <link rel="shortcut icon" href="{% static 'images/favicon.png' %}">
     <link rel="apple-touch-icon-precomposed" href="{% static 'customer_theme/images/logo/favicon.png' %}">
 
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
 
     {% if theme == "customer_theme" %}
     <link rel="stylesheet" href="{% static 'customer_theme/fonts/fonts.css' %}">
@@ -32,7 +32,7 @@
     <link rel="stylesheet" href="{% static 'admin_seller_theme/fonts/material.css' %}" />
     <link rel="stylesheet" href="{% static 'admin_seller_theme/css/style.css' %}" id="main-style-link" />
     <link rel="stylesheet" href="{% static 'admin_seller_theme/css/style-preset.css' %}" />
-
+    <link rel="stylesheet" href="{% static 'admin_seller_theme/css/plugins/style.css' %}" />
 
     {% endif %}
 
@@ -68,7 +68,7 @@
     </div>
 
     {% include '_core_app/modals/admin_seller_theme_layout_settings_modal.html' %}
-    {% include '_core_app/modals/admin_seller_anouncement_modal.html' %}
+    <!-- {% include '_core_app/modals/admin_seller_anouncement_modal.html' %} -->
     {% endif %}
 
     {% if theme == "customer_theme"%}
@@ -90,9 +90,8 @@
     <script type="text/javascript" src="{% static 'customer_theme/js/main.js' %}"></script>
 
     {% elif theme == "admin_seller_theme" %}
-
-    <script src="{% static 'admin_seller_theme/js/plugins/apexcharts.min.js' %}"></script>
-    <script src="{% static 'admin_seller_theme/js/pages/dashboard-default.js' %}"></script>
+    <!-- <script src="{% static 'admin_seller_theme/js/plugins/apexcharts.min.js' %}"></script>
+    <script src="{% static 'admin_seller_theme/js/pages/dashboard-default.js' %}"></script> -->
     <script src="{% static 'admin_seller_theme/js/plugins/popper.min.js' %}"></script>
     <script src="{% static 'admin_seller_theme/js/plugins/simplebar.min.js' %}"></script>
     <script src="{% static 'admin_seller_theme/js/plugins/bootstrap.min.js' %}"></script>
@@ -107,7 +106,6 @@
         preset_change('preset-1');
         main_layout_change('vertical');
     </script>
-
     {% endif %}
 
     {% if theme == "customer_theme"%}

@@ -4,9 +4,10 @@ import uuid
 class Shop(models.Model):
     
     SHOP_STATUS_CHOICES = [
-        ('A', 'Active'),
-        ('I', 'Inactive'),
-        ('P', 'Pending'),
+        (1, 'Active'),
+        (2, 'Pending'),
+        (3, 'Inactive'),
+        (4, 'Suspended'),
     ]
 
     seller = models.ForeignKey('_seller_app.Seller', on_delete=models.CASCADE)
@@ -15,9 +16,16 @@ class Shop(models.Model):
     shop_phone_number = models.CharField(max_length=15, blank=True, null=True)
     shop_logo = models.ImageField(upload_to='media_photos/', blank=True, null=True)
     shop_bg_photo = models.ImageField(upload_to='media_photos/', blank=True, null=True)
-    shop_status = models.CharField(max_length=1,choices=SHOP_STATUS_CHOICES, default='P')
+    shop_status = models.CharField(max_length=1,choices=SHOP_STATUS_CHOICES, default=2)
     shop_desc = models.TextField(max_length=250,blank=True,null=True)
     shop_category = models.CharField(max_length=50,blank=True,null=True)
+
+    shop_address_1 = models.CharField(max_length=255) 
+    shop_address_2 = models.CharField(max_length=255)
+    shop_city = models.CharField(max_length=50)
+    shop_state = models.CharField(max_length=50) 
+    shop_postcode = models.CharField(max_length=10) 
+    shop_country = models.CharField(max_length=50) 
     
     shop_rating = models.DecimalField(max_digits=2,decimal_places=1,default=0.0)
     shop_delivery_fee = models.DecimalField(max_digits=10, decimal_places=2 , default= 0.00)

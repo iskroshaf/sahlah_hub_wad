@@ -1,0 +1,5 @@
+--Delete all __init__.py in the migrations app folder to remove migration history. (Windows Terminal)--
+Get-ChildItem -Path . -Recurse -Filter "*.py" | Where-Object { $_.FullName -match "migrations" -and $_.FullName -notmatch "myenv" -and $_.Name -ne "__init__.py" } | Remove-Item -Force
+
+--Delete all __pychache__ in the app folder.(Windows Terminal)--
+Get-ChildItem -Path . -Recurse -Directory -Filter "__pycache__" | Remove-Item -Recurse -Force

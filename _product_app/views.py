@@ -7,6 +7,7 @@ from _shop_app.models import Shop
 
 def product_category_management_view(request, pk):
     title = "Product Category"
+    theme = "admin_seller_theme"
     shop = get_object_or_404(Shop, shop_id=pk)
     product_categories = ProductCategory.objects.filter(shop=shop)
 
@@ -25,6 +26,7 @@ def product_category_management_view(request, pk):
         form = ProductCategoryForm()
     context = {
         "title": title,
+        "theme": theme,
         "shop": shop,
         "form": form,
         "product_categories": product_categories,
@@ -35,6 +37,7 @@ def product_category_management_view(request, pk):
 
 def product_register_view(request, pk):
     title = "Product Register"
+    theme = "admin_seller_theme"
     shop = get_object_or_404(Shop, shop_id=pk)
     if request.method == "POST":
         form = ProductForm(request.POST)
@@ -58,20 +61,36 @@ def product_register_view(request, pk):
             print("Product registration failed.", form.errors)
     else:
         form = ProductForm()
-    context = {"title": title, "shop": shop, "form": form}
+    context = {
+        "title": title,
+        "theme": theme,
+        "shop": shop,
+        "form": form,
+    }
     return render(request, "_product_app/product_register.html", context)
 
 
 def product_list_view(request, pk):
     title = "Product"
+    theme = "admin_seller_theme"
     shop = get_object_or_404(Shop, shop_id=pk)
     products = Product.objects.all()
-    context = {"title": title, "shop": shop, "products": products}
+    context = {
+        "title": title,
+        "theme": theme,
+        "shop": shop,
+        "products": products,
+    }
     return render(request, "_product_app/product_list.html", context)
 
 
 def product_management_view(request, pk):
     title = "Product Management"
+    theme = "admin_seller_theme"
     shop = get_object_or_404(Shop, shop_id=pk)
-    context = {"title": title, "shop": shop}
+    context = {
+        "title": title,
+        "theme": theme,
+        "shop": shop,
+    }
     return render(request, "_product_app/product_management.html", context)

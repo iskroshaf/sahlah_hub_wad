@@ -25,97 +25,93 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h5>Shop Registration</h5>
+
+<div class="card">
+    <div class="card-header">
+        <h5>Shop Registration</h5>
+    </div>
+    <div class="card-body">
+        <form action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+
+                <div class="mb-3 col-md-6">
+                    <label class="form-label" for="shop_name">Name</label>
+                    {{ form.shop_name }}
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label" for="shop_phone_number">Phone No</label>
+                    {{ form.shop_phone_number }}
+
+                </div>
             </div>
-            <div class="card-body">
-                <form>
-                    <div class="row">
 
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label" for="shop_name">Name</label>
-                            {{ form.shop_name }}
-                        </div>
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label" for="shop_phone_number">Phone No</label>
-                            {{ form.shop_phone_number }}
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <label class="form-label" for="shop_logo">Logo</label>
+                    <input type="file" id="change-logo-photo" name="shop_logo" class="form-control"
+                        accept=".jpg, .jpeg, .png">
 
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label" for="shop_logo">Logo</label>
-                            <input type="file" id="change-logo-photo" name="shop_logo" class="form-control" accept=".jpg, .jpeg, .png">
-
-                        </div>
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label" for="shop_bg_photo">Background</label>
-                            <input type="file" id="change-bg-photo" name="shop_bg_photo" class="form-control" accept=".jpg, .jpeg, .png">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="mb-3 col-md-6 d-flex justify-content-center align-items-center">
-                            <img id="logo-preview" class="img-profile-avtar rounded-circle img-fluid object-fit-cover"
-                                src="{% static 'admin_seller_theme/images/user/avatar-5.jpg' %}" 
-                                alt="Shop Avatar" style="width: 150px; height: 150px;" />
-                        </div>
-                        <div class="mb-3 col-md-6">
-                            <img id="bg-preview" 
-                                src="{% static 'admin_seller_theme/images/application/img-profile-cover.jpg' %}"
-                                alt="Shop Background" class="w-100 card-img object-fit-cover" 
-                                style="height: 200px;" />
-                        </div>
-                        
-
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label" for="">Address 1</label>
-                        <input type="text" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="">Address 2</label>
-                        <input type="text" class="form-control" />
-                    </div>
-                    <div class="row">
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label" for="inputCity">City</label>
-                            <input type="text" class="form-control" id="inputCity" />
-                        </div>
-                        <div class="mb-3 col-md-4">
-                            <label class="form-label" for="inputState">State</label>
-                            <select id="inputState" class="form-select">
-                                <option selected>Kulai</option>
-                                <option>Batu Pahat</option>
-                            </select>
-                        </div>
-                        <div class="mb-3 col-md-2">
-                            <label class="form-label" for="inputZip">Zip</label>
-                            <input type="text" class="form-control" id="inputZip" />
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="shop_category">Category</label>
-                        {{ form.shop_category }}
-                    </div>
-                    <div class="mb-3">
-                        <label for="shop_desc" class="form-label">Description</label>
-                        {{ form.shop_desc }}
-                    </div>
-
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-primary w-100">Register</button>
-                    </div>
-                    
-                </form>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label" for="shop_bg_photo">Background</label>
+                    <input type="file" id="change-bg-photo" name="shop_bg_photo" class="form-control"
+                        accept=".jpg, .jpeg, .png">
+                </div>
             </div>
-        </div>
+            <div class="row">
+                <div class="mb-3 col-md-6 d-flex justify-content-center align-items-center">
+                    <img id="logo-preview" class="img-profile-avtar rounded-circle img-fluid object-fit-cover"
+                        src="{% static 'admin_seller_theme/images/user/avatar-5.jpg' %}" alt="Shop Avatar"
+                        style="width: 150px; height: 150px;" />
+                </div>
+                <div class="mb-3 col-md-6">
+                    <img id="bg-preview"
+                        src="{% static 'admin_seller_theme/images/application/img-profile-cover.jpg' %}"
+                        alt="Shop Background" class="w-100 card-img object-fit-cover" style="height: 200px;" />
+                </div>
+
+
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="">Address 1</label>
+                {{ form.shop_address_1 }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="">Address 2</label>
+                {{ form.shop_address_2 }}
+            </div>
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <label class="form-label" for="inputCity">City</label>
+                    {{ form.shop_city }}
+                </div>
+                <div class="mb-3 col-md-4">
+                    <label class="form-label" for="inputState">State</label>
+                    {{ form.shop_state }}
+                </div>
+                <div class="mb-3 col-md-2">
+                    <label class="form-label" for="inputZip">Zip</label>
+                    {{ form.shop_postcode }}
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="shop_category">Category</label>
+                {{ form.shop_category }}
+            </div>
+            <div class="mb-3">
+                <label for="shop_desc" class="form-label">Description</label>
+                {{ form.shop_desc }}
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-dark w-100">Register</button>
+            </div>
+        </form>
     </div>
 </div>
+
 
 <script>
     function previewImage(inputElement, previewElementId) {

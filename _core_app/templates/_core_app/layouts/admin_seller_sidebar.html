@@ -9,25 +9,68 @@
             </a>
         </div>
         <div class="navbar-content">
-
-
             <ul class="pc-navbar">
-
+                {% if "seller" in request.path %}
                 <li class="pc-item">
                     <a href="{% url 'seller_dashboard' %}" class="pc-link">
                         <span class="pc-micon">
-                            <span class="material-icons">
+                            <span class="material-symbols-outlined">
                                 grid_view
                             </span>
                         </span>
                         <span class="pc-mtext">Dashboard</span>
                     </a>
                 </li>
-
+                {% elif "shop" in request.path %}
+                <li class="pc-item">
+                    <a href="{% url 'shop_dashboard' shop.shop_id %}" class="pc-link">
+                        <span class="pc-micon">
+                            <span class="material-symbols-outlined">
+                                grid_view
+                            </span>
+                        </span>
+                        <span class="pc-mtext">Dashboard</span>
+                    </a>
+                </li>
                 <li class="pc-item pc-hasmenu">
                     <a href="#!" class="pc-link">
                         <span class="pc-micon">
-                            <span class="material-icons">
+                            <span class="material-symbols-outlined">
+                                storefront
+                            </span>
+                        </span>
+                        <span class="pc-mtext">Product Management</span>
+                        <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+                    </a>
+                    <ul class="pc-submenu">
+                        <li class="pc-item"><a class="pc-link" href="{% url 'product_list' shop.shop_id %}">Products</a></li>
+                        <li class="pc-item"><a class="pc-link" href="{% url 'product_register' shop.shop_id %}">Product Register</a>
+                        <li class="pc-item"><a class="pc-link" href="{% url 'product_category_management' shop.shop_id %}">Product Categories</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="pc-item pc-hasmenu">
+                    <a href="#!" class="pc-link">
+                        <span class="pc-micon">
+                            <span class="material-symbols-outlined">
+                                orders
+                                </span>
+                        </span>
+                        <span class="pc-mtext">Order Management</span>
+                        <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+                    </a>
+                    <ul class="pc-submenu">
+                        <li class="pc-item"><a class="pc-link" href="">Orders</a></li>
+                        <li class="pc-item"><a class="pc-link" href="">Order History</a>
+                        </li>
+                    </ul>
+                </li>
+                {% endif %}
+                {% if "seller" in request.path %}
+                <li class="pc-item pc-hasmenu">
+                    <a href="#!" class="pc-link">
+                        <span class="pc-micon">
+                            <span class="material-symbols-outlined">
                                 storefront
                             </span>
                         </span>
@@ -40,10 +83,11 @@
                         </li>
                     </ul>
                 </li>
-                <li class="pc-item">
+                {% endif %}
+                <!-- <li class="pc-item">
                     <a href="" class="pc-link">
                         <span class="pc-micon">
-                            <span class="material-icons">
+                            <span class="material-symbols-outlined">
                                 show_chart
                             </span>
                         </span>
@@ -54,7 +98,7 @@
                 <li class="pc-item">
                     <a href="" class="pc-link">
                         <span class="pc-micon">
-                            <span class="material-icons">
+                            <span class="material-symbols-outlined">
                                 attach_money
                             </span>
                         </span>
@@ -64,13 +108,13 @@
                 <li class="pc-item">
                     <a href="" class="pc-link">
                         <span class="pc-micon">
-                            <span class="material-icons">
+                            <span class="material-symbols-outlined">
                                 display_settings
                             </span>
                         </span>
                         <span class="pc-mtext">Settings</span>
                     </a>
-                </li>
+                </li> -->
             </ul>
         </div>
     </div>

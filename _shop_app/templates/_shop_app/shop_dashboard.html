@@ -4,22 +4,4 @@
 
 {% block content %}
 
-<h2>{{ title }}</h2>
-
-<nav>
-    Product Management
-    <ul>
-        <li><a href="{% url 'product_list' shop.shop_id %}">Product</a></li>
-        <li><a href="{% url 'product_category_management' shop.shop_id %}">Product Category</a></li>
-    </ul>
-
-    Order Management
-    <ul>
-        <li><a href="">View Orders</a></li>
-        <li><a href="">Order History</a></li>
-    </ul>
-</nav>
-
-
-
 {% endblock %}
