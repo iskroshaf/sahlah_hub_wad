@@ -56,14 +56,14 @@
             <div class="card-body">
                 {% for product_category in product_categories %}
                 <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">John Doe</h6>
+                    <h6 class="mb-0">{{ product_category.product_category_name }}</h6>
                     <div class="avtar avtar-s btn-link-danger btn-pc-default">
                         <i class="ti ti-trash f-20"></i>
                     </div>
                 </div>
                 {% if not forloop.last %}
-            <hr class="border-primary border-opacity-50 m-1" />
-            {% endif %}
+                <hr class="border-primary border-opacity-50 m-1" />
+                {% endif %}
                 {% endfor %}
             </div>
         </div>

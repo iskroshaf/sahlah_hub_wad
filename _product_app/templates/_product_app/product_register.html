@@ -1,20 +1,97 @@
 {% extends '_core_app/base.html' %}
 
+{% load static %}
+
 {% block title %}Sahlan Hub - {{ title }} {% endblock title %}
 
 {% block content %}
 
-<h2>{{ title }}</h2>
+<div class="page-header">
+    <div class="page-block">
+        <div class="row align-items-center">
+            <div class="col-md-12">
+                <nav aria-label="breadcrumb">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="javascript:void(0)">Product Management</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Product Registration</li>
+                    </ul>
+                </nav>
+                <div class="page-header-title">
+                    <h2 class="mb-0">Product Registration</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-<form action="" method="POST">
-    {% csrf_token %}
-    {{ form.product_name }}
-    {{ form.product_price }}
-    {{ form.product_category_name }}
 
-    {{ form.product_description }}
+<div class="card">
+    <div class="card-header">
+        <h5>Product Registration</h5>
+    </div>
+    <div class="card-body">
 
-    <button>Add</button>
-</form>
+
+        <form action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label" for="">Product Name</label>
+                {{ form.product_name }}
+            </div>
+
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <label class="form-label" for="inputCity">Price</label>
+                    {{ form.product_price }}
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label" for="inputState">Product Category</label>
+                    {{ form.product_category_name }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <img id="img-preview" src="{% static 'images/white_bg.jpeg' %}" alt="Product Image"
+                        class="w-100 card-img object-fit-cover" style="height: 200px;" />
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label class="form-label" for="product_image">Product Image</label>
+                    {{ form.product_image }}
+                </div>
+               
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-dark w-100">Register</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    function previewImage(inputElement, previewElementId) {
+        const preview = document.getElementById(previewElementId);
+
+        if (inputElement.files && inputElement.files[0]) {
+            const fileURL = URL.createObjectURL(inputElement.files[0]);
+            preview.src = fileURL;
+
+            preview.onload = function () {
+                URL.revokeObjectURL(fileURL);
+            };
+        } else {
+            preview.src = "{% static 'images/white_bg.jpeg' %}";
+        }
+    }
+
+    document.getElementById('change-product-image').addEventListener('change', function () {
+        previewImage(this, 'img-preview');
+    });
+</script>
+
+
 
 {% endblock %}

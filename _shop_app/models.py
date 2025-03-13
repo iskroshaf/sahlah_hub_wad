@@ -25,7 +25,7 @@ class Shop(models.Model):
     shop_city = models.CharField(max_length=50)
     shop_state = models.CharField(max_length=50) 
     shop_postcode = models.CharField(max_length=10) 
-    shop_country = models.CharField(max_length=50) 
+    # shop_country = models.CharField(max_length=50) 
     
     shop_rating = models.DecimalField(max_digits=2,decimal_places=1,default=0.0)
     shop_delivery_fee = models.DecimalField(max_digits=10, decimal_places=2 , default= 0.00)

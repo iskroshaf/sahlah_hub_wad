@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import get_language
 
 from _product_app.forms import ProductCategoryForm, ProductForm
 from _product_app.models import Product, ProductCategory
@@ -39,20 +40,18 @@ def product_register_view(request, pk):
     title = "Product Register"
     theme = "admin_seller_theme"
     shop = get_object_or_404(Shop, shop_id=pk)
+
     if request.method == "POST":
-        form = ProductForm(request.POST)
+        form = ProductForm(request.POST, request.FILES)  # Include request.FILES
         if form.is_valid():
-            product_name = form.cleaned_data["product_name"]
-            product_price = form.cleaned_data["product_price"]
-            product_description = form.cleaned_data["product_description"]
-            product_category_name = form.cleaned_data["product_category_name"]
-            product = Product(
-                shop=shop,
-                product_name=product_name,
-                product_price=product_price,
-                product_description=product_description,
-                product_category_name=product_category_name,
-            )
+            product = form.save(commit=False)
+            product.shop = shop
+
+            current_language = get_language()
+            product.set_current_language(current_language)
+            product.product_name = form.cleaned_data["product_name"]
+            product.product_description = form.cleaned_data["product_description"]
+
             product.save()
             product.auto_translate(fields=["product_name", "product_description"])
             print("Product registration successfully.")
@@ -61,6 +60,7 @@ def product_register_view(request, pk):
             print("Product registration failed.", form.errors)
     else:
         form = ProductForm()
+
     context = {
         "title": title,
         "theme": theme,
@@ -68,6 +68,7 @@ def product_register_view(request, pk):
         "form": form,
     }
     return render(request, "_product_app/product_register.html", context)
+
 
 
 def product_list_view(request, pk):

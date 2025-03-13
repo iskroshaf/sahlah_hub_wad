@@ -94,6 +94,7 @@ class Product(BaseTranslatableModel):
     shop = models.ForeignKey("_shop_app.Shop", on_delete=models.CASCADE)
     product_id = models.CharField(max_length=10, unique=True, primary_key=True)
     product_price = models.DecimalField(max_digits=10, decimal_places=2)
+    product_image = models.ImageField(upload_to='media_photos/', blank=True, null=True)
     product_category_name = models.ForeignKey(
         "_product_app.ProductCategory", on_delete=models.SET_NULL, null=True, blank=True
     )
@@ -105,8 +106,9 @@ class Product(BaseTranslatableModel):
     def save(self, *args, **kwargs):
         if not self.product_id:
             self.product_id = generate_unique_id(Product, "prd", "product_id")
+            
 
-        is_new = self._state.adding  # Check if it's a new instance
+        is_new = self._state.adding
         super().save(*args, **kwargs)
 
         if is_new:

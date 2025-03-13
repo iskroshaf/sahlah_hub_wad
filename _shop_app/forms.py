@@ -84,12 +84,12 @@ class ShopForm(ModelForm):
         ),
     )
 
-    shop_country = forms.CharField(
-        label="",
-        widget=forms.TextInput(
-            attrs={"placeholder": "Enter your country", "class": "form-control"}
-        ),
-    )
+    # shop_country = forms.CharField(
+    #     label="",
+    #     widget=forms.TextInput(
+    #         attrs={"placeholder": "Enter your country", "class": "form-control"}
+    #     ),
+    # )
 
     class Meta:
         model = Shop
@@ -105,5 +105,5 @@ class ShopForm(ModelForm):
             "shop_city",
             "shop_state",
             "shop_postcode",
-            "shop_country",
+            # "shop_country",
         ]

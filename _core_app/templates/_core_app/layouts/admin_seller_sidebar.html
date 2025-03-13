@@ -9,6 +9,49 @@
             </a>
         </div>
         <div class="navbar-content">
+
+            {% if "shop" in request.path  %}
+            <div class="card pc-user-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <img src="{% if shop.shop_logo %}{{ shop.shop_logo.url }}{% else %}{% static 'images/user-default.jpg' %}{% endif %}"
+                                alt="user-image" class="user-avtar wid-45 rounded-circle" />
+                        </div>
+                        <div class="flex-grow-1 ms-3 me-2">
+                            <h6 class="mb-0">{{request.user.username|upper}}</h6>
+                            <small>Seller</small>
+                        </div>
+                        <a class="btn btn-icon btn-link-secondary avtar" data-bs-toggle="collapse"
+                            href="#pc_sidebar_userlink">
+                            <svg class="pc-icon">
+                                <use xlink:href="#custom-sort-outline"></use>
+                            </svg>
+                        </a>
+                    </div>
+                    <div class="collapse pc-user-links" id="pc_sidebar_userlink">
+                        <div class="pt-3">
+                            <a href="{% url 'seller_dashboard' %}">
+                                <span class="pc-micon">
+                                    <span class="material-symbols-outlined">
+                                        home
+                                    </span>
+                                </span>
+                                <span class="pc-mtext">Home</span>
+                            </a>
+                            <a href="">
+                                <span class="pc-micon">
+                                    <span class="material-symbols-outlined">
+                                        key
+                                        </span>
+                                </span>
+                                <span class="pc-mtext">Change Password</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
             <ul class="pc-navbar">
                 {% if "seller" in request.path %}
                 <li class="pc-item">
@@ -43,9 +86,12 @@
                         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                     </a>
                     <ul class="pc-submenu">
-                        <li class="pc-item"><a class="pc-link" href="{% url 'product_list' shop.shop_id %}">Products</a></li>
-                        <li class="pc-item"><a class="pc-link" href="{% url 'product_register' shop.shop_id %}">Product Register</a>
-                        <li class="pc-item"><a class="pc-link" href="{% url 'product_category_management' shop.shop_id %}">Product Categories</a>
+                        <li class="pc-item"><a class="pc-link" href="{% url 'product_list' shop.shop_id %}">Products</a>
+                        </li>
+                        <li class="pc-item"><a class="pc-link" href="{% url 'product_register' shop.shop_id %}">Product
+                                Register</a>
+                        <li class="pc-item"><a class="pc-link"
+                                href="{% url 'product_category_management' shop.shop_id %}">Product Categories</a>
                         </li>
                     </ul>
                 </li>
@@ -54,7 +100,7 @@
                         <span class="pc-micon">
                             <span class="material-symbols-outlined">
                                 orders
-                                </span>
+                            </span>
                         </span>
                         <span class="pc-mtext">Order Management</span>
                         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
