@@ -98,11 +98,22 @@ class Product(BaseTranslatableModel):
     product_category_name = models.ForeignKey(
         "_product_app.ProductCategory", on_delete=models.SET_NULL, null=True, blank=True
     )
+
     translations = TranslatedFields(
         product_name=models.CharField(max_length=50),
         product_description=models.TextField(max_length=250, blank=True, null=True),
     )
-
+    
+    #Implement model Halal_Haram
+    HALAL_STATUS_CHOICES =[
+        ("Halal","Halal"),
+        ("Haram","Haram"),
+        ("Mashbooh","Mashbooh"),
+        ("Unknown","Unknown"),
+    ]
+    
+    halal_status=models.CharField(max_length=10,choices=HALAL_STATUS_CHOICES,default="Unknown")
+    #Implement model Halal_Haram
     def save(self, *args, **kwargs):
         if not self.product_id:
             self.product_id = generate_unique_id(Product, "prd", "product_id")

@@ -5,6 +5,33 @@ from _product_app.forms import ProductCategoryForm, ProductForm
 from _product_app.models import Product, ProductCategory
 from _shop_app.models import Shop
 
+import os
+import csv
+import requests
+from django.conf import settings
+
+FASTAPI_URL = "http://127.0.0.1:8001/predict/"
+
+NEGATION_WORDS = [
+    # Melayu
+    "tidak", "tanpa", "bukan", "bebas dari", "tidak ada", "tidak termasuk", "dikecualikan", "diasingkan",
+    "bukan dari", "tiada", "tidak pernah", "tidak wujud", "tidak terkandung", "bukan sebahagian dari",
+    "dikeluarkan dari", "bukan bahan utama", "sifar", "tidak dibuat dengan", "tidak mengandungi",
+    "tidak diproses dengan", "tidak bersentuhan dengan", "tidak terdapat dalam", "tiada dalam senarai",
+    "bukan sebahagian",
+
+    # Inggeris
+    "no", "not", "without", "free from", "does not contain", "excluded", "separated from", "absent of",
+    "none", "never", "does not exist", "not included", "not part of", "removed from", "zero",
+    "not made with", "does not have", "is not processed with", "not in contact with",
+    "not found in", "not listed in", "not used in", "not a component of",
+
+    # Arab
+    "لا", "ليس", "بدون", "خالي من", "لا يحتوي على", "مستبعد", "معزول", "لا يوجد", "غير موجود",
+    "لم يكن", "لم يتم تضمينه", "ليس جزءًا من", "تم إزالته", "صفر", "لم يُصنع بـ", "لا يمتلك",
+    "لا يُعالج بـ", "لم يكن ملامسًا", "غير مدرج في القائمة", "لم يُستخدم", "ليس عنصرًا من"
+]
+
 
 def product_category_management_view(request, pk):
     title = "Product Category"
@@ -35,6 +62,27 @@ def product_category_management_view(request, pk):
 
     return render(request, "_product_app/product_category_management.html", context)
 
+#Halal Implementation
+def load_keywords(file_name):
+    file_path = os.path.join(settings.BASE_DIR, '_product_app', 'halal_api', 'data', file_name)
+    keywords = {}
+
+    with open(file_path, newline='', encoding='utf-8') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)  
+        for row in reader:
+            lang, word = row
+            if lang in keywords:
+                keywords[lang].append(word.lower())
+            else:
+                keywords[lang] = [word.lower()]
+    return keywords
+
+haram_keywords = load_keywords('haram_keywords.csv')
+halal_keywords = load_keywords('halal_keywords.csv')
+mashbooh_keywords = load_keywords('mashbooh_keywords.csv')
+#Halal Implementation
+
 
 def product_register_view(request, pk):
     title = "Product Register"
@@ -51,7 +99,42 @@ def product_register_view(request, pk):
             product.set_current_language(current_language)
             product.product_name = form.cleaned_data["product_name"]
             product.product_description = form.cleaned_data["product_description"]
+            #Halal_status_implement
+            text = f"{product.product_name} {product.product_description}".lower()
+            response = requests.post(FASTAPI_URL, json={"text": text})
+            if response.status_code == 200:
+                ai_prediction = response.json().get("halal_status", "Unknown")
+            else:
+                ai_prediction = "Unknown"
 
+            # 2. **Gunakan kata kunci**
+            is_haram = any(word in text for words in haram_keywords.values() for word in words)
+            is_halal = any(word in text for words in halal_keywords.values() for word in words)
+            is_mashbooh = any(word in text for words in mashbooh_keywords.values() for word in words)  # Tambah mashbooh keywords
+
+            # 3. **Periksa jika ada perkataan negasi**
+            contains_negation = any(neg in text for neg in NEGATION_WORDS)
+
+            # 4. **Logik penentuan `halal_status`**
+            if is_haram and not contains_negation:
+                product.halal_status = "Haram"
+            elif is_halal and not contains_negation:
+                product.halal_status = "Halal"
+            elif ai_prediction == "Haram" and not contains_negation:
+                product.halal_status = "Haram"
+            elif ai_prediction == "Halal" and not contains_negation:
+                product.halal_status = "Halal"
+            elif is_haram and contains_negation:
+                product.halal_status = "Halal"
+            elif is_halal and contains_negation:
+                product.halal_status = "Halal"
+            elif is_mashbooh:  
+                product.halal_status = "Mashbooh"
+            elif "tidak diketahui" in text or "meragukan" in text:  
+                product.halal_status = "Mashbooh" 
+            else:
+                product.halal_status = ai_prediction  
+            #Halal_status_implement
             product.save()
             product.auto_translate(fields=["product_name", "product_description"])
             print("Product registration successfully.")

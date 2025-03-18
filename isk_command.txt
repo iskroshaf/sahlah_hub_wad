@@ -3,3 +3,8 @@ Get-ChildItem -Path . -Recurse -Filter "*.py" | Where-Object { $_.FullName -matc
 
 --Delete all __pychache__ in the app folder.(Windows Terminal)--
 Get-ChildItem -Path . -Recurse -Directory -Filter "__pycache__" | Remove-Item -Recurse -Force
+
+
+---Halal Implementation deep learning----
+
+uvicorn fastapi_server:app --host 0.0.0.0 --port 8001 --reload
