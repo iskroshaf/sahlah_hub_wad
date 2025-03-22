@@ -1,26 +1,33 @@
 text,label
-"Produk ini mengandungi gelatin babi.",1
-"Daging ini disembelih mengikut syariah Islam.",0
-"Minuman ini mengandungi alkohol 5%.",1
-"Produk ini 100% sayur-sayuran tanpa sebarang bahan haiwan.",0
-"Dihasilkan di kilang yang memproses babi.",2
-"Produk ini diperbuat daripada ayam organik yang halal.",0
-"Krimer ini mengandungi derivatif lemak haiwan tanpa status halal.",2
-"Minuman ini mengandungi arak dan bahan haram lain.",1
-"Produk ini mengandungi daging halal yang disembelih mengikut cara Islam.",0
-"Produk ini tidak mengandungi bahan haiwan atau alkohol.",0
-"Produk ini mengandungi gelatin dari sumber yang tidak jelas status halalnya.",2
-"Daging ini dihasilkan di kilang yang memproses produk halal dan haram.",2
-"This product contains pork gelatin.",1
-"This meat is slaughtered according to Islamic guidelines.",0
-"This beverage contains 10% alcohol.",1
-"This product is 100% plant-based with no animal-derived ingredients.",0
-"Produced in a factory that also processes non-halal products.",2
-"Minuman ini mengandungi 7% alkohol.",1
-"Produk ini mengandungi minyak dari sumber tidak halal.",1
-"Produk ini mengandungi hanya bahan-bahan yang disahkan halal.",0
-"Produk ini dibuat di kilang yang memproses makanan halal dan haram.",2
-"Gelatin in this product comes from an unknown source.",2
+"Apple is a nutritious fruit that is considered Halal.", 0
+"Bananas are a great source of potassium and Halal.", 0
+"Carrots are Halal and packed with vitamins.", 0
+"Spinach is a Halal green leafy vegetable.", 0
+"Pork is Haram in Islam and not allowed.", 1
+"Beef is Halal if slaughtered according to Islamic guidelines.", 0
+"Chicken is Halal when slaughtered according to the requirements of Islamic law.", 0
+"Gelatin is made from animal collagen and can be Mashbooh if the source is unknown.", 2
+"Alcohol is Haram in Islam and should be avoided.", 1
+"Minuman beralkohol, seperti bir, adalah Haram.", 1
+"Produk ini mengandungi gelatin babi.", 1
+"Produk ini 100% sayur-sayuran tanpa bahan haiwan.", 0
+"Tomato is a Halal vegetable that is rich in antioxidants.", 0
+"Krimer ini mengandungi derivatif lemak haiwan, status halal tidak jelas.", 2
+"Minuman ini mengandungi alkohol sebanyak 15%, jelas Haram.", 1
+"Produk ini mengandungi daging halal tetapi diproses di kilang yang turut memproses daging haram.", 2
+"Gelatin dalam produk ini berasal dari sumber yang tidak dapat dipastikan status halalnya.", 2
+"Produk ini dibuat dengan bahan-bahan halal dan disahkan oleh badan berwibawa.", 0
+"Juice made from fresh fruits, like orange, is Halal.", 0
+"This snack contains animal-derived gelatin.", 2
+"Produk ini diproses menggunakan bahan yang diragui status halalnya.", 2
+"Produk ini mengandungi bahan pengawet yang tidak dapat dipastikan status halalnya.", 2
+"Minuman ini mengandungi arak walaupun dalam kuantiti kecil, ia tetap Haram.", 1
+"Milk and dairy products are generally Halal.", 0
+"Produk ini mengandungi bahan daripada sumber haiwan yang tidak diketahui.", 2
+"Produk ini bebas dari bahan haiwan dan alkohol.", 0
+"Herbs like basil and parsley are Halal.", 0
+"Produk ini mengandungi bahan yang disahkan tidak halal.", 1
+"Produk ini diproses di kilang yang memproses produk halal dan haram.", 2
 "هذا المنتج يحتوي على جيلاتين الخنزير.",1
 "المنتج يتكون من لحوم حلال تم ذبحها وفقًا للشريعة الإسلامية.",0
 "هذا المشروب يحتوي على الكحول بنسبة 7%.",1
@@ -31,18 +38,6 @@ text,label
 "المنتج يحتوي على مواد حرام كالمشروبات الكحولية.",1
 "تم تحضير هذا المنتج في مصنع مختلط بين الحلال والحرام.",2
 "منتج خالي من الكحول والمكونات الحيوانية.",0
-"Produk ini mengandungi minyak babi.",1
-"Produk ini 100% tanpa bahan haiwan dan alcohol.",0
-"Minuman ini mengandungi 15% alkohol.",1
-"Produk ini adalah 100% vegan.",0
-"Produk ini dihasilkan menggunakan bahan yang meragukan.",2
-"Produk ini mengandungi daging halal tetapi diproses di kilang yang memproses produk haram.",2
-"This food contains derivatives from non-halal sources.",1
-"This product contains no animal ingredients and is alcohol-free.",0
-"This item is certified halal and organic.",0
-"This product contains alcohol in an unknown percentage.",2
-"Minuman ini mengandungi alkohol tetapi kurang daripada 1%.",2
-"This item is prepared in a factory that also produces non-halal products.",2
 "الأطعمة تحتوي على المكونات النباتية فقط.",0
 "هذا المنتج يحتوي على مكونات مشكوك في حالتها.",2
 "المنتج يحتوي على الكحول بنسبة 10%.",1
@@ -54,21 +49,6 @@ text,label
 "هذا المشروب يحتوي على كحول بنسبة عالية.",1
 "منتج يتكون من مكونات حلال وصحية.",0
 "منتج يحتوي على مكونات حلال ولكن تمت معالجته بطرق مشكوك فيها.",2
-"This product contains halal beef but is processed with non-halal ingredients.",2
-"Produk ini mengandungi bahan tambahan yang meragukan.",2
-"Produk ini mengandungi bahan pengawet yang tidak dapat dipastikan status halalnya.",2
-"Gelatin dalam produk ini berasal dari sumber yang tidak diketahui.",2
-"Produk ini disediakan di kilang yang turut memproses produk non-halal.",2
-"Produk ini mengandungi bahan dari sumber yang tidak halal.",1
-"Produk ini dibuat dengan bahan-bahan yang sudah disahkan halal oleh pihak berkuasa.",0
-"Produk ini mengandungi alkohol walaupun dalam kuantiti yang sedikit.",1
-"Produk ini diproses di kilang yang hanya memproses bahan-bahan halal.",0
-"Produk ini dihasilkan tanpa menggunakan bahan haiwan atau alkohol.",0
-"Produk ini menggunakan bahan yang tidak dapat dipastikan kesahihannya.",2
-"Produk ini menggunakan bahan pengawet yang mungkin tidak halal.",2
-"Minuman ini mengandungi bahan beralkohol walaupun jumlahnya rendah.",2
-"Produk ini mengandungi gelatin dari sumber yang tidak dapat dipastikan status halalnya.",2
-"Produk ini tidak mengandungi sebarang bahan haram tetapi diproses di kilang yang juga memproses produk haram.",2
 "هذا المنتج يحتوي على مستخلصات حيوانية مشكوك فيها.",2
 "المنتج يحتوي على مواد قد تحتوي على الكحول.",2
 "هذا المنتج لا يحتوي على مكونات حرام.",0
