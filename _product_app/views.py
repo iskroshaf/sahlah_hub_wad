@@ -136,7 +136,8 @@ def product_register_view(request, pk):
                 product.halal_status = ai_prediction  
             #Halal_status_implement
             product.save()
-            product.auto_translate(fields=["product_name", "product_description"])
+            product.auto_translate(fields=["product_name"])
+            product.auto_translate(fields=[ "product_description"])
             print("Product registration successfully.")
             return redirect("product_list", pk=shop.shop_id)
         else:
