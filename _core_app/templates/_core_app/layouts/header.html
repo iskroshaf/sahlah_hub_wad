@@ -1,6 +1,11 @@
 {% load static %}
 
 <header id="header" class="header-default">
+    <style>
+
+
+    
+    </style>
     <div class="container">
         <div class="row wrapper-header align-items-center">
             <div class="col-md-4 col-3 d-xl-none">
@@ -34,6 +39,8 @@
                             <div class="tf-languages">
                                 <select class="image-select center style-default type-languages">
                                     <option>English</option>
+                                    <option>Arab</option>
+                                    <option>Malay</option>
                                 </select>
                             </div>
                         </div>
@@ -64,11 +71,10 @@
                                     stroke="#181818" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                         </div>
-                        <div class="dropdown-account dropdown-login">
+                        <div class="dropdown-account dropdown-login" style="right: 10px; padding: 1rem; min-width: 250px;">
                             <div class="sub-top">
                                 <a href="{% url 'login' %}" class="tf-btn btn-reset">Login</a>
-                                <p class="text-center text-secondary-2">Don’t have an account? <a
-                                        href="{% url 'customer_register' %}">Register</a></p>
+                                <p class="text-center text-secondary-2">Don’t have an account? <a href="{% url 'customer_register' %}">Register</a></p>
                             </div>
                             <div class="sub-bot">
                                 <span class="body-text-">Support</span>

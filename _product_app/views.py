@@ -90,7 +90,7 @@ def product_register_view(request, pk):
     shop = get_object_or_404(Shop, shop_id=pk)
 
     if request.method == "POST":
-        form = ProductForm(request.POST, request.FILES)  # Include request.FILES
+        form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
             product = form.save(commit=False)
             product.shop = shop
@@ -99,45 +99,49 @@ def product_register_view(request, pk):
             product.set_current_language(current_language)
             product.product_name = form.cleaned_data["product_name"]
             product.product_description = form.cleaned_data["product_description"]
-            #Halal_status_implement
+
+            # Halal status implementation
             text = f"{product.product_name} {product.product_description}".lower()
-            response = requests.post(FASTAPI_URL, json={"text": text})
-            if response.status_code == 200:
+
+            try:
+                response = requests.post(FASTAPI_URL, json={"text": text}, timeout=5)
+                response.raise_for_status()
                 ai_prediction = response.json().get("halal_status", "Unknown")
-            else:
+            except Exception as e:
+                print(f"AI prediction error: {e}")
                 ai_prediction = "Unknown"
 
-            # 2. **Gunakan kata kunci**
+            # Keyword detection
             is_haram = any(word in text for words in haram_keywords.values() for word in words)
             is_halal = any(word in text for words in halal_keywords.values() for word in words)
-            is_mashbooh = any(word in text for words in mashbooh_keywords.values() for word in words)  # Tambah mashbooh keywords
-
-            # 3. **Periksa jika ada perkataan negasi**
+            is_mashbooh = any(word in text for words in mashbooh_keywords.values() for word in words)
             contains_negation = any(neg in text for neg in NEGATION_WORDS)
 
-            # 4. **Logik penentuan `halal_status`**
+            # Debug log (optional)
+            print(f"AI prediction: {ai_prediction}")
+            print(f"Keywords - Halal: {is_halal}, Haram: {is_haram}, Mashbooh: {is_mashbooh}, Negation: {contains_negation}")
+
+            # Halal status logic
             if is_haram and not contains_negation:
                 product.halal_status = "Haram"
             elif is_halal and not contains_negation:
                 product.halal_status = "Halal"
-            elif ai_prediction == "Haram" and not contains_negation:
-                product.halal_status = "Haram"
-            elif ai_prediction == "Halal" and not contains_negation:
-                product.halal_status = "Halal"
             elif is_haram and contains_negation:
                 product.halal_status = "Halal"
             elif is_halal and contains_negation:
-                product.halal_status = "Halal"
-            elif is_mashbooh:  
+                product.halal_status = "Haram"
+            elif is_mashbooh:
                 product.halal_status = "Mashbooh"
-            elif "tidak diketahui" in text or "meragukan" in text:  
-                product.halal_status = "Mashbooh" 
+            elif "tidak diketahui" in text or "meragukan" in text:
+                product.halal_status = "Mashbooh"
+            elif ai_prediction in ["Halal", "Haram"]:
+                product.halal_status = ai_prediction
             else:
-                product.halal_status = ai_prediction  
-            #Halal_status_implement
+                product.halal_status = "Mashbooh"
+
             product.save()
             product.auto_translate(fields=["product_name"])
-            product.auto_translate(fields=[ "product_description"])
+            product.auto_translate(fields=["product_description"])
             print("Product registration successfully.")
             return redirect("product_list", pk=shop.shop_id)
         else:

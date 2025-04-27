@@ -4,6 +4,7 @@ from django.forms import FileInput
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from _user_app.models import CustomUser
 from _customer_app.models import Customer
+from django.core.exceptions import ValidationError
 
 
 class CustomerRegisterForm(UserCreationForm):
@@ -12,7 +13,7 @@ class CustomerRegisterForm(UserCreationForm):
     )
 
     email = forms.EmailField(
-        label="", widget=forms.EmailInput(attrs={"placeholder": "Email"})
+        label="", widget=forms.EmailInput(attrs={"placeholder": "Email", "class": "form-control"})
     )
 
     password1 = forms.CharField(
@@ -32,6 +33,20 @@ class CustomerRegisterForm(UserCreationForm):
     class Meta:
         model = Customer  # Fixed missing model reference
         fields = ["username", "email", "password1", "password2"]
+    
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if CustomUser.objects.filter(username=username).exists():
+            raise ValidationError("Username already exists. Please choose another one.")
+        return username
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if CustomUser.objects.filter(email=email).exists():
+            raise ValidationError("This email is already registered. Please use another email.")
+        return email
+    
+
 
 
 class ProfileUpdateForm(UserChangeForm):

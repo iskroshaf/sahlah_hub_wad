@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 from _customer_app.forms import CustomerRegisterForm
+from django.contrib import messages
+ 
 
 
 def customer_register_view(request):
@@ -15,7 +17,12 @@ def customer_register_view(request):
             print("Register Successful")
             return redirect("login")
         else:
-            print(form.errors)
+            # print(form.errors)
+             if form.errors.get('email'):
+                messages.error(request, f"Error with email: {form.errors['email'][0]}")  # Mesej ralat email
+             elif form.errors.get('password2'):
+                messages.error(request, f"Error with password confirmation: {form.errors['password2'][0]}")  # Mesej ralat password
+
     else:
         form = CustomerRegisterForm()
 
