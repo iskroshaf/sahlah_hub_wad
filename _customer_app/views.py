@@ -1,8 +1,6 @@
 from django.shortcuts import render, redirect
-from _customer_app.forms import CustomerRegisterForm
+from _customer_app.forms import CustomerRegisterForm,ProfileUpdateForm
 from django.contrib import messages
- 
-
 
 def customer_register_view(request):
     title = "Register"
@@ -35,3 +33,24 @@ def customer_home_view(request):
     theme = "customer_theme"
     context = {"title": title, 'theme': theme}
     return render(request, "_customer_app/customer_home.html", context)
+
+def customer_update_profile(request):
+    title = "Update Profile"
+    theme = "customer_theme"
+    context = {"title": title, 'theme': theme}
+
+    user = request.user
+
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=user)
+
+        if form.is_valid():
+            form.save()
+            return redirect("customer_home")  # Replace with the correct URL name or path
+    else:
+        # Initialize the form when GET request is made
+        form = ProfileUpdateForm(instance=user)
+    
+    context['form'] = form
+    return render(request, "_customer_app/customer_update_profile.html", context)
+

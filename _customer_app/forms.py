@@ -5,6 +5,8 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from _user_app.models import CustomUser
 from _customer_app.models import Customer
 from django.core.exceptions import ValidationError
+from datetime import date
+
 
 
 class CustomerRegisterForm(UserCreationForm):
@@ -75,9 +77,25 @@ class ProfileUpdateForm(UserChangeForm):
         widget=forms.RadioSelect,
         required=False,
     )
+    phone_number=forms.CharField(
+        label="",
+        widget=forms.TextInput(attrs={"placeholder": "Phone Number"}),
+    )
 
     image_avatar = forms.ImageField(widget=FileInput, required=False)
 
     class Meta:
         model = CustomUser  # Fixed missing model reference
-        fields = ("first_name", "last_name", "birthdate", "gender", "image_avatar")
+        fields = ("first_name", "last_name", "birthdate", "gender", "phone_number", "image_avatar")
+
+    def clean_birthdate(self):
+        birthdate = self.cleaned_data.get('birthdate')
+
+        if birthdate:
+            today = date.today()
+            age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
+
+            if age < 18:
+                raise ValidationError("You must be at least 18 years old.")
+
+        return birthdate
