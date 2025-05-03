@@ -5,7 +5,10 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from _user_app.models import CustomUser
 from _customer_app.models import Customer
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 from datetime import date
+import re
+from django.contrib.auth import authenticate
 
 
 
@@ -50,7 +53,6 @@ class CustomerRegisterForm(UserCreationForm):
     
 
 
-
 class ProfileUpdateForm(UserChangeForm):
     first_name = forms.CharField(
         label="",
@@ -73,19 +75,24 @@ class ProfileUpdateForm(UserChangeForm):
 
     gender = forms.ChoiceField(
         label="",
-        choices=CustomUser.GENDER_CHOICES,  # Fixed missing model reference
+        choices=CustomUser.GENDER_CHOICES,
         widget=forms.RadioSelect,
         required=False,
     )
-    phone_number=forms.CharField(
+
+    phone_number = forms.CharField(
         label="",
         widget=forms.TextInput(attrs={"placeholder": "Phone Number"}),
     )
 
-    image_avatar = forms.ImageField(widget=FileInput, required=False)
+    image_avatar = forms.ImageField(
+        widget=FileInput,
+        required=False,
+        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'gif'])]
+    )
 
     class Meta:
-        model = CustomUser  # Fixed missing model reference
+        model = CustomUser
         fields = ("first_name", "last_name", "birthdate", "gender", "phone_number", "image_avatar")
 
     def clean_birthdate(self):
@@ -99,3 +106,42 @@ class ProfileUpdateForm(UserChangeForm):
                 raise ValidationError("You must be at least 18 years old.")
 
         return birthdate
+
+
+
+class PasswordChangeForm(forms.Form):
+    current_password = forms.CharField(
+        label="Current Password",
+        widget=forms.PasswordInput(attrs={"placeholder": "Current Password"})
+    )
+    new_password = forms.CharField(
+        label="New Password",
+        widget=forms.PasswordInput(attrs={"placeholder": "New Password"})
+    )
+    confirm_password = forms.CharField(
+        label="Confirm Password",
+        widget=forms.PasswordInput(attrs={"placeholder": "Confirm Password"})
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        current_password = cleaned_data.get("current_password")
+        new_password = cleaned_data.get("new_password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if not self.user.check_password(current_password):
+            self.add_error('current_password', "The current password is incorrect.")
+
+        if new_password != confirm_password:
+            self.add_error('confirm_password', "The two password fields must match.")
+
+        password_regex = r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
+        if new_password and not re.match(password_regex, new_password):
+            self.add_error('new_password', "Password must be at least 8 characters, contain one uppercase letter, one number, and one special character.")
+
+        return cleaned_data
+
