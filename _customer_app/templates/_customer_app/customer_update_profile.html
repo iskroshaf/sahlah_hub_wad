@@ -5,6 +5,35 @@
 {% block content %}
 
 {% load static %}
+
+<style>
+    /* Default: sembunyi mobile view */
+.mobile-view {
+    display: none;
+}
+
+/* Untuk phone view (max 767px) */
+@media (max-width: 767px) {
+    .desktop-view {
+        display: none; /* sorok desktop style */
+    }
+
+    .mobile-view {
+        display: flex; /* tunjuk avatar versi mobile */
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .mobile-view img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+}
+
+</style>
 <section class="flat-spacing">
     <div class="container">
         <div class="my-account-wrap">
@@ -15,6 +44,15 @@
                         class="form-account-details form-has-password">
                         {% csrf_token %}
                         <div class="account-info">
+                            <div class="account-avatar mobile-view">
+                                <div class="image">
+                                    {% if request.user.image_avatar %}
+                                        <img src="{{ request.user.image_avatar.url }}" alt="User Avatar">
+                                    {% else %}
+                                        <img src="{% static 'images/user-default.jpg' %}" alt="Default Avatar">
+                                    {% endif %}
+                                </div>
+                            </div>
                             <h5 class="title">Information</h5>
                             <div class="cols mb_20">
                                 <div class="mb-3">

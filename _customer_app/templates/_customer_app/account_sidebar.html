@@ -12,14 +12,15 @@
 <div class="wrap-sidebar-account">
     <div class="sidebar-account">
         <div class="account-avatar">
-            <div class="image">
-                {% if request.user.image_avatar %}
-                    <img src="{{ request.user.image_avatar.url }}" alt="User Avatar"
-                        style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%;">
-                {% else %}
-                    <img src="{% static 'images/user-default.jpg' %}" alt="Default Avatar"
-                        style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%;">
-                {% endif %}
+            <div class="account-avatar desktop-view">
+                <div class="image">
+                    {% if request.user.image_avatar %}
+                        <img src="{{ request.user.image_avatar.url }}" alt="User Avatar">
+                    {% else %}
+                        <img src="{% static 'images/user-default.jpg' %}" alt="Default Avatar">
+                    {% endif %}
+                </div>
+               
             </div>
             <h6 class="mb_4">{{ request.user.first_name }} {{ request.user.last_name }}</h6>
             <div class="body-text-1">{{ request.user.email }}</div>

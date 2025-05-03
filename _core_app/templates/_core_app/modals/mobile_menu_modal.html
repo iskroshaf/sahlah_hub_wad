@@ -1,13 +1,14 @@
 {% load static %}
 
 <style>
-.group-icon {
-    display: flex;
-    flex-direction: column; /* supaya susun dari atas ke bawah */
-    gap: 15px; /* jarak antara setiap link */
+    .group-icon {
+        display: flex;
+        flex-direction: column;
+        /* supaya susun dari atas ke bawah */
+        gap: 15px;
+        /* jarak antara setiap link */
 
-}
-
+    }
 </style>
 <!-- mobile menu -->
 <div class="offcanvas offcanvas-start canvas-mb" id="mobileMenu">
@@ -31,28 +32,24 @@
                         </svg>
                     </button>
                 </form>
+                {% if request.resolver_match.url_name == 'Update_profile' %}
+               
                 <ul class="nav-ul-mb" id="wrapper-menu-navigation">
-                    <li class="nav-mb-item active">
-                        <a href="" class="collapsed mb-menu-link">
-                            <span>Home</span>
-                        </a>
-                    </li>
-                    <li class="nav-mb-item">
-                        <a href="" class="collapsed mb-menu-link">
-                            <span>Shops</span>
-                        </a>
-                    </li>
-                    <li class="nav-mb-item">
-                        <a href="" class="collapsed mb-menu-link">
-                            <span>Products</span>
-                        </a>
-                    </li>
-                    <li class="nav-mb-item">
-                        <a href="" class="collapsed mb-menu-link">
-                            <span>Account Setting</span>
-                        </a>
+                    <li class="nav-mb-item"><a href="" class="mb-menu-link">Account Detail</a></li>
+                    <li class="nav-mb-item"><a href="" class="mb-menu-link">Your Order</a></li>
+                    <li class="nav-mb-item"><a href="{% url 'customer_update_password' %}" class="mb-menu-link">Change Password</a></li>
+                    <li class="nav-mb-item"><a href="{% url 'customer_home' %}" class="mb-menu-link">Back</a></li>
+                </ul>
+                {% else %}
+               
+                <ul class="nav-ul-mb" id="wrapper-menu-navigation">
+                    <li class="nav-mb-item active"><a href="" class="collapsed mb-menu-link"><span>Home</span></a></li>
+                    <li class="nav-mb-item"><a href="" class="collapsed mb-menu-link"><span>Shops</span></a></li>
+                    <li class="nav-mb-item"><a href="" class="collapsed mb-menu-link"><span>Products</span></a></li>
+                    <li class="nav-mb-item"><a href="{% url 'Update_profile' %}" class="collapsed mb-menu-link"><span>Account Setting</span></a>
                     </li>
                 </ul>
+                {% endif %}
                 {% else %}
                 <div class="group-icon ">
                     <a href="{% url 'login' %}" class="site-nav-icon">
@@ -79,7 +76,7 @@
                                 stroke="#181818" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                         Sign Up
-                        
+
                     </a>
                     {% endif %}
                     <a href="{% url 'login' %}" class="site-nav-icon">
@@ -160,3 +157,4 @@
     </div>
 </div>
 <!-- /mobile menu -->
+
