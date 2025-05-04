@@ -3,7 +3,7 @@ from django import forms
 from django.forms import FileInput
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from _user_app.models import CustomUser
-from _customer_app.models import Customer
+from _customer_app.models import Customer,ShippingAddress
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from datetime import date
@@ -145,3 +145,11 @@ class PasswordChangeForm(forms.Form):
 
         return cleaned_data
 
+class ShippingAddressForm(forms.ModelForm):
+    class Meta:
+        model = ShippingAddress
+        fields = [
+            'full_name', 'phone',
+            'address_line1', 'address_line2',
+            'city', 'state', 'postcode', 'country'
+        ]

@@ -55,7 +55,8 @@
                 </a>
             </li>
             <li>
-                <a href="my-account-address.html" class="my-account-nav-item">
+                <a href="{% url 'customer_update_address' %}"class="my-account-nav-item {% if request.resolver_match.url_name == 'customer_update_address' or request.path|slice:':27' == '/customer/addresses/edit/' %}active{% endif %}">
+             
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                         xmlns="http://www.w3.org/2000/svg">
                         <path

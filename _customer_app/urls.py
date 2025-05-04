@@ -9,7 +9,9 @@ urlpatterns = [
     path('home/', views.customer_home_view, name='customer_home'),
     path('update/',views.customer_update_profile,name="Update_profile"),
     path('update/password/', views.customer_update_password, name='customer_update_password'),
-
+    path('update/address/', views.customer_update_address, name='customer_update_address'),
+    path('addresses/edit/<int:address_id>/', views.edit_shipping_address, name='customer_edit_address'),
+    path("addresses/delete/<int:pk>/", views.delete_shipping_address, name="customer_delete_address"),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,103 @@
+{% extends '_core_app/base.html' %}
+
+{% block title %}Sahlan Hub - {{ title }} {% endblock title %}
+
+{% block content %}
+
+<style>
+.address-form .form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.form-group-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.form-group-row .form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.btn-save-address {
+    background-color: #28a745;
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-save-address:hover {
+    background-color: #218838;
+}
+</style>
+<section class="flat-spacing">
+    <div class="container">
+        <div class="my-account-wrap">
+            {% include "_customer_app/account_sidebar.html" %}
+            <div class="my-account-content">
+                <h3>Edit Address</h3>
+                <form method="POST" class="address-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="full_name">Full Name</label>
+                        <input type="text" id="full_name" name="full_name" value="{{ form.full_name.value }}" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="text" id="phone" name="phone" value="{{ form.phone.value }}" placeholder="012-3456789" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address_line1">Address Line 1</label>
+                        <input type="text" id="address_line1" name="address_line1" value="{{ form.address_line1.value }}" placeholder="No 12, Jalan Mawar" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address_line2">Address Line 2</label>
+                        <input type="text" id="address_line2" name="address_line2" value="{{ form.address_line2.value }}" placeholder="Taman Melati (optional)">
+                    </div>
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" name="city" value="{{ form.city.value }}" placeholder="Shah Alam" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" name="state" value="{{ form.state.value }}" placeholder="Selangor" required>
+                        </div>
+                    </div>
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="postcode">Postcode</label>
+                            <input type="text" id="postcode" name="postcode" value="{{ form.postcode.value }}" placeholder="40100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="country">Country</label>
+                            <input type="text" id="country" name="country" value="{{ form.country.value }}" placeholder="Malaysia" required>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-save-address" style="background-color: #181818; color: white;">Update Address</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
