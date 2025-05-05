@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash 
 from .models import ShippingAddress
 
+
 def customer_register_view(request):
     title = "Register"
     theme = "customer_theme"
@@ -15,12 +16,15 @@ def customer_register_view(request):
             user.role = "C"
             user.save()
             print("Register Successful")
+            messages.success(request, "Create account was succesfully ! Please Log In First ;) ")
             return redirect("login")
         else:
             # print(form.errors)
-             if form.errors.get('email'):
+            if form.errors.get('username'):
+                messages.error(request, f"Username error: {form.errors['username'][0]}")
+            elif form.errors.get('email'):
                 messages.error(request, f"Error with email: {form.errors['email'][0]}")  # Mesej ralat email
-             elif form.errors.get('password2'):
+            elif form.errors.get('password2'):
                 messages.error(request, f"Error with password confirmation: {form.errors['password2'][0]}")  # Mesej ralat password
 
     else:
@@ -70,7 +74,7 @@ def customer_update_profile(request):
 
 
 
-from django.contrib.auth import update_session_auth_hash  # pastikan import ini ada
+ # pastikan import ini ada
 
 
 def customer_update_password(request):
@@ -79,14 +83,19 @@ def customer_update_password(request):
     context = {"title": title, "theme": theme}
 
     if request.method == 'POST':
-        form = PasswordChangeForm(request.POST, user=request.user)
+        form = PasswordChangeForm(user=request.user, data=request.POST)
         if form.is_valid():
-            new_password = form.cleaned_data['new_password']
+            new_password = form.cleaned_data.get('new_password')
             request.user.set_password(new_password)
             request.user.save()
-            update_session_auth_hash(request, request.user)  # supaya user tak logout
+            update_session_auth_hash(request, request.user)  # elak auto logout
             messages.success(request, "Password updated successfully!")
-            return redirect("customer_home")
+            return redirect("customer_update_password")
+        else:
+            
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{error}")
     else:
         form = PasswordChangeForm(user=request.user)
 
@@ -107,6 +116,7 @@ def customer_update_address(request):
             new_address = form.save(commit=False)
             new_address.user = request.user
             new_address.save()
+            messages.success(request, "Address Add successfully!")
             return redirect('customer_update_address')
     else:
         form = ShippingAddressForm()  # ✅ pastikan ini wujud untuk GET request
@@ -132,6 +142,7 @@ def edit_shipping_address(request, address_id):
         form = ShippingAddressForm(request.POST, instance=address)
         if form.is_valid():
             form.save()
+            messages.success(request, "Address updated successfully!")
             return redirect('customer_update_address') 
     else:
         form = ShippingAddressForm(instance=address)

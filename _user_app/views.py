@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from _user_app.decorators import redirect_authenticated_user
 from _customer_app.forms import ProfileUpdateForm
+from django.contrib import messages
 
 
 def user_login(request):
@@ -21,6 +22,7 @@ def user_login(request):
                     return redirect("seller_dashboard")
         else:
             print("Login Fail")
+            messages.error(request, "Invalid username or password.")
     context = {"title": title, "theme": theme}
     return render(request, "_user_app/user_login.html", context)
 
