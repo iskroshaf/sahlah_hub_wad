@@ -2,9 +2,17 @@
 
 <header id="header" class="header-default">
     <style>
+        .become-seller-link {
+            font-weight: 600;
+            color: #181818;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
 
-
-    
+        .become-seller-link:hover {
+            color: #ff6600;
+            /* atau ikut tema warna anda */
+        }
     </style>
     <div class="container">
         <div class="row wrapper-header align-items-center">
@@ -14,10 +22,11 @@
                 </a>
 
             </div>
-            <div class="col-xl-3 col-md-4 col-6">
-                <a href="" class="logo-header">
-                    <img src="{% static 'customer_theme/images/logo/logo.svg'%}" alt="logo" class="logo">
+            <div class="col-xl-3 col-md-4 col-6 d-flex align-items-center">
+                <a href="/" class="logo-header d-flex align-items-center">
+                    <img src="{% static 'customer_theme/images/logo/logo.svg' %}" alt="logo" class="logo">
                 </a>
+                <a href="{% url 'seller_register' %}" class="ms-3 become-seller-link">Become a Seller</a>
             </div>
 
 
@@ -43,6 +52,7 @@
                                     <option>Malay</option>
                                 </select>
                             </div>
+
                         </div>
                     </div>
                     {% if user.is_authenticated %}
@@ -57,6 +67,7 @@
                             </svg>
                         </a>
                     </li>
+
                     {% endif %}
                     {% if not user.is_authenticated %}
                     <li class="nav-account">
@@ -71,10 +82,12 @@
                                     stroke="#181818" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                         </div>
-                        <div class="dropdown-account dropdown-login" style="right: 10px; padding: 1rem; min-width: 250px;">
+                        <div class="dropdown-account dropdown-login"
+                            style="right: 10px; padding: 1rem; min-width: 250px;">
                             <div class="sub-top">
                                 <a href="{% url 'login' %}" class="tf-btn btn-reset">Login</a>
-                                <p class="text-center text-secondary-2">Don’t have an account? <a href="{% url 'customer_register' %}">Register</a></p>
+                                <p class="text-center text-secondary-2">Don’t have an account? <a
+                                        href="{% url 'customer_register' %}">Register</a></p>
                             </div>
                             <div class="sub-bot">
                                 <span class="body-text-">Support</span>
@@ -103,8 +116,8 @@
                     </li>
                     <li class="nav-account">
                         <div class="nav-icon-item">
-                            <img src="{% static 'customer_theme/images/avatar/user-default.jpg' %}" alt="avatar" class="rounded-circle"
-                                width="35" height="35">
+                            <img src="{% static 'customer_theme/images/avatar/user-default.jpg' %}" alt="avatar"
+                                class="rounded-circle" width="35" height="35">
                         </div>
                         <div class="dropdown-account dropdown-login">
                             <div class="sub-bot">

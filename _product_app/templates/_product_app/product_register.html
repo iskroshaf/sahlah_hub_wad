@@ -6,6 +6,67 @@
 
 {% block content %}
 
+
+<style>
+    .form-card {
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        padding: 30px;
+        background-color: #fff;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 10px;
+        padding: 10px 15px;
+    }
+
+    .btn-submit {
+        background: linear-gradient(90deg, #343a40, #212529);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: 0.3s ease;
+    }
+
+    .btn-submit:hover {
+        background: linear-gradient(90deg, #212529, #000);
+    }
+
+    .image-preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .image-preview img {
+        height: 120px;
+        width: auto;
+        border-radius: 10px;
+        object-fit: cover;
+        border: 1px solid #ccc;
+    }
+
+    @media screen and (max-width: 600px) {
+        .form-row {
+            flex-direction: column;
+        }
+
+        .image-preview img {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+        }
+    }
+</style>
+
 <div class="page-header">
     <div class="page-block">
         <div class="row align-items-center">
@@ -26,74 +87,104 @@
 </div>
 
 
-<div class="card">
-    <div class="card-header">
-        <h5>Product Registration</h5>
+<!-- <div class="product-form-container">
+    <div class="product-form-card">
+      <h2>🛍️ Register New Product</h2>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+  
+        <div class="form-group">
+          <label>Product Name</label>
+          {{ form.product_name }}
+        </div>
+  
+        <div class="form-group">
+          <label>Product Description</label>
+          {{ form.product_description }}
+        </div>
+  
+        <div class="form-row">
+          <div class="form-group">
+            <label>Price (RM)</label>
+            {{ form.product_price }}
+          </div>
+          <div class="form-group">
+            <label>Product Category</label>
+            {{ form.product_category_name }}
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <label>Upload up to 5 Product Images</label>
+          <input type="file" name="product_images" id="product_images" multiple accept="image/*" onchange="previewImages()" />
+          <div id="preview-container" class="image-preview"></div>
+        </div>
+  
+        <button type="submit" class="submit-btn">Submit Product</button>
+      </form>
     </div>
-    <div class="card-body">
+  </div> -->
 
 
-        <form action="" method="POST" enctype="multipart/form-data">
+<div class="container my-5">
+    <div class="form-card">
+        <h4 class="mb-4">🛍️ Register New Product</h4>
+        <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
+
             <div class="mb-3">
-                <label class="form-label" for="">Product Name</label>
+                <label class="form-label">Product Name</label>
                 {{ form.product_name }}
             </div>
+
             <div class="mb-3">
-                <label class="form-label" for="">Product Description</label>
+                <label class="form-label">Product Description</label>
                 {{ form.product_description }}
             </div>
 
             <div class="row">
                 <div class="mb-3 col-md-6">
-                    <label class="form-label" for="inputCity">Price</label>
+                    <label class="form-label">Price (RM)</label>
                     {{ form.product_price }}
                 </div>
                 <div class="mb-3 col-md-6">
-                    <label class="form-label" for="inputState">Product Category</label>
+                    <label class="form-label">Product Category</label>
                     {{ form.product_category_name }}
                 </div>
             </div>
 
-            <div class="row">
-                <div class="mb-3 col-md-6">
-                    <img id="img-preview" src="{% static 'images/white_bg.jpeg' %}" alt="Product Image"
-                        class="w-100 card-img object-fit-cover" style="height: 200px;" />
-                </div>
-                <div class="mb-3 col-md-6">
-                    <label class="form-label" for="product_image">Product Image</label>
-                    {{ form.product_image }}
-                </div>
-               
+            <div class="mb-3">
+                <label class="form-label">Upload up to 5 Product Images</label>
+                <input type="file" name="product_images" id="product_images" class="form-control" multiple
+                    accept="image/*" onchange="previewImages()" />
+                <div id="preview-container" class="image-preview mt-3"></div>
             </div>
 
-            <div class="text-end">
-                <button type="submit" class="btn btn-dark w-100">Register</button>
-            </div>
+            <button type="submit" class="btn btn-submit w-100 mt-3">Submit Product</button>
         </form>
     </div>
 </div>
 
 
 <script>
-    function previewImage(inputElement, previewElementId) {
-        const preview = document.getElementById(previewElementId);
+    function previewImages() {
+        var previewContainer = document.getElementById("preview-container");
+        previewContainer.innerHTML = "";
+        var files = document.getElementById("product_images").files;
 
-        if (inputElement.files && inputElement.files[0]) {
-            const fileURL = URL.createObjectURL(inputElement.files[0]);
-            preview.src = fileURL;
-
-            preview.onload = function () {
-                URL.revokeObjectURL(fileURL);
+        for (var i = 0; i < files.length; i++) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var img = document.createElement("img");
+                img.src = e.target.result;
+                img.className = "img-thumbnail";
+                img.style.maxWidth = "150px";
+                img.style.margin = "5px";
+                previewContainer.appendChild(img);
             };
-        } else {
-            preview.src = "{% static 'images/white_bg.jpeg' %}";
+            reader.readAsDataURL(files[i]);
         }
     }
-
-    document.getElementById('change-product-image').addEventListener('change', function () {
-        previewImage(this, 'img-preview');
-    });
 </script>
 
 

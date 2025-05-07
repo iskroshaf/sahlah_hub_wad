@@ -10,7 +10,7 @@
         </div>
         <div class="navbar-content">
 
-            {% if "shop" in request.path  %}
+            {% if "shop" in request.path or "seller" in request.path %}
             <div class="card pc-user-card">
                 <div class="card-body">
                     <div class="d-flex align-items-center">

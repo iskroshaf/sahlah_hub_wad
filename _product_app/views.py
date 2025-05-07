@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import get_language
 
 from _product_app.forms import ProductCategoryForm, ProductForm
-from _product_app.models import Product, ProductCategory
+from _product_app.models import Product, ProductCategory,ProductImage
 from _shop_app.models import Shop
 
 import os
@@ -90,7 +90,10 @@ def product_register_view(request, pk):
     shop = get_object_or_404(Shop, shop_id=pk)
 
     if request.method == "POST":
+
         form = ProductForm(request.POST, request.FILES)
+        files= request.FILES.getlist("product_images")
+
         if form.is_valid():
             product = form.save(commit=False)
             product.shop = shop
@@ -142,6 +145,10 @@ def product_register_view(request, pk):
             product.save()
             product.auto_translate(fields=["product_name"])
             product.auto_translate(fields=["product_description"])
+
+            for file in files:
+                ProductImage.objects.create(product=product, image=file)
+
             print("Product registration successfully.")
             return redirect("product_list", pk=shop.shop_id)
         else:

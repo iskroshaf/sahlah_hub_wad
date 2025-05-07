@@ -5,7 +5,7 @@ from _shop_app.models import Shop
 
 def seller_register_view(request):
     title = "Seller Register"
-    theme = ""
+    theme = "customer_theme"
     if request.method == "POST":
         form = SellerRegisterForm(request.POST, request.FILES)
         if form.is_valid():
