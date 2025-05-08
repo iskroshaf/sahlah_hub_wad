@@ -129,57 +129,96 @@
 <div class="container my-5">
     <div class="form-card">
         <h4 class="mb-4">🛍️ Register New Product</h4>
-        <form method="POST" enctype="multipart/form-data">
+        <form method="POST" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
 
             <div class="mb-3">
                 <label class="form-label">Product Name</label>
                 {{ form.product_name }}
+                {% if form.product_name.errors %}
+                <div class="text-danger small">
+                    {{ form.product_name.errors.0 }}
+                </div>
+                {% endif %}
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Product Description</label>
                 {{ form.product_description }}
+                {% if form.product_description.errors %}
+                <div class="text-danger small">
+                    {{ form.product_description.errors.0 }}
+                </div>
+                {% endif %}
             </div>
 
             <div class="row">
-                <div class="mb-3 col-md-4">
+                <div class="mb-3 col-md-3">
                     <label class="form-label">Price (RM)</label>
                     {{ form.product_price }}
+                    {% if form.product_price.errors %}
+                    <div class="text-danger small">
+                        {{ form.product_price.errors.0 }}
+                    </div>
+                    {% endif %}
                 </div>
-                <div class="mb-3 col-md-4">
+                <div class="mb-3 col-md-3">
                     <label class="form-label">Product Quantity</label>
                     {{ form.product_quantity }}
+                    {% if form.product_quantity.errors %}
+                    <div class="text-danger small">
+                        {{ form.product_quantity.errors.0 }}
+                    </div>
+                    {% endif %}
                 </div>
-                <div class="mb-3 col-md-4">
+                <div class="mb-3 col-md-3">
                     <label class="form-label">Product Category</label>
                     {{ form.product_category_name }}
+                    {% if form.product_category_name.errors %}
+                    <div class="text-danger small">
+                        {{ form.product_category_name.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="mb-3 col-md-3">
+                    <label class="form-label">Product Availability</label>
+                    {{ form.product_availability }}
+                    {% if form.product_availability.errors %}
+                    <div class="text-danger small">
+                        {{ form.product_availability.errors.0 }}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Upload up to 5 Product Images</label>
+                <label class="form-label">Upload (max 5 images)</label>
                 <input type="file" name="product_images" id="product_images" class="form-control" multiple
-                    accept="image/*" onchange="previewImages()" />
+                       accept="image/*" onchange="previewImages()" />
                 <div id="preview-container" class="image-preview mt-3"></div>
+                {% if image_errors %}
+                <div class="text-danger small">
+                    {{ image_errors }}
+                </div>
+                {% endif %}
             </div>
 
-            <button type="submit" class="btn btn-submit w-100 mt-3">Submit Product</button>
+            <button type="submit" class="btn btn-submit w-100 mt-3" onclick="this.disabled=true; this.form.submit();">Submit Product</button>
         </form>
     </div>
 </div>
 
 
 <script>
-    function previewImages() {
-        var previewContainer = document.getElementById("preview-container");
+     function previewImages() {
+        const previewContainer = document.getElementById("preview-container");
         previewContainer.innerHTML = "";
-        var files = document.getElementById("product_images").files;
+        const files = document.getElementById("product_images").files;
 
-        for (var i = 0; i < files.length; i++) {
-            var reader = new FileReader();
+        for (let i = 0; i < files.length; i++) {
+            const reader = new FileReader();
             reader.onload = function (e) {
-                var img = document.createElement("img");
+                const img = document.createElement("img");
                 img.src = e.target.result;
                 img.className = "img-thumbnail";
                 img.style.maxWidth = "150px";

@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm,IntegerField
 from _product_app.models import Product, ProductCategory
-
+from django.core.exceptions import ValidationError
 
 
 class ProductCategoryForm(ModelForm):
@@ -23,33 +23,53 @@ class ProductCategoryForm(ModelForm):
 
 class ProductForm(ModelForm):
 
+    PRODUCT_STATUS_CHOICES = [
+    ('', 'Select status'),
+    ('available', 'Available'),
+    ('non-available', 'Non-Available'),
+    ]
+
     product_name = forms.CharField(
         label="",
         widget=forms.TextInput(
-            attrs={"placeholder": "Product Name", "class": "form-control"}
-        ),
+            attrs={"placeholder": "Product Name", "class": "form-control"}),
+        error_messages={
+            'required': 'Name of product is required .',
+        }
+        
     )
 
     product_price = forms.DecimalField(
-        label="",
-        min_value=0.01,
-        max_digits=10,
-        decimal_places=2,
-        widget=forms.TextInput(attrs={"placeholder": "Price", "class": "form-control"}),
+    label="",
+    min_value=0.01,
+    max_digits=10,
+    decimal_places=2,
+    required=True,
+    widget=forms.TextInput(attrs={"placeholder": "Price", "class": "form-control"}),
+    error_messages={
+        'required': 'Price is required.',
+        'min_value': 'Price must be at least RM0.01.',
+    }
     )
 
     product_quantity = IntegerField(
         label="",
         min_value=0,
         widget=forms.NumberInput(attrs={"placeholder": "Quantity", "class": "form-control"}),
+        error_messages={
+        'required': 'Please insert a quantity of product.',   
+    }
     )
 
     product_category_name = forms.ModelChoiceField(
         label="",
         queryset=ProductCategory.objects.all(),
         empty_label="Select Product Category",
-        required=False,
+        required=True,
         widget=forms.Select(attrs={"class": "form-control"}),
+        error_messages={
+        'required': 'Please Choose a Category of Product.',   
+    }
     )
 
     product_description = forms.CharField(
@@ -62,7 +82,21 @@ class ProductForm(ModelForm):
         label="",
         widget=forms.FileInput(attrs={"class": "form-control", "id": "change-product-image"}),
         required=False,
+        error_messages={
+            'required': 'Please upload at least 1 ',
+        }
     )
+
+    product_availability = forms.ChoiceField(
+        label="",
+        choices=PRODUCT_STATUS_CHOICES,
+        required=True,
+        widget=forms.Select(attrs={"class": "form-control"}),
+        error_messages={
+            'required': 'Please choose availability ',
+        }
+    )
+
 
     class Meta:
         model = Product
@@ -71,5 +105,21 @@ class ProductForm(ModelForm):
             "product_price",
             "product_category_name",
             "product_description",
-            "product_image"
+            "product_image",
         ]
+
+    def clean_product_name(self):
+        name = self.cleaned_data.get('product_name')
+        if not name:
+            raise ValidationError("Product name is required.")
+        return name
+
+    def clean_product_description(self):
+        desc = self.cleaned_data.get('product_description')
+        if desc:
+            word_count = len(desc.split())
+            if word_count < 3:
+                raise ValidationError("Product description must be at least 3 words.")
+        return desc
+
+
