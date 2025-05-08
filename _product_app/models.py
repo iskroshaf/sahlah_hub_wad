@@ -94,6 +94,7 @@ class Product(BaseTranslatableModel):
     shop = models.ForeignKey("_shop_app.Shop", on_delete=models.CASCADE)
     product_id = models.CharField(max_length=10, unique=True, primary_key=True)
     product_price = models.DecimalField(max_digits=10, decimal_places=2)
+    product_quantity = models.PositiveIntegerField(default=0)
     # product_image = models.ImageField(upload_to='media_photos/', blank=True, null=True)
     product_category_name = models.ForeignKey(
         "_product_app.ProductCategory", on_delete=models.SET_NULL, null=True, blank=True

@@ -170,7 +170,7 @@ def product_list_view(request, pk):
     title = "Product"
     theme = "admin_seller_theme"
     shop = get_object_or_404(Shop, shop_id=pk)
-    products = Product.objects.all()
+    products = Product.objects.filter(shop=shop)
     context = {
         "title": title,
         "theme": theme,

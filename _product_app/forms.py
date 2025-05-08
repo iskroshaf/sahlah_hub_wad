@@ -1,6 +1,7 @@
 from django import forms
-from django.forms import ModelForm
+from django.forms import ModelForm,IntegerField
 from _product_app.models import Product, ProductCategory
+
 
 
 class ProductCategoryForm(ModelForm):
@@ -35,6 +36,12 @@ class ProductForm(ModelForm):
         max_digits=10,
         decimal_places=2,
         widget=forms.TextInput(attrs={"placeholder": "Price", "class": "form-control"}),
+    )
+
+    product_quantity = IntegerField(
+        label="",
+        min_value=0,
+        widget=forms.NumberInput(attrs={"placeholder": "Quantity", "class": "form-control"}),
     )
 
     product_category_name = forms.ModelChoiceField(

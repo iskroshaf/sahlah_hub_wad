@@ -4,7 +4,15 @@
 {% block title %}Sahlan Hub - {{ title }} {% endblock title %}
 
 {% block content %}
+<style>
 
+    .fixed-image{
+        width: 700px;
+        height: 400px;
+        object-fit:cover;
+        border-radius: 10px;
+    }
+</style>
 <div class="page-header">
     <div class="page-block">
         <div class="row align-items-center">
@@ -86,9 +94,8 @@
                 <div class="card product-card">
                   <div class="card-img-top position-relative">
                     <a href="#">
-                        
                         {% if product.images.all %}
-                        <img src="{{ product.images.first.image.url }}" alt="product-image" class="img-prod img-fluid" />
+                        <img src="{{ product.images.first.image.url }}" alt="product-image" class="fixed-image img-fluid" />
                       {% else %}
                         <img src="{% static 'images/user-default.jpg' %}" alt="default-image" class="img-prod img-fluid" />
                       {% endif %}
