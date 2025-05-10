@@ -25,7 +25,7 @@
 </div>
 
 
-        <div class="card">
+<!-- <div class="card">
             <div class="card-body">
                 <ul class="nav nav-tabs invoice-tab border-bottom mb-3" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -1122,8 +1122,77 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
+<div class="row">
+    <!-- [ sample-page ] start -->
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Shop You</h5>
+            </div>
+            {% if messages %}
+            {% for m in messages %}
+            <div class="alert alert-{{ m.tags }} alert-dismissible fade show" role="alert">
+                {{ m }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            <div class="card-body">
+                <div class="card-body">
+                    <div class="row">
+                        {% for shop in shops %}
+                        <div class="col-sm-6 col-lg-4 col-xxl-3">
+                            <div class="card border">
+                                <div class="card-body p-2">
+                                    <div class="position-relative">
+                                        {% if shop.shop_bg_photo %}
+                                        <img src="{{ shop.shop_bg_photo.url }}" class="img-fluid w-100"
+                                            style="height:180px;object-fit:cover;">
+                                        {% else %}
+                                        <img src="{% static 'images/white_bg.jpeg' %}" class="img-fluid w-100"
+                                            style="height:180px;object-fit:cover;">
+                                        {% endif %}
+                                        <div class="position-absolute top-0 end-0 p-2">
+                                            {% if shop.shop_logo %}
+                                            <img src="{{ shop.shop_logo.url }}" class="rounded-circle"
+                                                style="width:50px;height:50px;object-fit:cover;">
+                                            {% else %}
+                                            <img src="{% static 'images/user-default.jpg' %}" class="rounded-circle"
+                                                style="width:50px;height:50px;object-fit:cover;">
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <ul class="list-group list-group-flush my-2">
+                                        <li class="list-group-item px-0 py-2">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1 me-2">
+                                                    <h6 class="mb-1">{{ shop.shop_name }}</h6>
+                                                    <p class="mb-0 f-w-600">
+                                                        <i class="fas fa-star text-warning"></i> {{ shop.shop_rating }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item px-0 py-2">
+                                            <p class="text-muted mb-0">{{ shop.shop_desc }}</p>
+                                        </li>
+                                    </ul>
+                                    <a href="#" class="btn btn-sm btn-outline-primary mb-2">Visit Shop</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- [ sample-page ] end -->
+</div>
 
 <!-- <script src="{% static 'admin_seller_theme/js/plugins/simple-datatables.js' %}"></script>
 <script src="{% static 'admin_seller_theme/js/pages/invoice-list.js'%}"></script> -->

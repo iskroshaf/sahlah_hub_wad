@@ -31,78 +31,109 @@
         <h5>Shop Registration</h5>
     </div>
     <div class="card-body">
-        <form action="" method="POST" enctype="multipart/form-data">
+        <form method="POST" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
-            <div class="row">
 
+            <div class="row">
                 <div class="mb-3 col-md-6">
-                    <label class="form-label" for="shop_name">Name</label>
+                    <label class="form-label" for="id_shop_name">Name</label>
                     {{ form.shop_name }}
+                    <div class="text-danger">
+                        {{ form.shop_name.errors }}
+                    </div>
                 </div>
-                <div class="mb-3 col-md-6">
-                    <label class="form-label" for="shop_phone_number">Phone No</label>
-                    {{ form.shop_phone_number }}
 
+                <div class="mb-3 col-md-6">
+                    <label class="form-label" for="id_shop_phone_number">Phone No</label>
+                    {{ form.shop_phone_number }}
+                    <div class="text-danger">
+                        {{ form.shop_phone_number.errors }}
+                    </div>
                 </div>
             </div>
 
             <div class="row">
                 <div class="mb-3 col-md-6">
-                    <label class="form-label" for="shop_logo">Logo</label>
-                    <input type="file" id="change-logo-photo" name="shop_logo" class="form-control"
-                        accept=".jpg, .jpeg, .png">
-
+                    <label class="form-label" for="id_shop_logo">Logo</label>
+                    {{ form.shop_logo }}
+                    <div class="text-danger">
+                        {{ form.shop_logo.errors }}
+                    </div>
                 </div>
+
                 <div class="mb-3 col-md-6">
-                    <label class="form-label" for="shop_bg_photo">Background</label>
-                    <input type="file" id="change-bg-photo" name="shop_bg_photo" class="form-control"
-                        accept=".jpg, .jpeg, .png">
+                    <label class="form-label" for="id_shop_bg_photo">Background</label>
+                    {{ form.shop_bg_photo }}
+                    <div class="text-danger">
+                        {{ form.shop_bg_photo.errors }}
+                    </div>
                 </div>
             </div>
+
             <div class="row">
                 <div class="mb-3 col-md-6 d-flex justify-content-center align-items-center">
-                    <img id="logo-preview" class="img-profile-avtar rounded-circle img-fluid object-fit-cover"
-                        src="{% static 'images/user-default.jpg' %}" alt="Shop Avatar"
-                        style="width: 150px; height: 150px;" />
+                    <img id="logo-preview" class="rounded-circle img-fluid object-fit-cover"
+                        src="{% static 'images/user-default.jpg' %}" style="width:150px;height:150px;"
+                        alt="Logo preview" />
                 </div>
                 <div class="mb-3 col-md-6">
-                    <img id="bg-preview"
-                        src="{% static 'images/white_bg.jpeg' %}"
-                        alt="Shop Background" class="w-100 card-img object-fit-cover" style="height: 200px;" />
+                    <img id="bg-preview" class="w-100 card-img object-fit-cover"
+                        src="{% static 'images/white_bg.jpeg' %}" style="height:200px;" alt="Background preview" />
                 </div>
-
-
             </div>
 
             <div class="mb-3">
-                <label class="form-label" for="">Address 1</label>
+                <label class="form-label" for="id_shop_address_1">Address 1</label>
                 {{ form.shop_address_1 }}
+                <div class="text-danger">
+                    {{ form.shop_address_1.errors }}
+                </div>
             </div>
+
             <div class="mb-3">
-                <label class="form-label" for="">Address 2</label>
+                <label class="form-label" for="id_shop_address_2">Address 2 (optional)</label>
                 {{ form.shop_address_2 }}
+                <!-- {{ form.shop_address_2.errors }} -->
             </div>
+
             <div class="row">
                 <div class="mb-3 col-md-6">
-                    <label class="form-label" for="inputCity">City</label>
+                    <label class="form-label" for="id_shop_city">City</label>
                     {{ form.shop_city }}
+                    <div class="text-danger">
+                        {{ form.shop_city.errors }}
+                    </div>
                 </div>
                 <div class="mb-3 col-md-4">
-                    <label class="form-label" for="inputState">State</label>
+                    <label class="form-label" for="id_shop_state">State</label>
                     {{ form.shop_state }}
+                    <div class="text-danger">
+                        {{ form.shop_state.errors }}
+                    </div>
                 </div>
                 <div class="mb-3 col-md-2">
-                    <label class="form-label" for="inputZip">Zip</label>
+                    <label class="form-label" for="id_shop_postcode">Zip</label>
                     {{ form.shop_postcode }}
+                    <div class="text-danger">
+                        {{ form.shop_postcode.errors }}
+                    </div>
                 </div>
             </div>
+
             <div class="mb-3">
-                <label class="form-label" for="shop_category">Category</label>
+                <label class="form-label" for="id_shop_category">Category</label>
                 {{ form.shop_category }}
+                <div class="text-danger">
+                    {{ form.shop_category.errors }}
+                </div>
             </div>
+
             <div class="mb-3">
-                <label for="shop_desc" class="form-label">Description</label>
+                <label class="form-label" for="id_shop_desc">Description</label>
                 {{ form.shop_desc }}
+                <div class="text-danger">
+                    {{ form.shop_desc.errors }}
+                </div>
             </div>
 
             <div class="text-end">
@@ -113,7 +144,7 @@
 </div>
 
 
-<script>
+<!-- <script>
     function previewImage(inputElement, previewElementId) {
         const preview = document.getElementById(previewElementId);
 
@@ -140,7 +171,35 @@
     document.getElementById('change-logo-photo').addEventListener('change', function () {
         previewImage(this, 'logo-preview');
     });
-</script>
+</script> -->
+
+<script>
+    // phone: digits only + max 11
+    const phoneInput = document.getElementById('id_shop_phone_number');
+    if (phoneInput) {
+      phoneInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 11);
+      });
+    }
+  
+    // logo preview
+    document.getElementById('id_shop_logo').addEventListener('change', function () {
+      const file = this.files[0];
+      const preview = document.getElementById('logo-preview');
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+      }
+    });
+  
+    // bg preview
+    document.getElementById('id_shop_bg_photo').addEventListener('change', function () {
+      const file = this.files[0];
+      const preview = document.getElementById('bg-preview');
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+      }
+    });
+  </script>
 
 
 {% endblock %}

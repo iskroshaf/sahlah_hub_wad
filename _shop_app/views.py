@@ -2,11 +2,14 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from _shop_app.forms import ShopForm
 from _shop_app.models import Shop
+from django.contrib import messages
 
 
 def shop_register_view(request):
     title = "Shop Register"
     theme = "admin_seller_theme"
+    storage = messages.get_messages(request)   
+    storage.used = True          
     form = ShopForm()
     if request.method == "POST":
         form = ShopForm(request.POST, request.FILES)
@@ -15,10 +18,12 @@ def shop_register_view(request):
             shop = form.save(commit=False)
             shop.seller = seller
             shop.save()
-            print("Shop Register Successful")
-            return redirect("seller_dashboard")
+                          
+            messages.success(request, "Shop registered successfully!")
+            return redirect("shop_list") 
         else:
-            print(form.errors)
+            messages.error(request, "Please fix the errors in the form.")
+           
     context = {
         "title": title,
         "theme": theme,
