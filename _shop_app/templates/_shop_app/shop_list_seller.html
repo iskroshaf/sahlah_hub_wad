@@ -1,10 +1,15 @@
-{% extends '_core_app/base.html' %}
+{% extends "_core_app/base.html" %}
 {% load static %}
 
-{% block title %}Sahlan Hub - {{ title }} {% endblock title %}
+
+{% static "images/white_bg.jpeg" as DEFAULT_BG %}
+{% static "images/user-default.jpg" as DEFAULT_LOGO %}
+
+{% block title %}Sahlan Hub - {{ title }}{% endblock %}
 
 {% block content %}
 
+<!-- ===== PAGE HEADER ===== -->
 <div class="page-header">
     <div class="page-block">
         <div class="row align-items-center">
@@ -12,1188 +17,354 @@
                 <nav aria-label="breadcrumb">
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-                        <li class="breadcrumb-item"><a href="javascript:void(0)">Shop Management</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Shop List</li>
+                        <li class="breadcrumb-item"><a href="#">Shop Management</a></li>
+                        <li class="breadcrumb-item active">Shop List</li>
                     </ul>
                 </nav>
-                <div class="page-header-title">
-                    <h2 class="mb-0">Shop List</h2>
-                </div>
+                <h2 class="page-header-title mb-0">Shop List</h2>
             </div>
         </div>
     </div>
 </div>
 
+<!-- ===== MESSAGES ===== -->
+{% if messages %}
+{% for m in messages %}
+<div class="alert alert-{{ m.tags }} alert-dismissible fade show" role="alert">
+    {{ m }} <button class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endfor %}
+{% endif %}
 
-<!-- <div class="card">
-            <div class="card-body">
-                <ul class="nav nav-tabs invoice-tab border-bottom mb-3" id="myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="analytics-tab-1" data-bs-toggle="tab"
-                            data-bs-target="#analytics-tab-1-pane" type="button" role="tab"
-                            aria-controls="analytics-tab-1-pane" aria-selected="true">
-                            <span class="d-flex align-items-center gap-2">All <span
-                                    class="avtar rounded-circle bg-light-primary">5</span></span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="analytics-tab-2" data-bs-toggle="tab"
-                            data-bs-target="#analytics-tab-2-pane" type="button" role="tab"
-                            aria-controls="analytics-tab-2-pane" aria-selected="false">
-                            <span class="d-flex align-items-center gap-2">Active <span
-                                    class="avtar rounded-circle bg-light-success">2</span></span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="analytics-tab-3" data-bs-toggle="tab"
-                            data-bs-target="#analytics-tab-3-pane" type="button" role="tab"
-                            aria-controls="analytics-tab-3-pane" aria-selected="false">
-                            <span class="d-flex align-items-center gap-2">Pending <span
-                                    class="avtar rounded-circle bg-light-warning">2</span></span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="analytics-tab-4" data-bs-toggle="tab"
-                            data-bs-target="#analytics-tab-4-pane" type="button" role="tab"
-                            aria-controls="analytics-tab-4-pane" aria-selected="false">
-                            <span class="d-flex align-items-center gap-2">Inactive <span
-                                    class="avtar rounded-circle bg-light-danger">1</span></span>
-                        </button>
-                    </li>
-                </ul>
-                <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade show active" id="analytics-tab-1-pane" role="tabpanel"
-                        aria-labelledby="analytics-tab-1" tabindex="0">
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="pc-dt-simple-1">
-                                <thead>
-                                    <tr>
-                                        <th>No.</th>
-                                        <th>Shop</th>
-                                        <th>Category</th>
-                                        <th>Phone No</th>
-                                        <th>Status</th>
-                                        <th class="text-end">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for shop in shops %}
-                                    <tr>
-                                        <td>{{forloop.counter}}</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="{% if shop.shop_logo %}{{ shop.shop_logo.url }}{% else %}{% static 'images/user-default.jpg' %}{% endif %}" alt="shop avatar"
-                                                        class="wid-40 hei-40 rounded-circle object-fit-cover"/>
-                                                </div>
-                                                <div class="col">
-                                                    {{ shop.shop_name}}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>{{shop.shop_category}}</td>
-                                        <td>{{shop.shop_phone_number}}</td>
-                                        <td><span class="badge bg-light-success">Active</span></td>
-                                        <td class="text-end">
-                                            <a href="{% url 'shop_dashboard' shop.shop_id %}" class="avtar avtar-s btn-link-success btn-pc-default">
-                                                <i class="ti ti-edit f-20"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" id="analytics-tab-2-pane" role="tabpanel"
-                        aria-labelledby="analytics-tab-2" tabindex="0">
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="pc-dt-simple-2">
-                                <thead>
-                                    <tr>
-                                        <th>Invoice Id</th>
-                                        <th>User Name</th>
-                                        <th>Create Date</th>
-                                        <th>Due Date</th>
-                                        <th>Quantity</th>
-                                        <th>Status</th>
-                                        <th class="text-end">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>5</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-2.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Shelba
-                                                            Thews</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>7/6/2022</td>
-                                        <td>7/8/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-danger">Cancelled</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>6</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-3.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span
-                                                            class="text-truncate w-100">tass23@gmail.com</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>05/01/2022</td>
-                                        <td>06/02/2022</td>
-                                        <td>1000</td>
-                                        <td><span class="badge bg-light-info">Unpaid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-5.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Mickie
-                                                            Melmoth</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">mmsht23@gmail.com</span></a>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>5/5/2022</td>
-                                        <td>7/11/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-success">Paid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-9.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Shelba
-                                                            Thews</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>7/6/2022</td>
-                                        <td>7/8/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-danger">Cancelled</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>3</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-10.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span
-                                                            class="text-truncate w-100">tass23@gmail.com</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>05/01/2022</td>
-                                        <td>06/02/2022</td>
-                                        <td>1000</td>
-                                        <td><span class="badge bg-light-info">Unpaid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>4</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-1.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Mickie
-                                                            Melmoth</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">mmsht23@gmail.com</span></a>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>5/5/2022</td>
-                                        <td>7/11/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-success">Paid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>7</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-4.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Mickie
-                                                            Melmoth</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">mmsht23@gmail.com</span></a>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>5/5/2022</td>
-                                        <td>7/11/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-success">Paid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>8</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-7.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Shelba
-                                                            Thews</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>7/6/2022</td>
-                                        <td>7/8/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-danger">Cancelled</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>9</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-8.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span
-                                                            class="text-truncate w-100">tass23@gmail.com</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>05/01/2022</td>
-                                        <td>06/02/2022</td>
-                                        <td>1000</td>
-                                        <td><span class="badge bg-light-info">Unpaid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" id="analytics-tab-3-pane" role="tabpanel"
-                        aria-labelledby="analytics-tab-3" tabindex="0">
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="pc-dt-simple-3">
-                                <thead>
-                                    <tr>
-                                        <th>Invoice Id</th>
-                                        <th>User Name</th>
-                                        <th>Create Date</th>
-                                        <th>Due Date</th>
-                                        <th>Quantity</th>
-                                        <th>Status</th>
-                                        <th class="text-end">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-5.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Mickie
-                                                            Melmoth</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">mmsht23@gmail.com</span></a>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>5/5/2022</td>
-                                        <td>7/11/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-success">Paid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-9.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Shelba
-                                                            Thews</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>7/6/2022</td>
-                                        <td>7/8/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-danger">Cancelled</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>3</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-10.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span
-                                                            class="text-truncate w-100">tass23@gmail.com</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>05/01/2022</td>
-                                        <td>06/02/2022</td>
-                                        <td>1000</td>
-                                        <td><span class="badge bg-light-info">Unpaid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>4</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-1.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Mickie
-                                                            Melmoth</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">mmsht23@gmail.com</span></a>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>5/5/2022</td>
-                                        <td>7/11/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-success">Paid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>5</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-2.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Shelba
-                                                            Thews</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>7/6/2022</td>
-                                        <td>7/8/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-danger">Cancelled</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>6</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-3.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span
-                                                            class="text-truncate w-100">tass23@gmail.com</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>05/01/2022</td>
-                                        <td>06/02/2022</td>
-                                        <td>1000</td>
-                                        <td><span class="badge bg-light-info">Unpaid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>7</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-4.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Mickie
-                                                            Melmoth</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">mmsht23@gmail.com</span></a>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>5/5/2022</td>
-                                        <td>7/11/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-success">Paid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>8</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-7.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Shelba
-                                                            Thews</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>7/6/2022</td>
-                                        <td>7/8/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-danger">Cancelled</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>9</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-8.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span
-                                                            class="text-truncate w-100">tass23@gmail.com</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>05/01/2022</td>
-                                        <td>06/02/2022</td>
-                                        <td>1000</td>
-                                        <td><span class="badge bg-light-info">Unpaid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" id="analytics-tab-4-pane" role="tabpanel"
-                        aria-labelledby="analytics-tab-4" tabindex="0">
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="pc-dt-simple-4">
-                                <thead>
-                                    <tr>
-                                        <th>Invoice Id</th>
-                                        <th>User Name</th>
-                                        <th>Create Date</th>
-                                        <th>Due Date</th>
-                                        <th>Quantity</th>
-                                        <th>Status</th>
-                                        <th class="text-end">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>5</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-2.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Shelba
-                                                            Thews</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>7/6/2022</td>
-                                        <td>7/8/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-danger">Cancelled</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>6</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-3.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span
-                                                            class="text-truncate w-100">tass23@gmail.com</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>05/01/2022</td>
-                                        <td>06/02/2022</td>
-                                        <td>1000</td>
-                                        <td><span class="badge bg-light-info">Unpaid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-5.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Mickie
-                                                            Melmoth</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">mmsht23@gmail.com</span></a>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>5/5/2022</td>
-                                        <td>7/11/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-success">Paid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-9.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Shelba
-                                                            Thews</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>7/6/2022</td>
-                                        <td>7/8/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-danger">Cancelled</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>3</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-10.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span
-                                                            class="text-truncate w-100">tass23@gmail.com</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>05/01/2022</td>
-                                        <td>06/02/2022</td>
-                                        <td>1000</td>
-                                        <td><span class="badge bg-light-info">Unpaid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>4</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-1.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Mickie
-                                                            Melmoth</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">mmsht23@gmail.com</span></a>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>5/5/2022</td>
-                                        <td>7/11/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-success">Paid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>7</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-4.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Mickie
-                                                            Melmoth</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">mmsht23@gmail.com</span></a>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>5/5/2022</td>
-                                        <td>7/11/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-success">Paid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>8</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-7.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span class="text-truncate w-100">Shelba
-                                                            Thews</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>7/6/2022</td>
-                                        <td>7/8/2022</td>
-                                        <td>3000</td>
-                                        <td><span class="badge bg-light-danger">Cancelled</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>9</td>
-                                        <td>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto pe-0">
-                                                    <img src="../assets/images/user/avatar-8.jpg" alt="user-image"
-                                                        class="wid-40 hei-40 rounded-circle" />
-                                                </div>
-                                                <div class="col">
-                                                    <h6 class="mb-1"><span
-                                                            class="text-truncate w-100">tass23@gmail.com</span> </h6>
-                                                    <p class="f-12 mb-0"><a href="#!" class="text-muted"><span
-                                                                class="text-truncate w-100">Shelba Thews</span></a></p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>05/01/2022</td>
-                                        <td>06/02/2022</td>
-                                        <td>1000</td>
-                                        <td><span class="badge bg-light-info">Unpaid</span></td>
-                                        <td class="text-end">
-                                            <ul class="list-inline mb-0">
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-info btn-pc-default"><i
-                                                            class="ti ti-eye f-20"></i></a>
-                                                </li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-success btn-pc-default"><i
-                                                            class="ti ti-edit f-20"></i></a></li>
-                                                <li class="list-inline-item"><a href="#"
-                                                        class="avtar avtar-s btn-link-danger btn-pc-default"><i
-                                                            class="ti ti-trash f-20"></i></a></li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> -->
-
+<!-- ===== LIST ===== -->
 <div class="row">
-    <!-- [ sample-page ] start -->
     <div class="col-sm-12">
         <div class="card">
             <div class="card-header">
                 <h5>Shop You</h5>
             </div>
-            {% if messages %}
-            {% for m in messages %}
-            <div class="alert alert-{{ m.tags }} alert-dismissible fade show" role="alert">
-                {{ m }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            {% endfor %}
-            {% endif %}
+
             <div class="card-body">
-                <div class="card-body">
-                    <div class="row">
-                        {% for shop in shops %}
-                        <div class="col-sm-6 col-lg-4 col-xxl-3">
-                            <div class="card border">
-                                <div class="card-body p-2">
-                                    <div class="position-relative">
-                                        {% if shop.shop_bg_photo %}
-                                        <img src="{{ shop.shop_bg_photo.url }}" class="img-fluid w-100"
-                                            style="height:180px;object-fit:cover;">
+                <div class="row">
+
+                    {% for shop in shops %}
+                    <!-- === CARD === -->
+                    <div class="col-sm-6 col-lg-4 col-xxl-3 mb-3">
+                        <div class="card border">
+                            <div class="card-body p-2">
+
+                                <!-- banner + logo -->
+                                <div class="position-relative">
+                                    {% if shop.shop_bg_photo %}
+                                    <img src="{{ shop.shop_bg_photo.url }}" class="img-fluid w-100"
+                                        style="height:180px;object-fit:cover;">
+                                    {% else %}
+                                    <img src="{{ DEFAULT_BG }}" class="img-fluid w-100"
+                                        style="height:180px;object-fit:cover;">
+                                    {% endif %}
+
+                                    <div class="position-absolute top-0 end-0 p-2">
+                                        {% if shop.shop_logo %}
+                                        <img src="{{ shop.shop_logo.url }}" class="rounded-circle"
+                                            style="width:50px;height:50px;object-fit:cover;">
                                         {% else %}
-                                        <img src="{% static 'images/white_bg.jpeg' %}" class="img-fluid w-100"
-                                            style="height:180px;object-fit:cover;">
+                                        <img src="{{ DEFAULT_LOGO }}" class="rounded-circle"
+                                            style="width:50px;height:50px;object-fit:cover;">
                                         {% endif %}
-                                        <div class="position-absolute top-0 end-0 p-2">
-                                            {% if shop.shop_logo %}
-                                            <img src="{{ shop.shop_logo.url }}" class="rounded-circle"
-                                                style="width:50px;height:50px;object-fit:cover;">
-                                            {% else %}
-                                            <img src="{% static 'images/user-default.jpg' %}" class="rounded-circle"
-                                                style="width:50px;height:50px;object-fit:cover;">
+                                    </div>
+                                </div>
+
+                                <!-- meta -->
+                                <ul class="list-group list-group-flush my-2">
+                                    <li class="list-group-item px-0 py-2">
+                                        <h6 class="mb-1">{{ shop.shop_name }}</h6>
+                                        <p class="mb-0 f-w-600"><i class="fas fa-star text-warning"></i> {{ shop.shop_rating }}</p>
+                                    </li>
+                                    <li class="list-group-item px-0 py-2">
+                                        <p class="text-muted mb-0">{{ shop.shop_desc }}</p>
+                                    </li>
+                                </ul>
+
+                                <!-- view btn -->
+                                <button class="btn btn-sm btn-outline-primary mb-2" data-bs-toggle="modal"
+                                    data-bs-target="#shopModal_{{ shop.shop_id }}">
+                                    View Shop
+                                </button>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== VIEW MODAL ===== -->
+                    <div class="modal fade" id="shopModal_{{ shop.shop_id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content overflow-hidden">
+
+                                <div class="position-relative">
+                                    {% if shop.shop_bg_photo %}
+                                    <img src="{{ shop.shop_bg_photo.url }}" class="img-fluid w-100"
+                                        style="height:180px;object-fit:cover;">
+                                    {% else %}
+                                    <img src="{{ DEFAULT_BG }}" class="img-fluid w-100"
+                                        style="height:180px;object-fit:cover;">
+                                    {% endif %}
+
+                                    <div class="position-absolute top-100 start-0 translate-middle-y ms-4">
+                                        {% if shop.shop_logo %}
+                                        <img src="{{ shop.shop_logo.url }}" class="rounded-circle border border-light"
+                                            style="width:80px;height:80px;object-fit:cover;">
+                                        {% else %}
+                                        <img src="{{ DEFAULT_LOGO }}" class="rounded-circle border border-light"
+                                            style="width:80px;height:80px;object-fit:cover;">
+                                        {% endif %}
+                                    </div>
+
+                                    <button class="btn-close position-absolute top-0 end-0 m-3"
+                                        data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body pt-5">
+                                    <h4 class="fw-semibold">{{ shop.shop_name }}</h4>
+                                    <div class="d-flex flex-wrap align-items-center mb-3 gap-3">
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-star me-1"></i> {{ shop.shop_rating }}/5
+                                        </span>
+                                        <span class="badge bg-{{ shop.get_shop_status_display|lower }}">
+                                            {{ shop.get_shop_status_display }}
+                                        </span>
+                                        {% if shop.shop_category %}
+                                        <span class="badge bg-secondary">{{ shop.shop_category }}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% if shop.shop_desc %}
+                                    <p class="mb-4">{{ shop.shop_desc }}</p>
+                                    {% endif %}
+
+                                    <div class="row g-4">
+                                        <div class="col-md-6">
+                                            <h6 class="text-uppercase small fw-bold mb-2">Address</h6>
+                                            <p class="mb-1">{{ shop.shop_address_1 }}</p>
+                                            <p class="mb-1">{{ shop.shop_address_2 }}</p>
+                                            <p class="mb-0">{{ shop.shop_postcode }} {{ shop.shop_city }}, {{
+                                                shop.shop_state }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="text-uppercase small fw-bold mb-2">Contact</h6>
+                                            {% if shop.shop_phone_number %}
+                                            <p class="mb-1"><i class="fas fa-phone me-2"></i>{{ shop.shop_phone_number}}</p>
+                                            {% endif %}
+                                            {% if shop.email %}
+                                            <p class="mb-1"><i class="fas fa-envelope me-2"></i>{{ shop.email }}</p>
                                             {% endif %}
                                         </div>
                                     </div>
-                                    <ul class="list-group list-group-flush my-2">
-                                        <li class="list-group-item px-0 py-2">
-                                            <div class="d-flex align-items-center">
-                                                <div class="flex-grow-1 me-2">
-                                                    <h6 class="mb-1">{{ shop.shop_name }}</h6>
-                                                    <p class="mb-0 f-w-600">
-                                                        <i class="fas fa-star text-warning"></i> {{ shop.shop_rating }}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        <li class="list-group-item px-0 py-2">
-                                            <p class="text-muted mb-0">{{ shop.shop_desc }}</p>
-                                        </li>
-                                    </ul>
-                                    <a href="#" class="btn btn-sm btn-outline-primary mb-2">Visit Shop</a>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button class="btn btn-primary" data-bs-dismiss="modal" data-bs-toggle="modal"
+                                        data-bs-target="#shopEditModal_{{ shop.shop_id }}">
+                                        Edit Shop
+                                    </button>
+
+                                    <a href="{% url 'shop_dashboard' shop.shop_id %}" class="btn btn-secondary">
+                                        Pergi ke Senarai Produk
+                                    </a>
+                                    <button class="btn btn-light" data-bs-dismiss="modal">Close</button>
                                 </div>
                             </div>
                         </div>
-                        {% endfor %}
-
                     </div>
-                </div>
 
+                    <!-- ===== EDIT MODAL ===== -->
+                    <div class="modal fade" id="shopEditModal_{{ shop.shop_id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Edit {{ shop.shop_name }}</h5>
+                                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                {% with err_id=error_shop_id|default:'' %}
+                                <form action="{% url 'seller_edit_shop' shop_id=shop.shop_id %}" method="post"
+                                    enctype="multipart/form-data" novalidate>
+                                    {% csrf_token %}
+                                    <div class="modal-body">
+                                        <div class="row g-3">
+                                            <!-- Nama -->
+                                            <div class="col-md-6">
+                                                <label class="form-label">Shop Name</label>
+                                                <input type="text" name="shop_name" value="{{ shop.shop_name }}"
+                                                    class="form-control" required>
+                                                {% if err_id == shop.shop_id and edit_form.shop_name.errors %}
+                                                <div class="text-danger small">{{ edit_form.shop_name.errors.0 }}</div>
+                                                {% endif %}
+                                            </div>
+
+                                            <!-- Category -->
+                                            <div class="col-md-6">
+                                                <label class="form-label">Category</label>
+                                                <input type="text" name="shop_category" value="{{ shop.shop_category }}"
+                                                    class="form-control">
+                                                {% if err_id == shop.shop_id and edit_form.shop_category.errors %}
+                                                <div class="text-danger small">{{ edit_form.shop_category.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+
+                                            <!-- Phone -->
+                                            <div class="col-md-6">
+                                                <label class="form-label" for="id_shop_phone_number">Phone</label>
+                                                <input type="text" name="shop_phone_number" id="id_shop_phone_number"
+                                                    class="form-control phone-input" maxlength="11" minlength="7"
+                                                    inputmode="numeric" placeholder="+60123456789"
+                                                    value="{% if err_id == shop.shop_id %}{{ edit_form.shop_phone_number.value }}{% else %}{{ shop.shop_phone_number }}{% endif %}">
+                                                {% if err_id == shop.shop_id %}
+                                                {% for err in edit_form.shop_phone_number.errors %}
+                                                <div class="text-danger small">{{ err }}</div>
+                                                {% endfor %}
+                                                {% endif %}
+                                            </div>
+
+                                            <!-- Rating -->
+                                            <!-- <div class="col-md-6">
+                                                <label class="form-label">Rating</label>
+                                                <input type="number" name="shop_rating" step="0.1" min="0" max="5"
+                                                    value="{{ shop.shop_rating }}" class="form-control">
+                                                {% if err_id == shop.shop_id and edit_form.shop_rating.errors %}
+                                                <div class="text-danger small">{{ edit_form.shop_rating.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div> -->
+
+                                            <!-- Description -->
+                                            <div class="col-12">
+                                                <label class="form-label">Description</label>
+                                                <textarea name="shop_desc" rows="3"
+                                                    class="form-control">{{ shop.shop_desc }}</textarea>
+
+                                                {% if err_id == shop.shop_id %}
+                                                {% for err in edit_form.shop_desc.errors %}
+                                                <div class="text-danger small">{{ err }}</div>
+                                                {% endfor %}
+                                                {% endif %}
+                                            </div>
+
+                                            <!-- Address -->
+                                            <div class="col-12 col-md-6">
+                                                <label class="form-label">Address line 1</label>
+                                                <input type="text" name="shop_address_1"
+                                                    value="{{ shop.shop_address_1 }}" class="form-control">
+                                                {% if err_id == shop.shop_id and edit_form.shop_address_1.errors %}
+                                                <div class="text-danger small">{{ edit_form.shop_address_1.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-12 col-md-6">
+                                                <label class="form-label">Address line 2</label>
+                                                <input type="text" name="shop_address_2"
+                                                    value="{{ shop.shop_address_2 }}" class="form-control">
+
+                                            </div>
+
+                                            <div class="col-6 col-md-4">
+                                                <label class="form-label">City</label>
+                                                <input type="text" name="shop_city" value="{{ shop.shop_city }}"
+                                                    class="form-control">
+                                                {% if err_id == shop.shop_id and edit_form.shop_city.errors %}
+                                                <div class="text-danger small">{{ edit_form.shop_city.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-6 col-md-4">
+                                                <label class="form-label">State</label>
+                                                <input type="text" name="shop_state" value="{{ shop.shop_state }}"
+                                                    class="form-control">
+                                                {% if err_id == shop.shop_id and edit_form.shop_state.errors %}
+                                                <div class="text-danger small">{{ edit_form.shop_state.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-6 col-md-4">
+                                                <label class="form-label">Postcode</label>
+                                                <input type="text" name="shop_postcode" value="{{ shop.shop_postcode }}"
+                                                    class="form-control">
+                                                {% if err_id == shop.shop_id and edit_form.shop_postcode.errors %}
+                                                <div class="text-danger small">{{ edit_form.shop_postcode.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+
+                                            <!-- <div class="col-md-6">
+                                                <label class="form-label">Delivery fee (RM)</label>
+                                                <input type="number" name="shop_delivery_fee" step="0.01" min="0"
+                                                    value="{{ shop.shop_delivery_fee }}" class="form-control">
+                                                {% if err_id == shop.shop_id and edit_form.shop_delivery_fee.errors %}
+                                                <div class="text-danger small">{{ edit_form.shop_delivery_fee.errors.0
+                                                    }}</div>
+                                                {% endif %}
+                                            </div> -->
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Shop Logo</label>
+                                                <input type="file" name="shop_logo" class="form-control">
+                                                {% if err_id == shop.shop_id and edit_form.shop_logo.errors %}
+                                                <div class="text-danger small">{{ edit_form.shop_logo.errors.0 }}</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Shop Banner</label>
+                                                <input type="file" name="shop_bg_photo" class="form-control">
+                                                {% if err_id == shop.shop_id and edit_form.shop_bg_photo.errors %}
+                                                <div class="text-danger small">{{ edit_form.shop_bg_photo.errors.0 }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-success">Save Changes</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </form>
+                                {% endwith %}
+
+                            </div>
+                        </div>
+                    </div>
+
+                    {% endfor %}
+                    <!-- ============ END LOOP ============ -->
+
+                </div>
             </div>
         </div>
     </div>
-    <!-- [ sample-page ] end -->
 </div>
 
-<!-- <script src="{% static 'admin_seller_theme/js/plugins/simple-datatables.js' %}"></script>
-<script src="{% static 'admin_seller_theme/js/pages/invoice-list.js'%}"></script> -->
+{% if error_shop_id %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const el = document.getElementById('shopEditModal_{{ error_shop_id }}');
+        if (el) new bootstrap.Modal(el).show();
+    });
+</script>
+{% endif %}
+
+{# ===== JS untuk had input telefon ===== #}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Tangkap semua elemen dengan class 'phone-input'
+        document.querySelectorAll('.phone-input').forEach(input => {
+            input.addEventListener('input', e => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 11);
+            });
+        });
+    });
+</script>
+
 {% endblock %}

@@ -2,113 +2,110 @@
 Hub - {{ title }} {% endblock title %} {% block content %}
 
 <style>
-    .register-container {
-        max-width: 600px;
-        margin: auto;
-        background: #fff;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .register-container h2 {
-        margin-bottom: 20px;
-        font-weight: 600;
-        color: #333;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    .form-group label {
-        display: block;
-        font-weight: 500;
-        margin-bottom: 6px;
-    }
-
-    .form-group input {
-        width: 100%;
-        padding: 10px 14px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        font-size: 14px;
-    }
-
-    .form-group img {
-        display: block;
-        margin-top: 10px;
-        max-width: 120px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-    }
-
-    button {
-        background-color: #0066cc;
-        color: white;
-        padding: 12px 24px;
-        border: none;
-        border-radius: 8px;
-        font-size: 15px;
-        cursor: pointer;
-    }
-
-    button:hover {
-        background-color: #004c99;
-    }
-
-    .login-link {
-        display: block;
-        margin-top: 20px;
-        text-align: center;
-    }
-
-    body {
-        font-family: "Segoe UI", sans-serif;
-        background-color: #f4f4f4;
-    }
+.card-reg    { border:0; box-shadow:0 4px 20px rgba(0,0,0,.08); }
+.form-label  { font-weight:600; }
+.preview-img { display:block; max-width:140px; border-radius:8px; border:1px solid #e3e3e3; margin-top:10px; }
 </style>
 
-<div class="register-container">
-    <h2>{{ title }}</h2>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card card-reg p-4">
+        <h2 class="text-center mb-4">{{ title }}</h2>
 
-        <div class="form-group">
-            <label for="id_username">Username</label>
+        {# flash messages #}
+        {% if messages %}
+          {% for m in messages %}
+            <div class="alert alert-{{ m.tags }} alert-dismissible fade show" role="alert">
+              {{ m }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+
+          <!-- Username -->
+          <div class="mb-3">
+            <label for="id_username" class="form-label">Username</label>
             {{ form.username }}
-        </div>
+            {{ form.username.errors }}
+          </div>
 
-        <div class="form-group">
-            <label for="id_email">Email</label>
-            {{ form.email }}
-        </div>
+          <!-- Email -->
+          <div class="mb-3">
+            <label for="id_email" class="form-label">Email</label>
+            {{ form.email}}
+            {{ form.email.errors }}
+          </div>
 
-        <div class="form-group">
-            <label for="id_phone_number">Phone Number</label>
+          <!-- Phone -->
+          <div class="mb-3">
+            <label for="id_phone_number" class="form-label">Phone Number</label>
             {{ form.phone_number }}
-        </div>
+            {{ form.phone_number.errors }}
+          </div>
 
-        <div class="form-group">
-            <label for="id_photo">Business License</label>
-            <input type="file" id="id_photo" name="business_license" accept=".jpg, .jpeg, .png" required />
-            <img id="image-preview" src="" alt="Preview" style="display: none" />
-        </div>
+          <!-- Business licence -->
+          <div class="mb-3">
+            <label for="id_photo" class="form-label">Business License <small class="text-muted">(jpg/png)</small></label>
+            <input class="form-control" type="file" id="id_photo" name="business_license" accept=".jpg,.jpeg,.png">
+            <img id="image-preview" class="preview-img d-none" alt="Preview">
+            {% if form.business_license.errors %} <div class="text-danger">{{ form.business_license.errors }}</div>{% endif %}
+          </div>
 
-        <div class="form-group">
-            <label for="id_password1">Password</label>
+          <!-- Password -->
+          <div class="mb-3 position-relative">
+            <label for="id_password1" class="form-label">Password</label>
             {{ form.password1 }}
-        </div>
+            <i class="bi bi-eye-slash position-absolute top-50 end-0 translate-middle-y me-3 toggle-pass" data-target="id_password1" role="button"></i>
+            {{ form.password1.errors }}
+          </div>
 
-        <div class="form-group">
-            <label for="id_password2">Confirm Password</label>
-            {{ form.password2 }}
-        </div>
+          <!-- Confirm password -->
+          <div class="mb-4 position-relative">
+            <label for="id_password2" class="form-label">Confirm Password</label>
+            {{ form.password2}}
+            <i class="bi bi-eye-slash position-absolute top-50 end-0 translate-middle-y me-3 toggle-pass" data-target="id_password2" role="button"></i>
+            {{ form.password2.errors }}
+          </div>
 
-        <button type="submit">Register</button>
-    </form>
+          <button class="btn btn-primary w-100" type="submit">Create Account</button>
+        </form>
 
-    <a href="{% url 'login' %}" class="login-link">Already have an account? Login</a>
+        <p class="mt-4 text-center">
+          Already have an account? <a href="{% url 'login' %}">Login here</a>
+        </p>
+      </div>
+    </div>
+  </div>
 </div>
+
+
+<script>
+/* Password eye toggle */
+document.querySelectorAll('.toggle-pass').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const target=document.getElementById(btn.dataset.target);
+    if(target.type==='password'){
+      target.type='text'; btn.classList.replace('bi-eye-slash','bi-eye');
+    }else{
+      target.type='password'; btn.classList.replace('bi-eye','bi-eye-slash');
+    }
+  });
+});
+
+/* Image preview */
+document.getElementById('id_photo').addEventListener('change',function(){
+  const imgPrev=document.getElementById('image-preview');
+  const file=this.files[0];
+  if(file){
+      imgPrev.src=URL.createObjectURL(file);
+      imgPrev.classList.remove('d-none');
+  }else{
+      imgPrev.src=''; imgPrev.classList.add('d-none');
+  }
+});
+</script>
 
 {% endblock %}
