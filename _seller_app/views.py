@@ -1,8 +1,9 @@
 from django.shortcuts import redirect, render
-from _seller_app.forms import SellerRegisterForm
+from _seller_app.forms import SellerRegisterForm,SellerProfileForm
 from _shop_app.models import Shop
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 from django.urls import reverse_lazy
+from django.contrib import messages
 
 def seller_register_view(request):
     title = "Seller Register"
@@ -63,3 +64,34 @@ class SellerPasswordChangeDoneView(PasswordChangeDoneView):
         ctx['theme'] = 'admin_seller_theme'
         ctx['title'] = 'Katalaluan Dikemaskini'
         return ctx
+
+
+def seller_profile_update_view(request):
+    seller = request.user.seller
+    if request.method == 'POST':
+        form = SellerProfileForm(request.POST, request.FILES, instance=seller)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile updated successfully.")
+            return redirect('seller_profile_update')
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = SellerProfileForm(instance=seller)
+
+    return render(request, '_seller_app/seller_update_profile.html', {
+        'form': form,
+        'title': 'Update Profile',
+        'theme': 'admin_seller_theme',
+    })
+
+def seller_profile_view(request):
+    
+    title = "Seller Profile"
+    theme = "admin_seller_theme"
+    context = {
+        "theme": theme,
+        "title":title,
+        # request.user dah tersedia dalam template melalui context processor
+    }
+    return render(request, "_seller_app/seller_profile.html", context)

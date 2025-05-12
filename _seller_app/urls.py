@@ -16,7 +16,9 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('register/',seller_views.seller_register_view, name='seller_register'),
     path('dashboard/',seller_views.seller_dashboard_view, name='seller_dashboard'),
-    
+   
+    path('profile', seller_views.seller_profile_view, name='seller_profile'),
+     path('profile/update/', seller_views.seller_profile_update_view,name='seller_profile_update'),
 
     path('shop/register/',shop_register_view, name='shop_register'),
     path('shops/',shop_list_view, name='shop_list'),
@@ -31,4 +33,6 @@ urlpatterns = [
     ),
     path('password/change/done/',SellerPasswordChangeDoneView.as_view(),name='seller_password_change_done'
     ),
+
+    
 ]

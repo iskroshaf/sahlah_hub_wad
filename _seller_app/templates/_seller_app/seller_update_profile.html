@@ -1,0 +1,130 @@
+{% extends "_core_app/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+
+  <div class="container my-5">
+    <div class="row gx-4 gy-4">
+
+      <!-- Personal Information -->
+      <div class="col-lg-6">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white">
+            <h5 class="mb-0">Personal Information</h5>
+          </div>
+          <div class="card-body">
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="text-center mb-4">
+              {% if form.image_avatar.value %}
+                <img src="{{ form.image_avatar.value.url }}"
+                     class="rounded-circle mb-3"
+                     style="width:100px;height:100px;object-fit:cover;"
+                     alt="Avatar">
+              {% else %}
+                <img src="{% static 'images/user-default.jpg' %}"
+                     class="rounded-circle mb-3"
+                     style="width:100px;height:100px;object-fit:cover;"
+                     alt="Avatar">
+              {% endif %}
+              <div>
+                {{ form.image_avatar }}
+                {% for err in form.image_avatar.errors %}
+                  <div class="text-danger small">{{ err }}</div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                {{ form.first_name }}
+                {% for err in form.first_name.errors %}
+                  <div class="text-danger small">{{ err }}</div>
+                {% endfor %}
+              </div>
+              <div class="col-md-6">
+                <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                {{ form.last_name }}
+                {% for err in form.last_name.errors %}
+                  <div class="text-danger small">{{ err }}</div>
+                {% endfor %}
+              </div>
+              <div class="col-md-6">
+                <label for="{{ form.birthdate.id_for_label }}" class="form-label">Birthdate</label>
+                {{ form.birthdate }}
+                {% for err in form.birthdate.errors %}
+                  <div class="text-danger small">{{ err }}</div>
+                {% endfor %}
+              </div>
+              <div class="col-md-6">
+                <label for="{{ form.gender.id_for_label }}" class="form-label">Gender</label>
+                {{ form.gender }}
+                {% for err in form.gender.errors %}
+                  <div class="text-danger small">{{ err }}</div>
+                {% endfor %}
+              </div>
+              <div class="col-md-6">
+                <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone Number</label>
+                {{ form.phone_number }}
+                {% for err in form.phone_number.errors %}
+                  <div class="text-danger small">{{ err }}</div>
+                {% endfor %}
+              </div>
+              <div class="col-md-6">
+                <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                {{ form.email }}
+                {% for err in form.email.errors %}
+                  <div class="text-danger small">{{ err }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Business License -->
+      <div class="col-lg-6">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white">
+            <h5 class="mb-0">Business License</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="{{ form.business_license.id_for_label }}" class="form-label">
+                Upload Business License
+              </label>
+              {{ form.business_license }}
+              {% for err in form.business_license.errors %}
+                <div class="text-danger small">{{ err }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Form Buttons -->
+    <div class="text-end mt-4">
+      <button type="reset" class="btn btn-outline-secondary me-2">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+    </div>
+  </div>
+</form>
+
+{% if form.errors %}
+<script>
+  document.addEventListener('DOMContentLoaded', ()=> {
+    // If you’re using this inside a modal, open it here
+    // new bootstrap.Modal(document.getElementById('sellerProfileModal')).show();
+  });
+</script>
+{% endif %}
+{% endblock %}
