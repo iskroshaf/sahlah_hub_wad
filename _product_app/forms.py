@@ -2,6 +2,7 @@ from django import forms
 from django.forms import ModelForm,IntegerField
 from _product_app.models import Product, ProductCategory
 from django.core.exceptions import ValidationError
+from parler.forms import TranslatableModelForm
 
 
 class ProductCategoryForm(ModelForm):
@@ -21,7 +22,8 @@ class ProductCategoryForm(ModelForm):
         fields = ["product_category_name"]
 
 
-class ProductForm(ModelForm):
+# class ProductForm(ModelForm):
+class ProductForm(TranslatableModelForm):
 
     PRODUCT_STATUS_CHOICES = [
     ('', 'Select status'),
@@ -107,7 +109,14 @@ class ProductForm(ModelForm):
             "product_description",
             "product_image",
         ]
-
+    
+        labels = {
+            "product_name": "Nama Produk",
+            "product_price": "Harga (RM)",
+            "product_quantity": "Kuantiti",
+            "product_category_name": "Kategori",
+            "product_description": "Deskripsi",
+        }
     def clean_product_name(self):
         name = self.cleaned_data.get('product_name')
         if not name:

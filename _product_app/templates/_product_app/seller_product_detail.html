@@ -1,0 +1,230 @@
+{% extends '_core_app/base.html' %}
+{% load static %}
+
+{% block title %}Detail Produk – {{ product.product_name }}{% endblock %}
+
+{% block content %}
+
+<style>
+  #prodCarousel .carousel-inner {
+    height: 400px;
+    /* ketinggian tetap */
+  }
+
+  #prodCarousel .carousel-item img {
+    object-fit: contain;
+
+    max-height: 100%;
+
+    width: auto;
+
+    margin: auto;
+  }
+</style>
+
+
+<div class="container py-4">
+
+  <!-- Back Button -->
+  <button class="btn btn-link mb-4" onclick="window.history.back()">
+    <i class="fas fa-arrow-left"></i> Kembali
+  </button>
+
+  <button type="button" class="btn btn-outline-primary mb-4" data-bs-toggle="modal" data-bs-target="#editProductModal">
+    <i class="fas fa-edit"></i> Edit Produk
+  </button>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="row">
+        <!-- Carousel Gambar Produk -->
+        <div class="col-md-6">
+          <div id="prodCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+              {% for img in product.images.all %}
+              <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <img src="{{ img.image.url }}" class="d-block w-100 rounded"
+                  style="max-height:400px; object-fit:contain;">
+              </div>
+              {% empty %}
+              <div class="carousel-item active">
+                <img src="{% static 'images/user-default.jpg' %}" class="d-block w-100 rounded"
+                  style="max-height:400px; object-fit:contain;">
+              </div>
+              {% endfor %}
+            </div>
+            {% if product.images.count > 1 %}
+            <button class="carousel-control-prev" type="button" data-bs-target="#prodCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#prodCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon"></span>
+            </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Maklumat Produk -->
+        <div class="col-md-6">
+          <h3 class="fw-bold">{{ product.product_name }}</h3>
+          <p class="text-muted mb-1">
+            Kategori: {{ product.product_category_name|default:"Tiada Kategori" }}
+          </p>
+          <h4 class="text-primary mb-2">RM {{ product.product_price }}</h4>
+          <p class="mb-2">
+            <span class="badge 
+              {% if product.halal_status == 'Halal' %}bg-success
+              {% elif product.halal_status == 'Haram' %}bg-danger
+              {% elif product.halal_status == 'Mashbooh' %}bg-warning text-dark
+              {% else %}bg-secondary{% endif %}">
+              {{ product.halal_status }}
+            </span>
+          </p>
+          <p class="mb-4"><strong>Stok:</strong> {{ product.product_quantity }}</p>
+
+          <h5>Deskripsi</h5>
+          <p>{{ product.product_description|linebreaks }}</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="editProductModalLabel">Edit Produk</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          {{ form.non_field_errors }}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="Name Product">Name Product</label>
+              {{ form.product_name }}
+              {{ form.product_name.errors }}
+            </div>
+            <div class="col-md-6">
+             <label for="Product Price">Name Product</label>
+              {{ form.product_price }}
+              {{ form.product_price.errors }}
+            </div>
+            <div class="col-md-6">
+             <label for="Product Quantity">Name Product</label>
+              {{ form.product_quantity }}
+              {{ form.product_quantity.errors }}
+            </div>
+            <div class="col-md-6">
+              <label for="Product Category">Category</label>
+              {{ form.product_category_name }}
+              {{ form.product_category_name.errors }}
+            </div>
+            <div class="col-12">
+              <label for="Product Desc">Product Description</label>
+              {{ form.product_description }}
+              {{ form.product_description.errors }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Pratonton Gambar (Maks 5)</label>
+              <div id="preview-container" class="d-flex flex-wrap gap-2">
+                {% for img in product.images.all %}
+                <div class="position-relative existing-thumb">
+                  <img src="{{ img.image.url }}" class="rounded" style="width:100px; height:100px; object-fit:cover;">
+                  <a href="{% url 'product_image_delete' shop.shop_id product.product_id img.id %}"
+                    class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                    onclick="return confirm('Padam gambar ini?');">
+                    &times;
+                  </a>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="id_product_images" class="form-label">
+                Tambah Gambar Baru
+              </label>
+              <input type="file" name="product_images" id="id_product_images" class="form-control" multiple
+                accept="image/*">
+              <small class="text-muted">
+                Baki slot: <span id="slots-count">{{ remaining_slots }}</span>
+              </small>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% if form.errors %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var editModal = new bootstrap.Modal(document.getElementById('editProductModal'));
+    editModal.show();
+  });
+</script>
+
+{% endif %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const MAX_TOTAL = 5;
+    const input = document.getElementById('id_product_images');
+    const previewContainer = document.getElementById('preview-container');
+    const slotsCount = document.getElementById('slots-count');
+
+    function updateSlots() {
+      const existingCount = previewContainer.querySelectorAll('.existing-thumb').length;
+      const newCount = previewContainer.querySelectorAll('.new-thumb').length;
+      const used = existingCount + newCount;
+      slotsCount.textContent = Math.max(0, MAX_TOTAL - existingCount - newCount);
+      return used;
+    }
+
+    input.addEventListener('change', function () {
+      // Clear previous new previews
+      previewContainer.querySelectorAll('.new-thumb').forEach(el => el.remove());
+
+      const files = Array.from(this.files);
+      const existingCount = previewContainer.querySelectorAll('.existing-thumb').length;
+      if (existingCount + files.length > MAX_TOTAL) {
+        alert(`Anda hanya boleh ada maks ${MAX_TOTAL} gambar. Anda sudah ada ${existingCount}.`);
+        input.value = "";  // clear selection
+        slotsCount.textContent = Math.max(0, MAX_TOTAL - existingCount);
+        return;
+      }
+
+      files.forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const wrapper = document.createElement('div');
+          wrapper.classList.add('position-relative', 'new-thumb');
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.style.width = '100px';
+          img.style.height = '100px';
+          img.style.objectFit = 'cover';
+          img.classList.add('rounded');
+          wrapper.appendChild(img);
+          previewContainer.appendChild(wrapper);
+          updateSlots();
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    // initialize slots count
+    updateSlots();
+  });
+</script>
+{% endblock %}

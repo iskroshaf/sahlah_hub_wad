@@ -295,3 +295,57 @@ def product_management_view(request, pk):
         "shop": shop,
     }
     return render(request, "_product_app/product_management.html", context)
+
+
+def product_detail_view(request, pk, product_id):
+    # pk datang dari prefix di shop_app.urls (shop_id)
+    shop = get_object_or_404(Shop, shop_id=pk)
+    product = get_object_or_404(Product, product_id=product_id, shop=shop)
+
+    lang = get_language()
+    product.set_current_language(lang)
+
+    title = "Product Management"
+    theme = "admin_seller_theme"
+
+    existing_count = product.images.count()
+    remaining_slots = max(0, 5 - existing_count)
+
+    if request.method == "POST":
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        new_images = request.FILES.getlist("product_images")
+        if form.is_valid():
+            form.save()
+            for img in new_images:
+                ProductImage.objects.create(product=product, image=img)
+            messages.success(request, "✅ Produk dikemaskini.")
+            return redirect("product_detail", pk=shop.shop_id, product_id=product.product_id)
+        else:
+            messages.error(request, "Sila betulkan ralat dalam form.")
+    else:
+        form = ProductForm(instance=product)
+
+    context = {
+        "title": title,
+        "theme": theme,
+        "shop": shop,
+        "product": product,
+        "form": form, 
+        "remaining_slots": remaining_slots,
+    }
+    return render(request, "_product_app/seller_product_detail.html", context)
+
+def product_image_delete_view(request, pk, product_id, image_id):
+    shop = get_object_or_404(Shop, shop_id=pk, seller=request.user.seller)
+    product = get_object_or_404(Product, product_id=product_id, shop=shop)
+    img = get_object_or_404(ProductImage, id=image_id, product=product)
+
+    # Padam fail sebenar (jika perlu)
+    img.image.delete(save=False)
+    img.delete()
+    messages.success(request, "✅ Gambar telah dipadam.")
+    return redirect(
+        'product_detail', 
+        pk=shop.shop_id, 
+        product_id=product.product_id
+    )

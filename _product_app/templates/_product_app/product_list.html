@@ -109,10 +109,10 @@
                   </div>
                 </div>
                 <div class="btn-prod-cart card-body position-absolute end-0 bottom-0">
-                  <div class="btn btn-warning">
-                    <svg class="pc-icon">
-                      <use xlink:href="#custom-bag"></use>
-                    </svg>
+                  <div class="">
+                    <a href="{% url 'product_detail' shop.shop_id product.product_id %}"
+                      class="btn btn-warning btn-prod-cart position-absolute end-0 bottom-0">
+                    </a>
                   </div>
                 </div>
               </div>
