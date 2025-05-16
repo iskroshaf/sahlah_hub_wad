@@ -137,9 +137,13 @@ class ProductCategory(BaseTranslatableModel):
     translations = TranslatedFields(
         product_category_name=models.CharField(max_length=25),
     )
-    shop = models.ForeignKey("_shop_app.Shop", on_delete=models.CASCADE)
+    shop = models.ForeignKey(
+    "_shop_app.Shop",
+    on_delete=models.CASCADE,
+    null=True,    # benarkan NULL
+    blank=True    # benarkan kosong di admin/form
+)
     product_category_id = models.CharField(max_length=10, unique=True, primary_key=True)
-
     def save(self, *args, **kwargs):
         if not self.product_category_id:
             self.product_category_id = generate_unique_id(

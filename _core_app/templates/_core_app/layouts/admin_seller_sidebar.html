@@ -9,44 +9,34 @@
             </a>
         </div>
         <div class="navbar-content">
-
-            {% if "shop" in request.path or "seller" in request.path %}
+            {% if shop %}
+            {# ─── HALAMAN SHOP DASHBOARD ──────────────── #}
             <div class="card pc-user-card">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
-                            <img src="{% if shop.shop_logo %}{{ shop.shop_logo.url }}{% else %}{% static 'images/user-default.jpg' %}{% endif %}"
+                            <img src="{% if shop.shop_logo %}{{ shop.shop_logo.url }}{% else %}{% static 'images/shop-default.jpg' %}{% endif %}"
+                                alt="shop-logo" class="user-avtar wid-45 rounded-circle" />
+                        </div>
+                        <div class="flex-grow-1 ms-3 me-2">
+                            <h6 class="mb-0">{{ shop.shop_name|upper }}</h6>
+                            <small>Owner: {{ shop.owner.username|upper }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% elif "seller/shops" in request.path %}
+            {# ─── HALAMAN SELLER SHOPS LIST ─────────── #}
+            <div class="card pc-user-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <img src="{% if request.user.image_avatar %}{{ request.user.image_avatar.url }}{% else %}{% static 'images/user-default.jpg' %}{% endif %}"
                                 alt="user-image" class="user-avtar wid-45 rounded-circle" />
                         </div>
                         <div class="flex-grow-1 ms-3 me-2">
-                            <h6 class="mb-0">{{request.user.username|upper}}</h6>
+                            <h6 class="mb-0">{{ request.user.username|upper }}</h6>
                             <small>Seller</small>
-                        </div>
-                        <a class="btn btn-icon btn-link-secondary avtar" data-bs-toggle="collapse"
-                            href="#pc_sidebar_userlink">
-                            <svg class="pc-icon">
-                                <use xlink:href="#custom-sort-outline"></use>
-                            </svg>
-                        </a>
-                    </div>
-                    <div class="collapse pc-user-links" id="pc_sidebar_userlink">
-                        <div class="pt-3">
-                            <a href="{% url 'seller_dashboard' %}">
-                                <span class="pc-micon">
-                                    <span class="material-symbols-outlined">
-                                        home
-                                    </span>
-                                </span>
-                                <span class="pc-mtext">Home</span>
-                            </a>
-                            <a href="{% url 'seller_password_change' %}">
-                                <span class="pc-micon">
-                                    <span class="material-symbols-outlined">
-                                        key
-                                    </span>
-                                </span>
-                                <span class="pc-mtext">Change Password</span>
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -130,38 +120,39 @@
                     </ul>
                 </li>
                 {% endif %}
-                <!-- <li class="pc-item">
-                    <a href="" class="pc-link">
-                        <span class="pc-micon">
-                            <span class="material-symbols-outlined">
-                                show_chart
-                            </span>
-                        </span>
-                        <span class="pc-mtext">Statistics</span>
-                        <span class="pc-badge">2</span>
+
+
+
+                {# ─── MENU ADMIN (hanya untuk staff) ───────────────────────── #}
+                {% if request.user.is_staff %}
+                <li class="pc-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                    <a href="{% url 'admin_dashboard' %}" class="pc-link">
+                        <span class="pc-micon"><span class="material-symbols-outlined">grid_view</span></span>
+                        <span class="pc-mtext">Dashboard Admin</span>
                     </a>
                 </li>
-                <li class="pc-item">
-                    <a href="" class="pc-link">
-                        <span class="pc-micon">
-                            <span class="material-symbols-outlined">
-                                attach_money
-                            </span>
-                        </span>
-                        <span class="pc-mtext">Finance</span>
+
+                <li
+                    class="pc-item {% if request.resolver_match.url_name == 'admin_category_product_list' %}active{% endif %}">
+                    <a href="{%  url 'admin_category_product_list' %}" class="pc-link">
+                        <span class="pc-micon"><span class="material-symbols-outlined">category</span></span>
+                        <span class="pc-mtext">Kategori Produk</span>
                     </a>
                 </li>
-                <li class="pc-item">
-                    <a href="" class="pc-link">
-                        <span class="pc-micon">
-                            <span class="material-symbols-outlined">
-                                display_settings
-                            </span>
-                        </span>
-                        <span class="pc-mtext">Settings</span>
+
+                <li
+                    class="pc-item {% if request.resolver_match.url_name == 'admin_shop_approval_list' %}active{% endif %}">
+                    <a href="{}" class="pc-link">
+                        <span class="pc-micon"><span class="material-symbols-outlined">how_to_reg</span></span>
+                        <span class="pc-mtext">Kelulusan Kedai</span>
                     </a>
-                </li> -->
+                </li>
+                {% endif %}
+
+
+
             </ul>
+
         </div>
     </div>
 </nav>
