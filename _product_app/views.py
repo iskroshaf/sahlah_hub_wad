@@ -37,29 +37,26 @@ NEGATION_WORDS = [
 ]
 
 
-def product_category_management_view(request, pk):
+def product_category_management_view(request):
     title = "Product Category"
     theme = "admin_seller_theme"
-    shop = get_object_or_404(Shop, shop_id=pk)
-    product_categories = ProductCategory.objects.filter(shop=shop)
+    product_categories = ProductCategory.objects.all()
 
     if request.method == "POST":
         form = ProductCategoryForm(request.POST)
         if form.is_valid():
             product_category_name = form.cleaned_data["product_category_name"]
             product_category = ProductCategory(
-                product_category_name=product_category_name, shop=shop
+                product_category_name=product_category_name
             )
             product_category.save()
             product_category.auto_translate(fields=["product_category_name"])
-
-            return redirect("product_category_management", pk=shop.shop_id)
+            return redirect("product_category_management")
     else:
         form = ProductCategoryForm()
     context = {
         "title": title,
         "theme": theme,
-        "shop": shop,
         "form": form,
         "product_categories": product_categories,
     }
