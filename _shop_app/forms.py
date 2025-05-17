@@ -22,17 +22,17 @@ address_validator = RegexValidator(
     regex=r'^[\w\s\-,.]+$',
     message='Address may only contain letters, numbers, spaces, commas, periods and dashes.'
 )
-# Bandar/Negeri: hanya huruf dan ruang
+
 alpha_space_validator = RegexValidator(
     regex=r'^[A-Za-z ]+$',
     message='This field may only contain letters and spaces.'
 )
-# Poskod: 5 digit tepat
+
 postcode_validator = RegexValidator(
     regex=r'^\d{5}$',
     message='Postcode must be exactly 5 digits, e.g. 76100.'
 )
-# Phone: universal, 7–15 digit, optional leading +
+
 phone_validator = RegexValidator(
     regex=r'^\+?\d{7,15}$',
     message='Enter a valid phone number (7–15 digits, optional leading +).'
@@ -83,7 +83,7 @@ class ShopForm(ModelForm):
         })
     )
 
-    # ——— Address fields ———
+
     shop_address_1 = forms.CharField(
         required=True,
         max_length=255,
@@ -134,7 +134,7 @@ class ShopForm(ModelForm):
         })
     )
 
-    # ——— Logo & Banner (unchanged) ———
+
     shop_logo = forms.ImageField(
         required=False,
         validators=[img_validator],

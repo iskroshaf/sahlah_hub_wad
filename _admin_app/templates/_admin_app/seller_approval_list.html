@@ -1,0 +1,173 @@
+{% extends "_core_app/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+
+<style>
+  
+  .filter-tabs { justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .filter-tabs .nav-link { padding: .5rem 1.25rem; border-radius: 30px; font-weight: 600; transition: all .2s; }
+  .filter-tabs .nav-link.active { background-color: #3f4d67; color: #fff; box-shadow: 0 4px 12px rgba(63,77,103,0.4); }
+  .filter-tabs .nav-link:hover { background-color: #e9ecef; }
+
+ 
+  .badge-status { font-weight: 600; padding: .45em .75em; border-radius: .375rem; }
+  .badge-status.approved { background-color: #198754; color: #fff; }
+  .badge-status.rejected { background-color: #dc3545; color: #fff; }
+  .badge-status.pending  { background-color: #6c757d; color: #fff; }
+
+  
+  .action-buttons .btn { min-width: 90px; margin-bottom: .25rem; }
+</style>
+
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white border-0">
+        <h4 class="mb-0">Seller Approval List</h4>
+      </div>
+      <div class="card-body">
+        <ul class="nav nav-pills filter-tabs">
+          {% for code,label in status_tabs %}
+            <li class="nav-item">
+              <a class="nav-link{% if current_status == code %} active{% endif %}" href="?status={{ code }}">
+                {{ label }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+
+        <div class="table-responsive">
+          <table class="table table-striped align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>User</th>
+                <th>Mobile</th>
+                <th>Joined</th>
+                <th>Status</th>
+                <th>License</th>
+                <th class="text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in sellers %}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <img src="{% if s.image_avatar %}{{ s.image_avatar.url }}{% else %}{% static 'images/user-default.jpg' %}{% endif %}"
+                           alt="Avatar" class="rounded-circle border" style="width:40px; height:40px; object-fit:cover;">
+                      <span class="ms-2 fw-medium">{{ s.username }}</span>
+                    </div>
+                  </td>
+                  <td>{{ s.phone_number|default:"—" }}</td>
+                  <td>
+                    {{ s.date_joined|date:"Y-m-d" }}<br>
+                    <small class="text-muted">{{ s.date_joined|time:"H:i A" }}</small>
+                  </td>
+                  <td>
+                    {% if s.status == 'A' %}
+                      <span class="badge-status approved">Approved</span>
+                    {% elif s.status == 'I' %}
+                      <span class="badge-status rejected">Rejected</span>
+                    {% else %}
+                      <span class="badge-status pending">Pending</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if s.business_license %}
+                      <a href="{{ s.business_license.url }}" target="_blank" class="text-decoration-none">
+                        <i class="ti ti-file-text me-1"></i> View
+                      </a>
+                    {% else %}
+                      <span class="text-muted">—</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-center action-buttons">
+                    <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal"
+                            data-bs-target="#sellerModal{{ s.seller_id }}">
+                      <i class="ti ti-eye"></i> View
+                    </button>
+
+                    {% if not s.is_approved %}
+                      <form method="post" action="{% url 'seller_approval_toggle' s.seller_id 'approve' %}" class="d-inline">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-success">
+                          <i class="ti ti-check"></i> Approve
+                        </button>
+                      </form>
+                      <form method="post" action="{% url 'seller_approval_toggle' s.seller_id 'reject' %}" class="d-inline">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-danger">
+                          <i class="ti ti-ban"></i> Reject
+                        </button>
+                      </form>
+                    {% else %}
+                      <form method="post" action="{% url 'seller_approval_toggle' s.seller_id 'revoke' %}" class="d-inline">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-warning">
+                          <i class="ti ti-refresh"></i> Revoke
+                        </button>
+                      </form>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center py-4">No sellers found.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% for s in sellers %}
+  <div class="modal fade" id="sellerModal{{ s.seller_id }}" tabindex="-1" aria-labelledby="sellerModalLabel{{ s.seller_id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-white border-0">
+          <h5 class="modal-title" id="sellerModalLabel{{ s.seller_id }}">Detail Peniaga: {{ s.username }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex">
+            <img src="{% if s.image_avatar %}{{ s.image_avatar.url }}{% else %}{% static 'images/user-default.jpg' %}{% endif %}"
+                 alt="Avatar" class="rounded-circle border me-4" style="width:100px; height:100px; object-fit:cover;">
+            <dl class="row mb-0">
+              <dt class="col-sm-4">Username:</dt><dd class="col-sm-8">{{ s.username }}</dd>
+              <dt class="col-sm-4">Name</dt><dd class="col-sm-8">{{ s.first_name }} {{ s.last_name }}</dd>
+              <dt class="col-sm-4">Email:</dt><dd class=" col-sm-8">{{ s.email }}</dd>
+              <dt class="col-sm-4">Phone:</dt><dd class="col-sm-8">{{ s.phone_number|default:'—' }}</dd>
+              <dt class="col-sm-4">Birthdate:</dt><dd class="col-sm-8">{{ s.birthdate|date:'Y-m-d'|default:'—' }}</dd>
+              <dt class="col-sm-4">Joined:</dt><dd class="col-sm-8">{{ s.date_joined|date:'Y-m-d H:i' }}</dd>
+              <dt class="col-sm-4">Status:</dt>
+              <dd class="col-sm-8">
+              {% if s.status == 'A' %}
+                <span class="badge-status approved">Approved</span>
+              {% elif s.status == 'I' %}
+                <span class="badge-status rejected">Rejected</span>
+              {% else %}
+                <span class="badge-status pending">Pending</span>
+              {% endif %}
+                </dd>
+              {% if s.business_license %}
+                <dt class="col-sm-4">License:</dt><dd class="col-sm-8"><a href="{{ s.business_license.url }}" target="_blank" class="text-decoration-none"><i class="ti ti-download me-1"></i>Download</a></dd>
+              {% endif %}
+            </dl>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+{% endblock %}

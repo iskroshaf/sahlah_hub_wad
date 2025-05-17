@@ -1,155 +1,144 @@
 {% load static %}
 
 <nav class="pc-sidebar">
-    <div class="navbar-wrapper">
-
-        <div class="m-header">
-            <a href="" class="b-brand text-primary">
-                <img src="{% static 'images/logo.svg' %}" class="img-fluid logo-lg" alt="logo" />
-            </a>
-        </div>
-        <div class="navbar-content">
-            {% if shop %}
-            {# ─── HALAMAN SHOP DASHBOARD ──────────────── #}
-            <div class="card pc-user-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <img src="{% if shop.shop_logo %}{{ shop.shop_logo.url }}{% else %}{% static 'images/shop-default.jpg' %}{% endif %}"
-                                alt="shop-logo" class="user-avtar wid-45 rounded-circle" />
-                        </div>
-                        <div class="flex-grow-1 ms-3 me-2">
-                            <h6 class="mb-0">{{ shop.shop_name|upper }}</h6>
-                            <small>Owner: {{ shop.owner.username|upper }}</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% elif "seller/shops" in request.path %}
-            {# ─── HALAMAN SELLER SHOPS LIST ─────────── #}
-            <div class="card pc-user-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <img src="{% if request.user.image_avatar %}{{ request.user.image_avatar.url }}{% else %}{% static 'images/user-default.jpg' %}{% endif %}"
-                                alt="user-image" class="user-avtar wid-45 rounded-circle" />
-                        </div>
-                        <div class="flex-grow-1 ms-3 me-2">
-                            <h6 class="mb-0">{{ request.user.username|upper }}</h6>
-                            <small>Seller</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-            <ul class="pc-navbar">
-                {% if "seller" in request.path %}
-                <li class="pc-item">
-                    <a href="{% url 'seller_dashboard' %}" class="pc-link">
-                        <span class="pc-micon">
-                            <span class="material-symbols-outlined">
-                                grid_view
-                            </span>
-                        </span>
-                        <span class="pc-mtext">Dashboard</span>
-                    </a>
-                </li>
-                {% elif "shop" in request.path %}
-                <li class="pc-item">
-                    <a href="{% url 'shop_dashboard' shop.shop_id %}" class="pc-link">
-                        <span class="pc-micon">
-                            <span class="material-symbols-outlined">
-                                grid_view
-                            </span>
-                        </span>
-                        <span class="pc-mtext">Dashboard</span>
-                    </a>
-                </li>
-                <li class="pc-item pc-hasmenu">
-                    <a href="#!" class="pc-link">
-                        <span class="pc-micon">
-                            <span class="material-symbols-outlined">
-                                storefront
-                            </span>
-                        </span>
-                        <span class="pc-mtext">Product Management</span>
-                        <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
-                    </a>
-                    <ul class="pc-submenu">
-                        <li class="pc-item"><a class="pc-link" href="{% url 'product_list' shop.shop_id %}">Products</a>
-                        </li>
-                        <li class="pc-item"><a class="pc-link" href="{% url 'product_register' shop.shop_id %}">Product
-                                Register</a>
-                    </ul>
-                </li>
-                <li class="pc-item pc-hasmenu">
-                    <a href="#!" class="pc-link">
-                        <span class="pc-micon">
-                            <span class="material-symbols-outlined">
-                                orders
-                            </span>
-                        </span>
-                        <span class="pc-mtext">Order Management</span>
-                        <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
-                    </a>
-                    <ul class="pc-submenu">
-                        <li class="pc-item"><a class="pc-link" href="">Orders</a></li>
-                        <li class="pc-item"><a class="pc-link" href="">Order History</a>
-                        </li>
-                    </ul>
-                </li>
-                {% endif %}
-                {% if "seller" in request.path %}
-                <li class="pc-item pc-hasmenu">
-                    <a href="#!" class="pc-link">
-                        <span class="pc-micon">
-                            <span class="material-symbols-outlined">
-                                storefront
-                            </span>
-                        </span>
-                        <span class="pc-mtext">Shop Management</span>
-                        <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
-                    </a>
-                    <ul class="pc-submenu">
-                        <li class="pc-item"><a class="pc-link" href="{% url 'shop_list' %}">Shop List</a></li>
-                        <li class="pc-item"><a class="pc-link" href="{% url 'shop_register' %}">Shop Registration</a>
-                        </li>
-                    </ul>
-                </li>
-                {% endif %}
-
-
-
-                {# ─── MENU ADMIN (hanya untuk staff) ───────────────────────── #}
-                {% if request.user.is_staff %}
-                <li class="pc-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
-                    <a href="{% url 'admin_dashboard' %}" class="pc-link">
-                        <span class="pc-micon"><span class="material-symbols-outlined">grid_view</span></span>
-                        <span class="pc-mtext">Dashboard Admin</span>
-                    </a>
-                </li>
-
-                <li class="pc-item {% if request.resolver_match.url_name == 'product_category_management' %}active{% endif %}">
-    <a href="{% url 'product_category_management' %}" class="pc-link">
-        <span class="pc-micon"><span class="material-symbols-outlined">category</span></span>
-        <span class="pc-mtext">Kategori Produk</span>
-    </a>
-</li>
-
-
-                <li
-                    class="pc-item {% if request.resolver_match.url_name == 'admin_shop_approval_list' %}active{% endif %}">
-                    <a href="{}" class="pc-link">
-                        <span class="pc-micon"><span class="material-symbols-outlined">how_to_reg</span></span>
-                        <span class="pc-mtext">Kelulusan Kedai</span>
-                    </a>
-                </li>
-                {% endif %}
-
-
-
-            </ul>
-
-        </div>
+  <div class="navbar-wrapper">
+    <!-- ─── BRAND ───────────────────────────────────────────── -->
+    <div class="m-header">
+      <a href="" class="b-brand text-primary">
+        <img src="{% static 'images/logo.svg' %}" class="img-fluid logo-lg" alt="logo" />
+      </a>
     </div>
+
+    <div class="navbar-content">
+      {# ─── USER / SHOP CARD ────────────────────────────────── #}
+      {% if shop %}
+      <div class="card pc-user-card">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <img src="{% if shop.shop_logo %}{{ shop.shop_logo.url }}{% else %}{% static 'images/shop-default.jpg' %}{% endif %}"
+                   alt="shop-logo" class="user-avtar wid-45 rounded-circle" />
+            </div>
+            <div class="flex-grow-1 ms-3 me-2">
+              <h6 class="mb-0">{{ shop.shop_name|upper }}</h6>
+              <small>Owner: {{ shop.owner.username|upper }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% elif "seller/shops" in request.path %}
+      <div class="card pc-user-card">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <img src="{% if request.user.image_avatar %}{{ request.user.image_avatar.url }}{% else %}{% static 'images/user-default.jpg' %}{% endif %}"
+                   alt="user-image" class="user-avtar wid-45 rounded-circle" />
+            </div>
+            <div class="flex-grow-1 ms-3 me-2">
+              <h6 class="mb-0">{{ request.user.username|upper }}</h6>
+              <small>Seller</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {# ─── SIDEBAR NAVIGATION ─────────────────────────────── #}
+      <ul class="pc-navbar">
+
+        {# ========= SELLER SECTION ============================ #}
+        {% if "seller" in request.path %}
+        <li class="pc-item">
+          <a href="{% url 'seller_dashboard' %}" class="pc-link">
+            <span class="pc-micon"><span class="material-symbols-outlined">grid_view</span></span>
+            <span class="pc-mtext">Dashboard</span>
+          </a>
+        </li>
+        {% elif "shop" in request.path %}
+
+        {# ========= SHOP SECTION ============================== #}
+        <li class="pc-item">
+          <a href="{% url 'shop_dashboard' shop.shop_id %}" class="pc-link">
+            <span class="pc-micon"><span class="material-symbols-outlined">grid_view</span></span>
+            <span class="pc-mtext">Dashboard</span>
+          </a>
+        </li>
+
+        <li class="pc-item pc-hasmenu">
+          <a href="#!" class="pc-link">
+            <span class="pc-micon"><span class="material-symbols-outlined">storefront</span></span>
+            <span class="pc-mtext">Product Management</span>
+            <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+          </a>
+          <ul class="pc-submenu">
+            <li class="pc-item"><a class="pc-link" href="{% url 'product_list' shop.shop_id %}">Products</a></li>
+            <li class="pc-item"><a class="pc-link" href="{% url 'product_register' shop.shop_id %}">Product Register</a></li>
+          </ul>
+        </li>
+
+        <li class="pc-item pc-hasmenu">
+          <a href="#!" class="pc-link">
+            <span class="pc-micon"><span class="material-symbols-outlined">orders</span></span>
+            <span class="pc-mtext">Order Management</span>
+            <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+          </a>
+          <ul class="pc-submenu">
+            <li class="pc-item"><a class="pc-link" href="">Orders</a></li>
+            <li class="pc-item"><a class="pc-link" href="">Order History</a></li>
+          </ul>
+        </li>
+        {% endif %}
+
+        {# ========= SHOP-LIST SECTION (SELLER) ================ #}
+        {% if "seller" in request.path %}
+        <li class="pc-item pc-hasmenu">
+          <a href="#!" class="pc-link">
+            <span class="pc-micon"><span class="material-symbols-outlined">storefront</span></span>
+            <span class="pc-mtext">Shop Management</span>
+            <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+          </a>
+          <ul class="pc-submenu">
+            <li class="pc-item"><a class="pc-link" href="{% url 'shop_list' %}">Shop List</a></li>
+            <li class="pc-item"><a class="pc-link" href="{% url 'shop_register' %}">Shop Registration</a></li>
+          </ul>
+        </li>
+        {% endif %}
+
+        {# ========= ADMIN SECTION ============================= #}
+        {% if request.user.is_staff %}
+        <li class="pc-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+          <a href="{% url 'admin_dashboard' %}" class="pc-link">
+            <span class="pc-micon"><span class="material-symbols-outlined">grid_view</span></span>
+            <span class="pc-mtext">Dashboard Admin</span>
+          </a>
+        </li>
+
+        <li class="pc-item {% if request.resolver_match.url_name == 'product_category_management' %}active{% endif %}">
+          <a href="{% url 'product_category_management' %}" class="pc-link">
+            <span class="pc-micon"><span class="material-symbols-outlined">category</span></span>
+            <span class="pc-mtext">Kategori Produk</span>
+          </a>
+        </li>
+
+        <li class="pc-item pc-hasmenu {% if request.resolver_match.url_name == '' %}active{% endif %}">
+          <a href="#!" class="pc-link">
+            <span class="pc-micon"><span class="material-symbols-outlined">storefront</span></span>
+            <span class="pc-mtext">Approval Mangement</span>
+            <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+          </a>
+          <ul class="pc-submenu">
+            <li class="pc-item {% if request.resolver_match.url_name == '' %}active{% endif %}">
+              <a class="pc-link" href="{}">Shop Approval</a>
+            </li>
+            <li class="pc-item {% if request.resolver_match.url_name == '' %}active{% endif %}">
+              <a class="pc-link" href="{% url 'seller_approval_list' %}">Seller Approval</a>
+            </li>
+          </ul>
+        </li>
+        {% endif %}
+
+      </ul>
+      {# ─── END NAVIGATION ─────────────────────────────────── #}
+    </div>
+  </div>
 </nav>

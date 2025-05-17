@@ -27,6 +27,9 @@ urlpatterns = [
     path(
         'shops/<str:shop_id>/edit/',seller_edit_shop,name='seller_edit_shop'
     ),
+    
+
+
 
 # password modified
     path( 'password/change/', SellerPasswordChangeView.as_view(),name='seller_password_change'
