@@ -6,6 +6,7 @@ from _shop_app.models import Shop
 from django.views import View
 from _seller_app.models import Seller
 from django.contrib import messages
+from django.db.models import Count, Q
 
 def admin_dashboard_view(request):
     title = "Admin Dashboard"
@@ -70,6 +71,7 @@ class ProductCategoryManageView(LoginRequiredMixin, AdminRequiredMixin, View):
         return render(request, self.template_name, context)
 
 
+
 def seller_approval_list_view(request):
     tab = request.GET.get("status", "pending")
     if tab == "pending":
@@ -94,7 +96,7 @@ def seller_approval_list_view(request):
         ("all",      f"All ({counts['all']})"),
     ]
 
-    return render(request, "_admin_app/seller_approval_list.html", {
+    return render(request, "_seller_app/seller_approval.html", {
         "title":          "Seller Approval",
         "theme":          "admin_seller_theme",
         "sellers":        qs.order_by("-date_joined"),
@@ -111,23 +113,97 @@ def seller_approval_toggle_view(request, seller_id, action):
 
     if action == "approve":
         seller.is_approved = True
-        seller.status      = 'A'      # Update field `status` di CustomUser
-        msg = "diluluskan"
+        seller.status      = 'A'
+        message_text       = f"Seller {seller.username} has been approved."
+        level              = messages.SUCCESS
+
     elif action == "reject":
         seller.is_approved = False
-        seller.status      = 'I'      # 'I' = Inactive, akan paparkan badge Rejected
-        msg = "ditolak"
+        seller.status      = 'I'
+        message_text       = f"Seller {seller.username} has been rejected."
+        level              = messages.SUCCESS
+
     elif action == "revoke":
-        # jika ada butang revoke, kembalikan ke Pending
         seller.is_approved = False
         seller.status      = 'P'
-        msg = "pembatalan kelulusan"
+        message_text       = f"Approval for seller {seller.username} has been revoked."
+        level              = messages.SUCCESS
+
     else:
-        messages.error(request, "Tindakan tidak dikenali.")
+        messages.error(request, "Unrecognized action.")
         return redirect("seller_approval_list")
 
-    # Simpan kedua-dua ruangan dalam satu operasi
     seller.save(update_fields=["is_approved", "status"])
-    messages.success(request, f"Peniaga {seller.username} telah {msg}.")
+    messages.add_message(request, level, message_text)
 
     return redirect("seller_approval_list")
+
+
+
+def shop_approval_list_view(request):
+    tab = request.GET.get("status", "pending")
+    if tab == "active":
+        base_qs = Shop.objects.filter(shop_status='1')
+    elif tab == "all":
+        base_qs = Shop.objects.all()
+    else:
+        base_qs = Shop.objects.filter(shop_status='2')
+
+ 
+    counts = {
+        "pending": Shop.objects.filter(shop_status='2').count(),
+        "active":  Shop.objects.filter(shop_status='1').count(),
+        "all":     Shop.objects.count(),
+    }
+    status_tabs = [
+        ("pending", f"Pending ({counts['pending']})"),
+        ("active",  f"Active  ({counts['active']})"),
+        ("all",     f"All     ({counts['all']})"),
+    ]
+
+
+    shops = list(
+        base_qs
+        .select_related('seller')
+        .order_by('-pk')
+    )
+
+    
+    for shop in shops:
+        shop.approved_count = Shop.objects.filter(
+            seller=shop.seller,
+            shop_status='1'
+        ).count()
+
+    return render(request, "_shop_app/shop_approval_list.html", {
+        "title":          "Shop Approval",
+        "theme":          "admin_seller_theme",
+        "shops":          shops,
+        "current_status": tab,
+        "status_tabs":    status_tabs,
+    })
+
+def shop_approval_toggle_view(request, shop_id, action):
+    if request.method != "POST":
+        return redirect("shop_approval_list")
+
+    shop = get_object_or_404(Shop, shop_id=shop_id)
+
+    if action == "approve":
+        shop.shop_status = '1'  
+        msg = "approve"
+    elif action == "reject":
+        shop.shop_status = '3'  
+        msg = "reject"
+    else:
+        messages.error(request, "Tindakan tidak dikenali.")
+        return redirect("shop_approval_list")
+
+    shop.save(update_fields=["shop_status"])
+    messages.success(request, f"Shop “{shop.shop_name}” has  {msg}.")
+    return redirect("shop_approval_list")
+
+
+
+
+

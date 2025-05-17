@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     '_shop_app',
     '_product_app',
     '_admin_app',
+    '_delivery_app',
 
     # Built-in Django apps
     'django.contrib.admin',

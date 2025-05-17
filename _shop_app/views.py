@@ -94,3 +94,55 @@ def seller_edit_shop(request, shop_id):
             )
 
     return redirect("shop_list")
+
+
+def shop_approval_list_view(request):
+    tab = request.GET.get("status", "pending")
+    if tab == "active":
+        qs = Shop.objects.filter(shop_status='1')
+    elif tab == "all":
+        qs = Shop.objects.all()
+    else:  
+        qs = Shop.objects.filter(shop_status='2')
+
+    counts = {
+        "pending": Shop.objects.filter(shop_status='2').count(),
+        "active":  Shop.objects.filter(shop_status='1').count(),
+        "all":     Shop.objects.count(),
+    }
+    status_tabs = [
+        ("pending", f"Pending ({counts['pending']})"),
+        ("active",  f"Active  ({counts['active']})"),
+        ("all",     f"All     ({counts['all']})"),
+    ]
+
+    return render(request, "_shop_app/shop_approval_list.html", {
+        "title":          "Shop Approval",
+        "theme":          "admin_seller_theme",
+        "shops":          qs.order_by("-pk"),
+        "current_status": tab,
+        "status_tabs":    status_tabs,
+    })
+
+
+def shop_approval_toggle_view(request, shop_id, action):
+    if request.method != "POST":
+        return redirect("shop_approval_list")
+
+    shop = get_object_or_404(Shop, shop_id=shop_id)
+
+    if action == "approve":
+        shop.shop_status = '1'  # Active
+        msg = "diluluskan"
+    elif action == "reject":
+        shop.shop_status = '3'  # Inactive
+        msg = "ditolak"
+    else:
+        messages.error(request, "Tindakan tidak dikenali.")
+        return redirect("shop_approval_list")
+
+    shop.save(update_fields=["shop_status"])
+    messages.success(request, f"Shop “{shop.shop_name}” telah {msg}.")
+    return redirect("shop_approval_list")
+
+

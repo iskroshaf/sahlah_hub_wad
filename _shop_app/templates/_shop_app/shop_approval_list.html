@@ -1,0 +1,261 @@
+{% extends "_core_app/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/custom-admin.css' %}">
+<style>
+  /* Filter tabs styling */
+  .filter-tabs {
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .filter-tabs .nav-link {
+    padding: 0.6rem 1.2rem;
+    border-radius: 30px;
+    transition: background .2s;
+  }
+
+  .filter-tabs .nav-link.active {
+    background-color: #3f4d67;
+    color: #fff;
+  }
+
+  /* Status badge colors */
+  .badge-status {
+    padding: .35rem .75rem;
+    border-radius: .5rem;
+    font-weight: 500;
+  }
+
+  .badge-status.active {
+    background-color: #28a745;
+    color: #fff;
+  }
+
+  .badge-status.pending {
+    background-color: #ffc107;
+    color: #212529;
+  }
+
+  .badge-status.inactive {
+    background-color: #dc3545;
+    color: #fff;
+  }
+
+  /* Action button spacing */
+  .action-btn {
+    min-width: 100px;
+    margin: 0 .25rem;
+  }
+
+  /* Responsive adjustments for small screens */
+  @media (max-width: 575.98px) {
+    .d-hide-xs {
+      display: none !important;
+    }
+
+    .filter-tabs {
+      flex-direction: column;
+    }
+
+    .filter-tabs .nav-link {
+      width: 100%;
+      text-align: center;
+      margin-bottom: .5rem;
+    }
+
+    .modal-dialog {
+      max-width: 95%;
+      margin: 1.5rem auto;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-2">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="ti ti-store me-2"></i>{{ title }}</h2>
+  </div>
+
+  {% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <!-- Filter Tabs -->
+      <ul class="nav nav-pills filter-tabs mb-4">
+        {% for code,label in status_tabs %}
+        <li class="nav-item w-auto">
+          <a class="nav-link{% if current_status == code %} active{% endif %}" href="?status={{ code }}">{{ label }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+
+
+      <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Name</th>
+              <th class="d-hide-xs">Seller</th>
+              <th class="d-hide-xs">Phone</th>
+              <th>Status</th>
+              <th class="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for shop in shops %}
+            <tr class="clickable-row" data-bs-toggle="modal" data-bs-target="#shopModal{{ shop.shop_id }}">
+
+              <td>{{ shop.shop_name }}</td>
+              <td class="d-hide-xs">{{ shop.seller.username }}</td>
+              <td class="d-hide-xs">{{ shop.shop_phone_number|default:"—" }}</td>
+              <td>
+                {% if shop.shop_status == '1' %}
+                <span class="badge rounded-pill text-bg-success">Active</span>
+                {% elif shop.shop_status == '2' %}
+                <span class="badge rounded-pill text-bg-warning text-dark">Pending</span>
+                {% else %}
+                <span class="badge rounded-pill text-bg-danger">Inactive</span>
+                {% endif %}
+              </td>
+              <td class="text-center">
+                {% if shop.shop_status == '2' %}
+                <form method="post" action="{% url 'shop_approval_toggle' shop.shop_id 'approve' %}"
+                  class="d-inline action-btn" onclick="event.stopPropagation()">
+                  {% csrf_token %}
+                  <button class="btn btn-success btn-sm">
+                    <i class="ti ti-check me-1"></i>Approve
+                  </button>
+                </form>
+                <form method="post" action="{% url 'shop_approval_toggle' shop.shop_id 'reject' %}"
+                  class="d-inline action-btn" onclick="event.stopPropagation()">
+                  {% csrf_token %}
+                  <button class="btn btn-danger btn-sm">
+                    <i class="ti ti-x me-1"></i>Reject
+                  </button>
+                </form>
+                {% else %}
+                <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-4">No shops found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Render semua modals di luar table #}
+{% for shop in shops %}
+<div class="modal fade" id="shopModal{{ shop.shop_id }}" tabindex="-1"
+  aria-labelledby="shopModalLabel{{ shop.shop_id }}" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content p-0">
+
+      {# Banner background dari shop_bg_photo #}
+      {% if shop.shop_bg_photo %}
+      <div class="modal-banner" style="
+                 background-image: url('{{ shop.shop_bg_photo.url }}');
+                 background-size: cover;
+                 background-position: center;
+                 height: 200px;
+               ">
+      </div>
+      {% endif %}
+
+      <div class="card shadow-none border-0 mb-0">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center">
+            {# Avatar logo #}
+            <div class="me-3">
+              {% if shop.shop_logo %}
+              <img src="{{ shop.shop_logo.url }}" alt="Logo {{ shop.shop_name }}" class="rounded-circle border"
+                style="width:60px; height:60px; object-fit:cover;">
+              {% else %}
+              <div class="avtar avtar-m btn-light-secondary rounded-circle">
+                <i class="ti ti-store f-24"></i>
+              </div>
+              {% endif %}
+            </div>
+            <div>
+              <h5 class="mb-0">{{ shop.shop_name }}</h5>
+              <small class="text-muted">ID: {{ shop.shop_id }}</small>
+            </div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="card border h-100 mb-0">
+                <div class="card-body">
+                  <div class="d-flex align-items-center mb-3">
+                    {# Avatar seller #}
+                    <div class="flex-shrink-0 me-3">
+                      {% if shop.seller.image_avatar %}
+                      <img src="{{ shop.seller.image_avatar.url }}" alt="{{ shop.seller.username }}"
+                        class="rounded-circle border" style="width:60px; height:60px; object-fit:cover;">
+                      {% else %}
+                      <img src="{% static 'images/user-default.jpg' %}" alt="Default Avatar"
+                        class="rounded-circle border" style="width:60px; height:60px; object-fit:cover;">
+                      {% endif %}
+                    </div>
+                    <div>
+                      <h6 class="mb-0">
+                        {{ shop.seller.get_full_name|default:shop.seller.username }}
+                      </h6>
+                      <small class="text-muted">{{ shop.seller.email }}</small>
+                    </div>
+                  </div>
+                  <hr>
+                  <p>
+                    Total Approved Shops:
+                    <strong>{{ shop.approved_count }}</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="card border h-100 mb-0">
+                <div class="card-body">
+                  <h6 class="mb-3">Shop Details</h6>
+                  <p><strong>Phone Shop:</strong> {{ shop.shop_phone_number|default:"—" }}</p>
+                  <p><strong>Description:</strong> {{ shop.shop_desc|default:"—" }}</p>
+                  <p>
+                    <strong>Address:</strong>
+                    {{ shop.shop_address_1 }}{% if shop.shop_address_2 %}, {{ shop.shop_address_2 }}{% endif %},
+                    {{ shop.shop_city }}, {{ shop.shop_state }} {{ shop.shop_postcode }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div> 
+    </div> 
+  </div> 
+</div> 
+{% endfor %}
+
+{% endblock %}

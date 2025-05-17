@@ -7,6 +7,8 @@ urlpatterns = [
         path('dashboard/', views.shop_dashboard_view, name='shop_dashboard'),
         path('', include('_product_app.urls')),  
     ])),
+    
+   
 ]
 
 

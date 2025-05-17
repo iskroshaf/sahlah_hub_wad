@@ -21,16 +21,29 @@ def user_login(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            # Log masuk user
+           
             login(request, user)
             print("Login Successful")
 
-            
+            if user.role == "S":
+                if user.status == "I":
+                    messages.error(
+                        request,
+                        "Akaun seller anda sudah dinyahaktifkan."
+                    )
+                    return redirect("login")
+
             if user.role == "A" and not user.is_staff:
                 user.is_staff = True
                 user.save(update_fields=["is_staff"])
 
-            # Redirect ikut role
+            if user.role == "C" and user.status == "I":
+                messages.error(
+                    request,
+                    "Akaun anda telah dinyahaktifkan. Hubungi sokongan jika ini satu kesilapan."
+                )
+                return redirect("login")
+
             if user.role == "C":
                 return redirect("customer_home")
             elif user.role == "S":
@@ -38,7 +51,7 @@ def user_login(request):
             elif user.role == "A":
                 return redirect("admin_dashboard")
             else:
-                # Sekiranya role lain, logout dan beri mesej
+              
                 logout(request)
                 messages.error(request, "Anda tidak mempunyai akses.")
                 return redirect("login")
