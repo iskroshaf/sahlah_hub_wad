@@ -1,0 +1,73 @@
+{% extends "_core_app/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="ti ti-truck me-2"></i>{{ title }}</h2>
+    <a href="{% url 'delivery_add' %}" class="btn btn-primary">
+      <i class="ti ti-plus me-1"></i>Add Delivery Method
+    </a>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="row g-4">
+
+        {% for m in methods %}
+          <div class="col-md-6 col-lg-4">
+            <div class="card price-card p-4 border border-{{ m.color }} border-2 h-100">
+              <div class="card-body bg-{{ m.color }} bg-opacity-10 rounded v3">
+
+                <!-- HEADER -->
+                <div class="price-head v3">
+                  <h4 class="mb-0 text-{{ m.color }}">{{ m.name }}</h4>
+                  <div class="price-price mt-3">
+                    RM{{ m.base_price }} <span class="text-muted">/ delivery</span>
+                  </div>
+                  <small class="text-muted d-block">
+                    ETA {{ m.est_day_min }}–{{ m.est_day_max }} days
+                  </small>
+                </div>
+
+                <!-- DESCRIPTION -->
+                <ul class="list-group list-group-flush product-list v3 mt-3">
+                  {% if m.desc %}
+                    {% for line in m.desc.splitlines %}
+                      {% if line %}
+                        <li class="list-group-item enable">
+                          <i class="ti ti-check text-{{ m.color }}"></i> {{ line }}
+                        </li>
+                      {% endif %}
+                    {% endfor %}
+                  {% else %}
+                    <li class="list-group-item text-muted">
+                      <i class="ti ti-info-circle me-1"></i>No description
+                    </li>
+                  {% endif %}
+                </ul>
+
+                <!-- ACTION -->
+                <div class="d-grid mt-4">
+                  <a href="{% url 'delivery_edit' m.pk %}" class="btn btn-dark">
+                    Edit
+                  </a>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12">
+            <div class="alert alert-info">No delivery methods found.</div>
+          </div>
+        {% endfor %}
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

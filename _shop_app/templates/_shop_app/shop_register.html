@@ -1,205 +1,165 @@
-{% extends '_core_app/base.html' %}
-
+{% extends "_core_app/base.html" %}
 {% load static %}
 
-{% block title %}Sahlan Hub - {{ title }} {% endblock title %}
+{% block title %}Sahlan Hub - {{ title }}{% endblock %}
 
 {% block content %}
-
 <div class="page-header">
-    <div class="page-block">
-        <div class="row align-items-center">
-            <div class="col-md-12">
-                <nav aria-label="breadcrumb">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-                        <li class="breadcrumb-item"><a href="javascript:void(0)">Shop Management</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Shop Registration</li>
-                    </ul>
-                </nav>
-                <div class="page-header-title">
-                    <h2 class="mb-0">Shop Registration</h2>
-                </div>
-            </div>
-        </div>
+  <div class="page-block">
+    <div class="row align-items-center">
+      <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="javascript:void(0)">Shop Management</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Shop Registration</li>
+          </ul>
+        </nav>
+        <div class="page-header-title"><h2 class="mb-0">Shop Registration</h2></div>
+      </div>
     </div>
+  </div>
 </div>
-
 
 <div class="card">
-    <div class="card-header">
-        <h5>Shop Registration</h5>
-    </div>
-    <div class="card-body">
-        <form method="POST" enctype="multipart/form-data" novalidate>
-            {% csrf_token %}
+  <div class="card-header"><h5>Shop Registration</h5></div>
+  <div class="card-body">
+    <form method="POST" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
 
-            <div class="row">
-                <div class="mb-3 col-md-6">
-                    <label class="form-label" for="id_shop_name">Name</label>
-                    {{ form.shop_name }}
-                    <div class="text-danger">
-                        {{ form.shop_name.errors }}
-                    </div>
-                </div>
+      {# ─── BARIS NAMA & FON ─────────────────────────────────────────────── #}
+      <div class="row">
+        <div class="mb-3 col-md-6">
+          <label class="form-label" for="id_shop_name">Name</label>
+          {{ form.shop_name }}
+          <div class="text-danger">{{ form.shop_name.errors }}</div>
+        </div>
+        <div class="mb-3 col-md-6">
+          <label class="form-label" for="id_shop_phone_number">Phone No</label>
+          {{ form.shop_phone_number }}
+          <div class="text-danger">{{ form.shop_phone_number.errors }}</div>
+        </div>
+      </div>
 
-                <div class="mb-3 col-md-6">
-                    <label class="form-label" for="id_shop_phone_number">Phone No</label>
-                    {{ form.shop_phone_number }}
-                    <div class="text-danger">
-                        {{ form.shop_phone_number.errors }}
-                    </div>
-                </div>
-            </div>
+      {# ─── UPLOAD LOGO & BANNER ─────────────────────────────────────────── #}
+      <div class="row">
+        <div class="mb-3 col-md-6">
+          <label class="form-label" for="id_shop_logo">Logo</label>
+          {{ form.shop_logo }}
+          <div class="text-danger">{{ form.shop_logo.errors }}</div>
+        </div>
+        <div class="mb-3 col-md-6">
+          <label class="form-label" for="id_shop_bg_photo">Background</label>
+          {{ form.shop_bg_photo }}
+          <div class="text-danger">{{ form.shop_bg_photo.errors }}</div>
+        </div>
+      </div>
 
-            <div class="row">
-                <div class="mb-3 col-md-6">
-                    <label class="form-label" for="id_shop_logo">Logo</label>
-                    {{ form.shop_logo }}
-                    <div class="text-danger">
-                        {{ form.shop_logo.errors }}
-                    </div>
-                </div>
+      <div class="row">
+        <div class="mb-3 col-md-6 d-flex justify-content-center align-items-center">
+          <img id="logo-preview" class="rounded-circle img-fluid object-fit-cover"
+               src="{% static 'images/user-default.jpg' %}" style="width:150px;height:150px;" alt="Logo preview" />
+        </div>
+        <div class="mb-3 col-md-6">
+          <img id="bg-preview" class="w-100 card-img object-fit-cover"
+               src="{% static 'images/white_bg.jpeg' %}" style="height:200px;" alt="Background preview" />
+        </div>
+      </div>
 
-                <div class="mb-3 col-md-6">
-                    <label class="form-label" for="id_shop_bg_photo">Background</label>
-                    {{ form.shop_bg_photo }}
-                    <div class="text-danger">
-                        {{ form.shop_bg_photo.errors }}
-                    </div>
-                </div>
-            </div>
+      {# ─── ALAMAT ────────────────────────────────────────────────────────── #}
+      <div class="mb-3">
+        <label class="form-label" for="id_shop_address_1">Address 1</label>
+        {{ form.shop_address_1 }}
+        <div class="text-danger">{{ form.shop_address_1.errors }}</div>
+      </div>
 
-            <div class="row">
-                <div class="mb-3 col-md-6 d-flex justify-content-center align-items-center">
-                    <img id="logo-preview" class="rounded-circle img-fluid object-fit-cover"
-                        src="{% static 'images/user-default.jpg' %}" style="width:150px;height:150px;"
-                        alt="Logo preview" />
-                </div>
-                <div class="mb-3 col-md-6">
-                    <img id="bg-preview" class="w-100 card-img object-fit-cover"
-                        src="{% static 'images/white_bg.jpeg' %}" style="height:200px;" alt="Background preview" />
-                </div>
-            </div>
+      <div class="mb-3">
+        <label class="form-label" for="id_shop_address_2">Address 2 (optional)</label>
+        {{ form.shop_address_2 }}
+      </div>
 
-            <div class="mb-3">
-                <label class="form-label" for="id_shop_address_1">Address 1</label>
-                {{ form.shop_address_1 }}
-                <div class="text-danger">
-                    {{ form.shop_address_1.errors }}
-                </div>
-            </div>
+      <div class="row">
+        <div class="mb-3 col-md-6">
+          <label class="form-label" for="id_shop_city">City</label>
+          {{ form.shop_city }}
+          <div class="text-danger">{{ form.shop_city.errors }}</div>
+        </div>
+        <div class="mb-3 col-md-4">
+          <label class="form-label" for="id_shop_state">State</label>
+          {{ form.shop_state }}
+          <div class="text-danger">{{ form.shop_state.errors }}</div>
+        </div>
+        <div class="mb-3 col-md-2">
+          <label class="form-label" for="id_shop_postcode">Zip</label>
+          {{ form.shop_postcode }}
+          <div class="text-danger">{{ form.shop_postcode.errors }}</div>
+        </div>
+      </div>
 
-            <div class="mb-3">
-                <label class="form-label" for="id_shop_address_2">Address 2 (optional)</label>
-                {{ form.shop_address_2 }}
-                <!-- {{ form.shop_address_2.errors }} -->
-            </div>
+      {# ─── DELIVERY PRICE OPTION ────────────────────────────────────────── #}
+      <div class="mb-3">
+        <label class="form-label d-block">Delivery price option</label>
+        {% for radio in form.delivery_price_type %}
+          <div class="form-check">
+            {{ radio.tag }}
+            <label class="form-check-label ms-2" for="{{ radio.id_for_label }}">
+              {{ radio.choice_label }}
+            </label>
+          </div>
+        {% endfor %}
+        <div class="text-danger">{{ form.delivery_price_type.errors }}</div>
+      </div>
 
-            <div class="row">
-                <div class="mb-3 col-md-6">
-                    <label class="form-label" for="id_shop_city">City</label>
-                    {{ form.shop_city }}
-                    <div class="text-danger">
-                        {{ form.shop_city.errors }}
-                    </div>
-                </div>
-                <div class="mb-3 col-md-4">
-                    <label class="form-label" for="id_shop_state">State</label>
-                    {{ form.shop_state }}
-                    <div class="text-danger">
-                        {{ form.shop_state.errors }}
-                    </div>
-                </div>
-                <div class="mb-3 col-md-2">
-                    <label class="form-label" for="id_shop_postcode">Zip</label>
-                    {{ form.shop_postcode }}
-                    <div class="text-danger">
-                        {{ form.shop_postcode.errors }}
-                    </div>
-                </div>
-            </div>
+      <div class="mb-3" id="fee-wrapper" style="display:none;">
+        <label class="form-label" for="{{ form.shop_delivery_fee.id_for_label }}">
+          Your flat delivery fee (RM)
+        </label>
+        {{ form.shop_delivery_fee }}
+        <div class="text-danger">{{ form.shop_delivery_fee.errors }}</div>
+      </div>
 
-            <div class="mb-3">
-                <label class="form-label" for="id_shop_category">Category</label>
-                {{ form.shop_category }}
-                <div class="text-danger">
-                    {{ form.shop_category.errors }}
-                </div>
-            </div>
+      {# ─── DESCRIPTION ──────────────────────────────────────────────────── #}
+      <div class="mb-3">
+        <label class="form-label" for="id_shop_desc">Description</label>
+        {{ form.shop_desc }}
+        <div class="text-danger">{{ form.shop_desc.errors }}</div>
+      </div>
 
-            <div class="mb-3">
-                <label class="form-label" for="id_shop_desc">Description</label>
-                {{ form.shop_desc }}
-                <div class="text-danger">
-                    {{ form.shop_desc.errors }}
-                </div>
-            </div>
-
-            <div class="text-end">
-                <button type="submit" class="btn btn-dark w-100">Register</button>
-            </div>
-        </form>
-    </div>
+      <div class="text-end">
+        <button type="submit" class="btn btn-dark w-100">Register</button>
+      </div>
+    </form>
+  </div>
 </div>
 
-
-<!-- <script>
-    function previewImage(inputElement, previewElementId) {
-        const preview = document.getElementById(previewElementId);
-
-        if (inputElement.files && inputElement.files[0]) {
-            const fileURL = URL.createObjectURL(inputElement.files[0]);
-            preview.src = fileURL;
-
-            preview.onload = function () {
-                URL.revokeObjectURL(fileURL);
-            };
-        } else {
-            if (previewElementId === 'bg-preview') {
-                preview.src = "{% static 'images/white_bg.jpeg' %}";
-            } else if (previewElementId === 'logo-preview') {
-                preview.src = "{% static 'images/user-default.jpg' %}";
-            }
-        }
-    }
-
-    document.getElementById('change-bg-photo').addEventListener('change', function () {
-        previewImage(this, 'bg-preview');
-    });
-
-    document.getElementById('change-logo-photo').addEventListener('change', function () {
-        previewImage(this, 'logo-preview');
-    });
-</script> -->
-
+{# ─── SCRIPTS ────────────────────────────────────────────────────────────── #}
 <script>
-    // phone: digits only + max 11
-    const phoneInput = document.getElementById('id_shop_phone_number');
-    if (phoneInput) {
-      phoneInput.addEventListener('input', (e) => {
-        e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 11);
-      });
-    }
-  
-    // logo preview
-    document.getElementById('id_shop_logo').addEventListener('change', function () {
-      const file = this.files[0];
-      const preview = document.getElementById('logo-preview');
-      if (file) {
-        preview.src = URL.createObjectURL(file);
-      }
+  // phone: digits only, max 11
+  const phoneInput = document.getElementById('id_shop_phone_number');
+  if (phoneInput) {
+    phoneInput.addEventListener('input', e => {
+      e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 11);
     });
-  
-    // bg preview
-    document.getElementById('id_shop_bg_photo').addEventListener('change', function () {
-      const file = this.files[0];
-      const preview = document.getElementById('bg-preview');
-      if (file) {
-        preview.src = URL.createObjectURL(file);
-      }
-    });
-  </script>
+  }
 
+  // logo preview
+  document.getElementById('id_shop_logo').addEventListener('change', function () {
+    const f = this.files[0]; if (f) document.getElementById('logo-preview').src = URL.createObjectURL(f);
+  });
 
+  // bg preview
+  document.getElementById('id_shop_bg_photo').addEventListener('change', function () {
+    const f = this.files[0]; if (f) document.getElementById('bg-preview').src = URL.createObjectURL(f);
+  });
+
+  // toggle custom fee
+  const feeWrap = document.getElementById('fee-wrapper');
+  function toggleFee() {
+    const custom =
+      document.querySelector('input[name="delivery_price_type"]:checked').value === 'custom';
+    feeWrap.style.display = custom ? 'block' : 'none';
+  }
+  document.querySelectorAll('input[name="delivery_price_type"]').forEach(r => r.addEventListener('change', toggleFee));
+  toggleFee(); // onload
+</script>
 {% endblock %}
