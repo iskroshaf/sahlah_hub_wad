@@ -9,7 +9,18 @@
 
 {% block content %}
 
-<!-- ===== PAGE HEADER ===== -->
+<style>
+   
+.custom-modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 1rem;    
+  border-left: 1px solid rgba(0,0,0,0.05);
+}
+
+</style>
+
+
 <div class="page-header">
     <div class="page-block">
         <div class="row align-items-center">
@@ -27,7 +38,7 @@
     </div>
 </div>
 
-<!-- ===== MESSAGES ===== -->
+
 {% if messages %}
 {% for m in messages %}
 <div class="alert alert-{{ m.tags }} alert-dismissible fade show" role="alert">
@@ -36,7 +47,7 @@
 {% endfor %}
 {% endif %}
 
-<!-- ===== LIST ===== -->
+
 <div class="row">
     <div class="col-sm-12">
         <div class="card">
@@ -46,14 +57,12 @@
 
             <div class="card-body">
                 <div class="row">
-
                     {% for shop in shops %}
-                    <!-- === CARD === -->
                     <div class="col-sm-6 col-lg-4 col-xxl-3 mb-3">
                         <div class="card border">
                             <div class="card-body p-2">
 
-                                <!-- banner + logo -->
+                                
                                 <div class="position-relative">
                                     {% if shop.shop_bg_photo %}
                                     <img src="{{ shop.shop_bg_photo.url }}" class="img-fluid w-100"
@@ -74,19 +83,28 @@
                                     </div>
                                 </div>
 
-                                <!-- meta -->
-                                <ul class="list-group list-group-flush my-2">
+                             
+                               <ul class="list-group list-group-flush my-2">
                                     <li class="list-group-item px-0 py-2">
                                         <h6 class="mb-1">{{ shop.shop_name }}</h6>
-                                        <p class="mb-0 f-w-600"><i class="fas fa-star text-warning"></i>
-                                            {{ shop.shop_rating }}</p>
+                                        <p class="mb-0 f-w-600">
+                                            <i class="fas fa-star text-warning"></i> {{ shop.shop_rating }}
+                                        </p>
+                                        {#  ── BADGE APPROVAL ── #}
+                                        {% if shop.shop_status == '1' %}
+                                            <span class="badge bg-success">Approved</span>
+                                        {% elif shop.shop_status == '3'%}
+                                             <span class="badge bg-danger">Rejected</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        {% endif %}
                                     </li>
                                     <li class="list-group-item px-0 py-2">
                                         <p class="text-muted mb-0">{{ shop.shop_desc }}</p>
                                     </li>
                                 </ul>
 
-                                <!-- view btn -->
+                                
                                 <button class="btn btn-sm btn-outline-primary mb-2" data-bs-toggle="modal"
                                     data-bs-target="#shopModal_{{ shop.shop_id }}">
                                     View Shop
@@ -96,7 +114,7 @@
                         </div>
                     </div>
 
-                    <!-- ===== VIEW MODAL ===== -->
+                  
                     <div class="modal fade" id="shopModal_{{ shop.shop_id }}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-lg modal-dialog-centered">
                             <div class="modal-content overflow-hidden">
@@ -162,34 +180,54 @@
                                     </div>
                                 </div>
 
-                                <div class="modal-footer">
-                                    <button class="btn btn-primary" data-bs-dismiss="modal" data-bs-toggle="modal"
-                                        data-bs-target="#shopEditModal_{{ shop.shop_id }}">
-                                        Edit Shop
-                                    </button>
+                               <div class="modal-footer">
 
-                                    <a href="{% url 'shop_dashboard' shop.shop_id %}" class="btn btn-secondary">
-                                        Pergi ke Senarai Produk
-                                    </a>
-                                    <button class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                </div>
+                            {# EDIT SHOP: disabled jika status = 3 (Rejected) #}
+                            {% if shop.shop_status == '3' %}
+                                <button type="button" class="btn btn-primary" disabled>
+                                Edit Shop
+                                </button>
+                            {% else %}
+                                <button type="button"
+                                        class="btn btn-primary"
+                                        data-bs-dismiss="modal"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#shopEditModal_{{ shop.shop_id }}">
+                                Edit Shop
+                                </button>
+                            {% endif %}
+
+                            
+                            {% if shop.shop_status == '1' %}
+                                <a href="{% url 'shop_dashboard' shop.shop_id %}" class="btn btn-secondary">
+                                Pergi ke Senarai Produk
+                                </a>
+                            {% else %}
+                                <button type="button" class="btn btn-secondary" disabled>
+                                Pergi ke Senarai Produk
+                                </button>
+                            {% endif %}
+
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                                Close
+                            </button>
+
+                            </div>
+
                             </div>
                         </div>
                     </div>
 
-                  
-                    {# ============ EDIT SHOP MODAL (no lint / correct tags) ============ #}
                     <div class="modal fade" id="shopEditModal_{{ shop.shop_id }}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                             <div class="modal-content">
 
-                               
                                 <div class="modal-header">
                                     <h5 class="modal-title fw-semibold">Edit {{ shop.shop_name }}</h5>
                                     <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-
-                                {% with err_id=error_shop_id|default:'' %}
+                                <div class="modal-body custom-modal-body">
+                                    {% with err_id=error_shop_id|default:'' %}
                                 <form action="{% url 'seller_edit_shop' shop_id=shop.shop_id %}" method="post"
                                     enctype="multipart/form-data" novalidate>
                                     {% csrf_token %}
@@ -421,14 +459,11 @@
                                 </form>
                                 {% endwith %}
 
+                                </div>
                             </div>
                         </div>
                     </div>
-
-
                     {% endfor %}
-                    
-
                 </div>
             </div>
         </div>

@@ -76,7 +76,7 @@ class ProductForm(TranslatableModelForm):
 
     product_description = forms.CharField(
         label="",
-        required=False,
+        required=True,
         widget=forms.Textarea(attrs={"rows": 3, "placeholder": "Description",  "class": "form-control"}),
     )
 
@@ -108,6 +108,8 @@ class ProductForm(TranslatableModelForm):
             "product_category_name",
             "product_description",
             "product_image",
+            "product_quantity",
+            "product_availability",
         ]
     
         labels = {

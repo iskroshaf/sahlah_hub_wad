@@ -193,6 +193,9 @@ def product_register_view(request, pk):
                 product = form.save(commit=False)
                 product.shop = shop
 
+                Category: ProductCategory = form.cleaned_data['product_category_name']
+                cat_name = Category.product_category_name.strip().lower()
+
                 # Multilingual support
                 current_language = get_language()
                 product.set_current_language(current_language)
@@ -200,38 +203,41 @@ def product_register_view(request, pk):
                 product.product_description = form.cleaned_data["product_description"]
 
                 # AI Halal status prediction
-                text = f"{product.product_name} {product.product_description}".lower()
+                if cat_name in ["food", "drink"]:
+                    text = f"{product.product_name} {product.product_description}".lower()
 
-                try:
-                    response = requests.post(FASTAPI_URL, json={"text": text}, timeout=5)
-                    response.raise_for_status()
-                    ai_prediction = response.json().get("halal_status", "Unknown")
-                except Exception as e:
-                    logger.warning(f"AI prediction error: {e}")
-                    ai_prediction = "Unknown"
+                    try:
+                        response = requests.post(FASTAPI_URL, json={"text": text}, timeout=5)
+                        response.raise_for_status()
+                        ai_prediction = response.json().get("halal_status", "Unknown")
+                    except Exception as e:
+                        logger.warning(f"AI prediction error: {e}")
+                        ai_prediction = "Unknown"
 
-                is_haram = any(word in text for words in haram_keywords.values() for word in words)
-                is_halal = any(word in text for words in halal_keywords.values() for word in words)
-                is_mashbooh = any(word in text for words in mashbooh_keywords.values() for word in words)
-                contains_negation = any(neg in text for neg in NEGATION_WORDS)
+                    is_haram = any(word in text for words in haram_keywords.values() for word in words)
+                    is_halal = any(word in text for words in halal_keywords.values() for word in words)
+                    is_mashbooh = any(word in text for words in mashbooh_keywords.values() for word in words)
+                    contains_negation = any(neg in text for neg in NEGATION_WORDS)
 
-                # Determine halal_status
-                if is_haram and not contains_negation:
-                    product.halal_status = "Haram"
-                elif is_halal and not contains_negation:
-                    product.halal_status = "Halal"
-                elif is_haram and contains_negation:
-                    product.halal_status = "Halal"
-                elif is_halal and contains_negation:
-                    product.halal_status = "Haram"
-                elif is_mashbooh:
-                    product.halal_status = "Mashbooh"
-                elif "tidak diketahui" in text or "meragukan" in text:
-                    product.halal_status = "Mashbooh"
-                elif ai_prediction in ["Halal", "Haram"]:
-                    product.halal_status = ai_prediction
+                    # Determine halal_status
+                    if is_haram and not contains_negation:
+                        product.halal_status = "Haram"
+                    elif is_halal and not contains_negation:
+                        product.halal_status = "Halal"
+                    elif is_haram and contains_negation:
+                        product.halal_status = "Halal"
+                    elif is_halal and contains_negation:
+                        product.halal_status = "Haram"
+                    elif is_mashbooh:
+                        product.halal_status = "Mashbooh"
+                    elif "tidak diketahui" in text or "meragukan" in text:
+                        product.halal_status = "Mashbooh"
+                    elif ai_prediction in ["Halal", "Haram"]:
+                        product.halal_status = ai_prediction
+                    else:
+                        product.halal_status = "Mashbooh"
                 else:
-                    product.halal_status = "Mashbooh"
+                    product.halal_status = "None"
 
                 product.save()
                 product.auto_translate(fields=["product_name"])
@@ -264,6 +270,8 @@ def product_register_view(request, pk):
         "theme": theme,
         "shop": shop,
         "form": form,
+        "image_errors": image_errors, 
+
     }
     return render(request, "_product_app/product_register.html", context)
 
@@ -295,10 +303,10 @@ def product_management_view(request, pk):
 
 
 def product_detail_view(request, pk, product_id):
-    # pk datang dari prefix di shop_app.urls (shop_id)
     shop = get_object_or_404(Shop, shop_id=pk)
     product = get_object_or_404(Product, product_id=product_id, shop=shop)
 
+    # Set bahasa untuk terjemahan
     lang = get_language()
     product.set_current_language(lang)
 
@@ -308,17 +316,82 @@ def product_detail_view(request, pk, product_id):
     existing_count = product.images.count()
     remaining_slots = max(0, 5 - existing_count)
 
+
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES, instance=product)
         new_images = request.FILES.getlist("product_images")
+
         if form.is_valid():
-            form.save()
+            
+            product = form.save(commit=False)
+
+           
+            product.set_current_language(lang)
+            product.product_name = form.cleaned_data["product_name"]
+            product.product_description = form.cleaned_data["product_description"]
+
+            
+            kategori_obj = form.cleaned_data["product_category_name"]
+            cat_name = kategori_obj.product_category_name.strip().lower()
+
+            if cat_name in ["food", "drink"]:
+                text = f"{product.product_name} {product.product_description}".lower()
+
+               
+                try:
+                    resp = requests.post(FASTAPI_URL, json={"text": text}, timeout=5)
+                    resp.raise_for_status()
+                    ai_pred = resp.json().get("halal_status", "Unknown")
+                except Exception as e:
+                    logger.warning(f"AI prediction error: {e}")
+                    ai_pred = "Unknown"
+
+               
+                is_haram    = any(w in text for vals in haram_keywords.values()   for w in vals)
+                is_halal    = any(w in text for vals in halal_keywords.values()   for w in vals)
+                is_mashbooh = any(w in text for vals in mashbooh_keywords.values() for w in vals)
+                ada_negasi  = any(neg in text for neg in NEGATION_WORDS)
+
+                
+                if is_haram and not ada_negasi:
+                    product.halal_status = "Haram"
+                elif is_halal and not ada_negasi:
+                    product.halal_status = "Halal"
+                elif is_haram and ada_negasi:
+                    product.halal_status = "Halal"
+                elif is_halal and ada_negasi:
+                    product.halal_status = "Haram"
+                elif is_mashbooh or "tidak diketahui" in text or "meragukan" in text:
+                    product.halal_status = "Mashbooh"
+                elif ai_pred in ["Halal", "Haram"]:
+                    product.halal_status = ai_pred
+                else:
+                    product.halal_status = "Mashbooh"
+
+            else:
+                
+                product.halal_status = "None"
+
+          
+            product.save()
+            product.auto_translate(fields=["product_name"])
+            product.auto_translate(fields=["product_description"])
+
+           
             for img in new_images:
                 ProductImage.objects.create(product=product, image=img)
-            messages.success(request, "✅ Produk dikemaskini.")
+
+            storage = get_messages(request)
+            storage.used = True
+            messages.success(request, "✅ Product updated.")
             return redirect("product_detail", pk=shop.shop_id, product_id=product.product_id)
         else:
-            messages.error(request, "Sila betulkan ralat dalam form.")
+            storage = get_messages(request)
+            storage.used = True
+            messages.error(request, "❌ Please correct the errors in the form.")
+            logger.error("Update failed, form errors: %s", form.errors)
+            # atau print(form.errors)
+
     else:
         form = ProductForm(instance=product)
 
@@ -327,10 +400,11 @@ def product_detail_view(request, pk, product_id):
         "theme": theme,
         "shop": shop,
         "product": product,
-        "form": form, 
+        "form": form,
         "remaining_slots": remaining_slots,
     }
     return render(request, "_product_app/seller_product_detail.html", context)
+
 
 def product_image_delete_view(request, pk, product_id, image_id):
     shop = get_object_or_404(Shop, shop_id=pk, seller=request.user.seller)

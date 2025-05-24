@@ -91,6 +91,12 @@ class BaseTranslatableModel(TranslatableModel):
 
 
 class Product(BaseTranslatableModel):
+
+    PRODUCT_STATUS_CHOICES = [
+    ('available',     'Available'),
+    ('non-available', 'Non-Available'),
+    ]
+    
     shop = models.ForeignKey("_shop_app.Shop", on_delete=models.CASCADE)
     product_id = models.CharField(max_length=10, unique=True, primary_key=True)
     product_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -103,6 +109,12 @@ class Product(BaseTranslatableModel):
     translations = TranslatedFields(
         product_name=models.CharField(max_length=50),
         product_description=models.TextField(max_length=250, blank=True, null=True),
+    )
+
+    product_availability = models.CharField(
+        max_length=15,
+        choices=PRODUCT_STATUS_CHOICES,
+        default='available',
     )
     
     #Implement model Halal_Haram
