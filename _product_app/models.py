@@ -3,6 +3,8 @@ from django.db import models
 from parler.models import TranslatableModel, TranslatedFields
 from _core_app.utils import generate_unique_id
 from django.utils.translation import get_language
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
 
 def translate_text(text, target_language):
@@ -100,7 +102,11 @@ class Product(BaseTranslatableModel):
     shop = models.ForeignKey("_shop_app.Shop", on_delete=models.CASCADE)
     product_id = models.CharField(max_length=10, unique=True, primary_key=True)
     product_price = models.DecimalField(max_digits=10, decimal_places=2)
-    product_quantity = models.PositiveIntegerField(default=0)
+    product_quantity = models.PositiveIntegerField(
+        default=0,
+        editable=False,     # tak boleh diisi manual
+        help_text="Jumlah stok semua varian"
+    )
     # product_image = models.ImageField(upload_to='media_photos/', blank=True, null=True)
     product_category_name = models.ForeignKey(
         "_product_app.ProductCategory", on_delete=models.SET_NULL, null=True, blank=True
@@ -151,6 +157,7 @@ class ProductCategory(BaseTranslatableModel):
     )
     
     product_category_id = models.CharField(max_length=10, unique=True, primary_key=True)
+    
     def save(self, *args, **kwargs):
         if not self.product_category_id:
             self.product_category_id = generate_unique_id(
@@ -174,5 +181,41 @@ class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='product_images/')
 
+    class Meta:
+        db_table = "product_image"
+
     def __str__(self):
         return f"Image for {self.product.product_name}"
+
+class ProductVariant(models.Model):
+   
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name='variants'
+    )
+    variant_name     = models.CharField(max_length=50)
+    variant_price    = models.DecimalField(max_digits=10, decimal_places=2)
+    variant_quantity = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.product.product_name} – {self.variant_name}"
+
+    class Meta:
+        db_table = "product_variant"
+    
+
+
+# ── signal handler ──────────────────────────────────────────
+
+def update_parent_stock(product):
+    total = product.variants.aggregate(
+        total_qty=models.Sum('variant_quantity')
+    )['total_qty'] or 0
+    Product.objects.filter(pk=product.pk).update(product_quantity=total)
+
+@receiver(post_save, sender=ProductVariant)
+def on_variant_save(sender, instance, **kwargs):
+    update_parent_stock(instance.product)
+
+@receiver(post_delete, sender=ProductVariant)
+def on_variant_delete(sender, instance, **kwargs):
+    update_parent_stock(instance.product)

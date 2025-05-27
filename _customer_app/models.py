@@ -34,5 +34,7 @@ class ShippingAddress(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        db_table = "shipping_address"
     def __str__(self):
         return f"{self.address_line1}, {self.city}"

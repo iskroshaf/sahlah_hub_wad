@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render,get_object_or_404, redirect
-from _seller_app.forms import SellerRegisterForm,SellerProfileForm
+from _seller_app.forms import SellerRegisterForm,SellerProfileForm,BankAccountForm  
 from _shop_app.models import Shop
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 from django.urls import reverse_lazy
@@ -90,9 +90,20 @@ def seller_profile_view(request):
     
     title = "Seller Profile"
     theme = "admin_seller_theme"
+
+    seller = request.user.seller
+    if request.method == 'POST' and 'bank_account_submit' in request.POST:
+        form = BankAccountForm(request.POST, instance=seller)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "✅ Bank account updated.")
+            return redirect('seller_profile')
+    else:
+        form = BankAccountForm(instance=seller)
     context = {
         "theme": theme,
         "title":title,
+        "form":form,
         
     }
     return render(request, "_seller_app/seller_profile.html", context)

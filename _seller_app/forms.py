@@ -98,4 +98,12 @@ class SellerProfileForm(forms.ModelForm):
             'image_avatar', 'business_license'
         ]
 
-
+class BankAccountForm(forms.ModelForm):
+    class Meta:
+        model  = Seller
+        fields = ['bank_name','bank_account_number','bank_account_holder']
+        widgets = {
+          'bank_name':           forms.TextInput(attrs={'class':'form-control'}),
+          'bank_account_number': forms.TextInput(attrs={'class':'form-control'}),
+          'bank_account_holder': forms.TextInput(attrs={'class':'form-control'}),
+        }

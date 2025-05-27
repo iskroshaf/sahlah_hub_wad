@@ -65,6 +65,10 @@
             height: auto;
         }
     }
+
+    input[type="checkbox"][name$="-DELETE"] {
+        display: none;
+    }
 </style>
 
 <div class="page-header">
@@ -153,23 +157,12 @@
             </div>
 
             <div class="row">
-                <div class="mb-3 col-md-3">
+                <div class="mb-3 col-md-3" id="price-wrapper">
                     <label class="form-label">Price (RM)</label>
                     {{ form.product_price }}
-                    {% if form.product_price.errors %}
-                    <div class="text-danger small">
-                        {{ form.product_price.errors.0 }}
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="mb-3 col-md-3">
-                    <label class="form-label">Product Quantity</label>
-                    {{ form.product_quantity }}
-                    {% if form.product_quantity.errors %}
-                    <div class="text-danger small">
-                        {{ form.product_quantity.errors.0 }}
-                    </div>
-                    {% endif %}
+                    {% for err in form.product_price.errors %}
+                    <div class="text-danger small">{{ err }}</div>
+                    {% endfor %}
                 </div>
                 <div class="mb-3 col-md-3">
                     <label class="form-label">Product Category</label>
@@ -194,7 +187,7 @@
             <div class="mb-3">
                 <label class="form-label">Upload (max 5 images)</label>
                 <input type="file" name="product_images" id="product_images" class="form-control" multiple
-                       accept="image/*" onchange="previewImages()" />
+                    accept="image/*" onchange="previewImages()" />
                 <div id="preview-container" class="image-preview mt-3"></div>
                 {% if image_errors %}
                 <div class="text-danger small">
@@ -202,15 +195,82 @@
                 </div>
                 {% endif %}
             </div>
+            <div class="form-check mb-3">
+                {{ form.no_variant }} <label class="form-check-label">Tiada varian</label>
+            </div>
+            <div id="base-qty-wrapper" class="mb-3" style="display:none;">
+                <label class="form-label">Stok</label>
+                {{ form.base_quantity }}
+                {% if form.base_quantity.errors %}
+                <div class="text-danger small">{{ form.base_quantity.errors.0 }}</div>
+                {% endif %}
+            </div>
+            <h5 class="mt-4">Variants</h5>
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Variant Name</th>
+                        <th style="width:140px">Price (RM)</th>
+                        <th style="width:120px">Quantity</th>
+                        <th style="width:50px"></th>
+                    </tr>
+                </thead>
+                <tbody id="variant-table">
+                    {{ variant_fs.management_form }} {# Django MUST see these hidden inputs #}
 
-            <button type="submit" class="btn btn-submit w-100 mt-3" onclick="this.disabled=true; this.form.submit();">Submit Product</button>
+                    {% for vform in variant_fs %}
+                    <tr class="variant-row">
+                        <td>
+                            {{ vform.variant_name }}
+                            {% for err in vform.variant_name.errors %}
+                            <div class="text-danger small">{{ err }}</div>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {{ vform.variant_price }}
+                            {% for err in vform.variant_price.errors %}
+                            <div class="text-danger small">{{ err }}</div>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {{ vform.variant_quantity }}
+                            {% for err in vform.variant_quantity.errors %}
+                            <div class="text-danger small">{{ err }}</div>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {{ vform.DELETE }}
+                            <button type="button" class="btn btn-link text-danger p-0 btn-remove-variant">
+                                🗑️
+                            </button>
+
+
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if variant_fs.non_form_errors %}
+                    <tr>
+                        <td colspan="4" class="text-danger small">
+                            {{ variant_fs.non_form_errors }}
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addVariantRow()">
+                ➕ Add variant
+            </button>
+
+            <button type="submit" class="btn btn-submit w-100 mt-3"
+                onclick="this.disabled=true; this.form.submit();">Submit Product</button>
         </form>
     </div>
 </div>
 
 
 <script>
-     function previewImages() {
+    function previewImages() {
         const previewContainer = document.getElementById("preview-container");
         previewContainer.innerHTML = "";
         const files = document.getElementById("product_images").files;
@@ -229,6 +289,63 @@
         }
     }
 </script>
+
+<!-- ── Scripts ────────────────────────────────── -->
+<script>
+    /* Add variant row */
+    function addVariantRow() {
+        const total = document.getElementById("id_variants-TOTAL_FORMS");
+        const idx = parseInt(total.value, 10);
+
+        const row = `
+  <tr class="variant-row" id="variant-row-${idx}">
+    <td><input type="text" name="variants-${idx}-variant_name" class="form-control" placeholder="Variant"></td>
+    <td><input type="number" name="variants-${idx}-variant_price" step="0.01" class="form-control"></td>
+    <td><input type="number" name="variants-${idx}-variant_quantity" min="0" class="form-control"></td>
+    <td class="text-center">
+      <button type="button" class="btn btn-link text-danger p-0 btn-remove-variant">🗑️</button>
+    </td>
+    <input type="checkbox" name="variants-${idx}-DELETE" id="id_variants-${idx}-DELETE" style="display:none;">
+    <input type="hidden" name="variants-${idx}-id">
+  </tr>`;
+        document.getElementById("variant-table").insertAdjacentHTML("beforeend", row);
+        total.value = idx + 1;
+        hookRemoveButtons(); // aktifkan ikon baharu
+    }
+
+    /* Padam baris */
+    function hookRemoveButtons() {
+        document.querySelectorAll(".btn-remove-variant").forEach(btn => {
+            btn.onclick = function () {
+                const row = this.closest("tr");
+                const del = row.querySelector('input[name$="-DELETE"]');
+                if (del) {
+                    del.checked = true;
+                }
+                row.style.display = "none";
+            };
+        });
+    }
+    document.addEventListener("DOMContentLoaded", hookRemoveButtons);
+
+    /* Toggle no-variant, price & variant table */
+    document.addEventListener("DOMContentLoaded", () => {
+        const chk = document.getElementById("id_no_variant");
+        const base = document.getElementById("base-qty-wrapper");
+        const price = document.getElementById("price-wrapper");
+        const varSec = document.getElementById("variant-table").parentElement;
+
+        function toggleAll() {
+            const hide = chk.checked;
+            base.style.display = hide ? '' : 'none';
+            price.style.display = hide ? '' : 'none';
+            varSec.style.display = hide ? 'none' : '';
+        }
+        chk.addEventListener("change", toggleAll);
+        toggleAll(); // keadaan awal
+    });
+</script>
+
 
 
 

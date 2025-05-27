@@ -301,9 +301,9 @@
       );
       updateLastVisibleItem();
       if (visibleProductCountGrid >= 12 || visibleProductCountList >= 12) {
-        $(".wg-pagination,.tf-loading").show();
+        
       } else {
-        $(".wg-pagination,.tf-loading").hide();
+        
       }
     }
 
@@ -446,135 +446,104 @@
 
   /* Switch Layout 
   -------------------------------------------------------------------------------------*/   
+/* ──────────────────────────────────────────────────────────
+   ❶  Switch Layout  – ingat pilihan di localStorage
+   ───────────────────────────────────────────────────────── */
+  /* ───────────────────────────────────────────────────────────
+   Switch Layout  +  “prelayout-hidden” anti-flash
+   ─────────────────────────────────────────────────────────── */
   var swLayoutShop = function () {
-    let isListActive = $(".sw-layout-list").hasClass("active");
-    let userSelectedLayout = null;
 
-    function hasValidLayout() {
-      return (
-        $("#gridLayout").hasClass("tf-col-2") ||
-        $("#gridLayout").hasClass("tf-col-3") ||
-        $("#gridLayout").hasClass("tf-col-4") ||
-        $("#gridLayout").hasClass("tf-col-5") ||
-        $("#gridLayout").hasClass("tf-col-6") ||
-        $("#gridLayout").hasClass("tf-col-7")
-      );
-    }
+    /* caching selector sekali sahaja */
+    const $listLayout = $("#listLayout");
+    const $gridLayout = $("#gridLayout");
 
-    function updateLayoutDisplay() {
-      const windowWidth = $(window).width();
-      const currentLayout = $("#gridLayout").attr("class");
+    /* ① keadaan tersimpan */
+    let isListActive    = $(".sw-layout-list").hasClass("active");
+    let savedGridLayout = localStorage.getItem("shopGridLayout") || null;
+    let savedModeList   = localStorage.getItem("shopLayoutMode") === "list";
 
-      if (!hasValidLayout()) {
-        console.warn(
-          "Page does not contain a valid layout (2-7 columns), skipping layout adjustments."
-        );
-        return;
-      }
-
-      if (isListActive) {
-        $("#gridLayout").hide();
-        $("#listLayout").show();
-        $(".wrapper-control-shop")
-          .addClass("listLayout-wrapper")
-          .removeClass("gridLayout-wrapper");
-        return;
-      }
-
-      if (userSelectedLayout) {
-        if (windowWidth <= 767) {
-          setGridLayout("tf-col-2");
-        } else if (windowWidth <= 1200 && userSelectedLayout !== "tf-col-2") {
-          setGridLayout("tf-col-3");
-        } else if (
-          windowWidth <= 1400 &&
-          (userSelectedLayout === "tf-col-5" ||
-            userSelectedLayout === "tf-col-6" ||
-            userSelectedLayout === "tf-col-7")
-        ) {
-          setGridLayout("tf-col-4");
-        } else {
-          setGridLayout(userSelectedLayout);
-        }
-        return;
-      }
-
-      if (windowWidth <= 767) {
-        if (!currentLayout.includes("tf-col-2")) {
-          setGridLayout("tf-col-2");
-        }
-      } else if (windowWidth <= 1200) {
-        if (!currentLayout.includes("tf-col-3")) {
-          setGridLayout("tf-col-3");
-        }
-      } else if (windowWidth <= 1400) {
-        if (
-          currentLayout.includes("tf-col-5") ||
-          currentLayout.includes("tf-col-6") ||
-          currentLayout.includes("tf-col-7")
-        ) {
-          setGridLayout("tf-col-4");
-        }
-      } else {
-        $("#listLayout").hide();
-        $("#gridLayout").show();
-        $(".wrapper-control-shop")
-          .addClass("gridLayout-wrapper")
-          .removeClass("listLayout-wrapper");
-      }
-    }
-
+    /* ② helper set grid */
     function setGridLayout(layoutClass) {
-      $("#listLayout").hide();
-      $("#gridLayout")
+      $listLayout.hide();
+      $gridLayout
         .show()
         .removeClass()
-        .addClass(`wrapper-shop tf-grid-layout ${layoutClass}`);
+        .addClass("wrapper-shop tf-grid-layout " + layoutClass);
+
       $(".tf-view-layout-switch").removeClass("active");
-      $(`.tf-view-layout-switch[data-value-layout="${layoutClass}"]`).addClass(
-        "active"
-      );
+      $(`.tf-view-layout-switch[data-value-layout="${layoutClass}"]`).addClass("active");
+
       $(".wrapper-control-shop")
         .addClass("gridLayout-wrapper")
         .removeClass("listLayout-wrapper");
+
       isListActive = false;
+      localStorage.setItem("shopGridLayout", layoutClass);
+      localStorage.setItem("shopLayoutMode", "grid");
+
+      /* buang selindung */
+      $listLayout.add($gridLayout).removeClass("prelayout-hidden");
     }
 
+    /* ③ helper set list */
+    function showListLayout() {
+      isListActive = true;
+      $gridLayout.hide();
+      $listLayout.show();
+
+      $(".tf-view-layout-switch").removeClass("active");
+      $(".sw-layout-list").addClass("active");
+
+      $(".wrapper-control-shop")
+        .addClass("listLayout-wrapper")
+        .removeClass("gridLayout-wrapper");
+
+      localStorage.setItem("shopLayoutMode", "list");
+      localStorage.removeItem("shopGridLayout");
+
+      /* buang selindung */
+      $listLayout.add($gridLayout).removeClass("prelayout-hidden");
+    }
+
+    /* ④ fallback responsif (hanya jika tiada pilihan user) */
+    function updateLayoutForScreen() {
+      if (isListActive || savedGridLayout) return;
+
+      const w = $(window).width();
+      if (w <= 767)       setGridLayout("tf-col-2");
+      else if (w <= 1200) setGridLayout("tf-col-3");
+      else if (w <= 1400) setGridLayout("tf-col-4");
+      else                setGridLayout("tf-col-5");
+    }
+    $(window).on("resize", updateLayoutForScreen);
+
+    /* ⑤ pada load pertama */
     $(document).ready(function () {
-      if (isListActive) {
-        $("#gridLayout").hide();
-        $("#listLayout").show();
-        $(".wrapper-control-shop")
-          .addClass("listLayout-wrapper")
-          .removeClass("gridLayout-wrapper");
+
+      if (savedModeList) {
+        showListLayout();              // pilihan list terdahulu
+      } else if (savedGridLayout) {
+        setGridLayout(savedGridLayout);
       } else {
-        $("#listLayout").hide();
-        $("#gridLayout").show();
-        updateLayoutDisplay();
+        updateLayoutForScreen();       // pilih default responsif
+        /* jika masih tersembunyi (tiada fungsi di atas sentuh) */
+        $listLayout.add($gridLayout).removeClass("prelayout-hidden");
       }
     });
 
-    $(window).on("resize", updateLayoutDisplay);
-
+    /* ⑥ klik ikon layout */
     $(".tf-view-layout-switch").on("click", function () {
       const layout = $(this).data("value-layout");
-      $(".tf-view-layout-switch").removeClass("active");
-      $(this).addClass("active");
-
       if (layout === "list") {
-        isListActive = true;
-        userSelectedLayout = null;
-        $("#gridLayout").hide();
-        $("#listLayout").show();
-        $(".wrapper-control-shop")
-          .addClass("listLayout-wrapper")
-          .removeClass("gridLayout-wrapper");
+        showListLayout();
       } else {
-        userSelectedLayout = layout;
         setGridLayout(layout);
       }
     });
   };
+
+
 
   /* Handle Sidebar Filter 
   -------------------------------------------------------------------------------------*/ 

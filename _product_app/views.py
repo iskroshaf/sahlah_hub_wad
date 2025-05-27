@@ -2,15 +2,22 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import get_language
 from django.contrib import messages
 from django.contrib.messages import get_messages
-
-from _product_app.forms import ProductCategoryForm, ProductForm
-from _product_app.models import Product, ProductCategory,ProductImage
+from decimal import Decimal
+from _product_app.forms import ProductCategoryForm, ProductForm,VariantFormSet
+from _product_app.models import Product, ProductCategory,ProductImage,ProductVariant
+from django.db.models import Case, When, Value, IntegerField, Q,Min
 from _shop_app.models import Shop
 import logging
 import os
 import csv
 import requests
 from django.conf import settings
+
+import builtins 
+
+
+from pprint import pprint
+import json  
 
 logger = logging.getLogger(__name__)
 
@@ -177,9 +184,11 @@ def product_register_view(request, pk):
     theme = "admin_seller_theme"
     shop = get_object_or_404(Shop, shop_id=pk)
     image_errors = None
+    PREFIX = "variants"
 
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES)
+        variant_fs  = VariantFormSet(request.POST, prefix=PREFIX)
         product_images = request.FILES.getlist("product_images")
 
         # Validasi image
@@ -188,7 +197,7 @@ def product_register_view(request, pk):
         elif len(product_images) > 5:
             image_errors = "You can upload a maximum of 5 images."
 
-        if form.is_valid() and not image_errors:
+        if form.is_valid() and (form.cleaned_data["no_variant"] or variant_fs.is_valid()) and not image_errors:
             try:
                 product = form.save(commit=False)
                 product.shop = shop
@@ -239,9 +248,34 @@ def product_register_view(request, pk):
                 else:
                     product.halal_status = "None"
 
+
+                if not form.cleaned_data["no_variant"]:
+                # Cari harga paling rendah yang TIDAK ditanda DELETE
+                    prices = [
+                        v["variant_price"]
+                        for v in variant_fs.cleaned_data
+                        if not v.get("DELETE", False) and v.get("variant_price") is not None
+                    ]
+                    # Jika at least satu baris, ambil min; jika tiada, guna 0
+                    product.product_price = min(prices) if prices else Decimal("0.00")
                 product.save()
                 product.auto_translate(fields=["product_name"])
                 product.auto_translate(fields=["product_description"])
+
+                if form.cleaned_data["no_variant"]:
+                    ProductVariant.objects.create(
+                        product          = product,
+                        variant_name     = "Default",
+                        variant_price    = form.cleaned_data["product_price"],
+                        variant_quantity = form.cleaned_data["base_quantity"] or 0
+                    )
+                else:
+                    variant_fs.instance = product
+                    variant_fs.save()
+                    cheapest = product.variants.aggregate(Min('variant_price'))['variant_price__min']
+                    if cheapest is not None:
+                        product.product_price = cheapest
+                        product.save(update_fields=['product_price'])
 
                 for file in product_images:
                     ProductImage.objects.create(product=product, image=file)
@@ -262,8 +296,23 @@ def product_register_view(request, pk):
             else:
                 messages.error(request, "❌ Product registration failed. Please check the form.")
             logger.error("Form errors: %s", form.errors)
+
+            if form.errors:
+                print("\n======= ProductForm errors =======")
+                print(json.dumps(form.errors.get_json_data(), indent=2))
+
+            if 'variant_fs' in locals():          
+                 if variant_fs.non_form_errors():
+                    print("\n=== VariantFormSet NON-FIELD errors ===")
+                    pprint(variant_fs.non_form_errors().as_data())
+
+            for idx, err_dict in enumerate(variant_fs.errors):
+                if err_dict:
+                    print(f"\n--- Variant row {idx} errors ---")
+                    pprint(err_dict)
     else:
         form = ProductForm()
+        variant_fs = VariantFormSet(prefix=PREFIX)
 
     context = {
         "title": title,
@@ -271,6 +320,7 @@ def product_register_view(request, pk):
         "shop": shop,
         "form": form,
         "image_errors": image_errors, 
+        "variant_fs": variant_fs,
 
     }
     return render(request, "_product_app/product_register.html", context)
@@ -280,15 +330,52 @@ def product_list_view(request, pk):
     title = "Product"
     theme = "admin_seller_theme"
     shop = get_object_or_404(Shop, shop_id=pk)
-    products = Product.objects.filter(shop=shop)
-    context = {
+
+    # ── GET parameters ─────────────────────────────────────
+    q      = request.GET.get('q', '').strip()
+    status = request.GET.get('status', '').strip()
+    sort   = request.GET.get('sort', '').strip()
+
+    ALL_STATUSES = ['None', 'Halal', 'Haram', 'Mashbooh']
+    VALID_STATUSES = set(ALL_STATUSES)
+
+    # ── Base queryset (Parler active language) ─────────────
+    qs = Product.objects.active_translations(request.LANGUAGE_CODE).filter(shop=shop)
+
+    # ── Search product name (current language) ─────────────
+    if q:
+        qs = qs.filter(translations__product_name__icontains=q)
+
+    # ── Status priority (bawa status terpilih ke atas) ─────
+    if status in VALID_STATUSES:
+        idx     = ALL_STATUSES.index(status)
+        rotated = ALL_STATUSES[idx:] + ALL_STATUSES[:idx]   # putar list
+        whens   = [When(halal_status=s, then=Value(pos)) for pos, s in enumerate(rotated)]
+        qs = qs.annotate(
+            dyn_rank=Case(*whens, default=Value(len(ALL_STATUSES)), output_field=IntegerField())
+        )
+    # Jika tiada status dipilih, dyn_rank tiada (abaikan)
+
+    # ── Sorting order list ─────────────────────────────────
+    ordering = []
+    if status in VALID_STATUSES:
+        ordering.append('dyn_rank')              # status terpilih di atas
+    if sort == 'price_desc':
+        ordering.append('-product_price')
+    elif sort == 'price_asc':
+        ordering.append('product_price')
+    ordering.append('translations__product_name')  # fallback
+    qs = qs.order_by(*ordering)
+
+    return render(request, "_product_app/product_list.html", {
         "title": title,
         "theme": theme,
         "shop": shop,
-        "products": products,
-    }
-    return render(request, "_product_app/product_list.html", context)
-
+        "products": qs,
+        "q": q,
+        "current_status": status,
+        "current_sort": sort,
+    })
 
 def product_management_view(request, pk):
     title = "Product Management"
@@ -306,7 +393,7 @@ def product_detail_view(request, pk, product_id):
     shop = get_object_or_404(Shop, shop_id=pk)
     product = get_object_or_404(Product, product_id=product_id, shop=shop)
 
-    # Set bahasa untuk terjemahan
+   
     lang = get_language()
     product.set_current_language(lang)
 

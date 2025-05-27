@@ -3,7 +3,8 @@ from _customer_app.forms import CustomerRegisterForm,ProfileUpdateForm,PasswordC
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash 
 from .models import ShippingAddress
-
+from _product_app.models import Product
+from django.core.paginator import Paginator
 
 def customer_register_view(request):
     title = "Register"
@@ -37,8 +38,20 @@ def customer_register_view(request):
 def customer_home_view(request):
     title = "Customer Home"
     theme = "customer_theme"
-    context = {"title": title, 'theme': theme}
+    products_qs = Product.objects.filter(product_availability="available",shop__shop_status=1).order_by('-product_id')  # contoh susun ikut tarikh imbasan
+    paginator = Paginator(products_qs, 12)  # 12 produk per halaman
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    context = {
+        "title": title,
+        "theme": theme,
+        "products": page_obj.object_list,
+        "is_paginated": page_obj.has_other_pages(),
+        "page_obj": page_obj,
+        "paginator": paginator,
+    }
     return render(request, "_customer_app/customer_home.html", context)
+
 
 
 def customer_update_profile(request):

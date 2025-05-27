@@ -15,12 +15,14 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
 
     {% if theme == "customer_theme" %}
+    
     <link rel="stylesheet" href="{% static 'customer_theme/fonts/fonts.css' %}">
     <link rel="stylesheet" href="{% static 'customer_theme/fonts/font-icons.css' %}">
     <link rel="stylesheet" href="{% static 'customer_theme/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'customer_theme/css/swiper-bundle.min.css' %}">
     <link rel="stylesheet" href="{% static 'customer_theme/css/animate.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'customer_theme/css/styles.css' %}" />
+
 
     {% elif theme == "admin_seller_theme" %}
 
@@ -33,10 +35,10 @@
     <link rel="stylesheet" href="{% static 'admin_seller_theme/css/style.css' %}" id="main-style-link" />
     <link rel="stylesheet" href="{% static 'admin_seller_theme/css/style-preset.css' %}" />
     <link rel="stylesheet" href="{% static 'admin_seller_theme/css/plugins/style.css' %}" />
-    
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
-    
-    
+
+
     {% endif %}
 
 
@@ -81,6 +83,7 @@
     {% endif %}
 
     {% if theme == "customer_theme" %}
+
     <script type="text/javascript" src="{% static 'customer_theme/js/bootstrap.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'customer_theme/js/jquery.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'customer_theme/js/swiper-bundle.min.js' %}"></script>
@@ -90,7 +93,15 @@
     <script type="text/javascript" src="{% static 'customer_theme/js/count-down.js' %}"></script>
     <script type="text/javascript" src="{% static 'customer_theme/js/wow.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'customer_theme/js/multiple-modal.js' %}"></script>
+    <script type="text/javascript" src="{% static 'customer_theme/js/nouislider.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'customer_theme/js/shop.js' %}"></script>
     <script type="text/javascript" src="{% static 'customer_theme/js/main.js' %}"></script>
+    <script src="{% static 'customer_theme/js/sibforms.js' %}" defer></script>
+
+
+
+
+
 
     {% elif theme == "admin_seller_theme" %}
     <!-- <script src="{% static 'admin_seller_theme/js/plugins/apexcharts.min.js' %}"></script>

@@ -1,6 +1,6 @@
 from django import forms
-from django.forms import ModelForm,IntegerField
-from _product_app.models import Product, ProductCategory
+from django.forms import ModelForm,IntegerField,inlineformset_factory
+from _product_app.models import Product, ProductCategory,ProductVariant
 from django.core.exceptions import ValidationError
 from parler.forms import TranslatableModelForm
 
@@ -42,26 +42,26 @@ class ProductForm(TranslatableModelForm):
     )
 
     product_price = forms.DecimalField(
-    label="",
-    min_value=0.01,
-    max_digits=10,
-    decimal_places=2,
-    required=True,
-    widget=forms.TextInput(attrs={"placeholder": "Price", "class": "form-control"}),
-    error_messages={
-        'required': 'Price is required.',
-        'min_value': 'Price must be at least RM0.01.',
-    }
+        label="",
+        min_value=0.01,
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Price", "class": "form-control"}),
+        error_messages={
+            'required': 'Price is required.',
+            'min_value': 'Price must be at least RM0.01.',
+        }
     )
 
-    product_quantity = IntegerField(
-        label="",
-        min_value=0,
-        widget=forms.NumberInput(attrs={"placeholder": "Quantity", "class": "form-control"}),
-        error_messages={
-        'required': 'Please insert a quantity of product.',   
-    }
-    )
+    # product_quantity = IntegerField(
+    #     label="",
+    #     min_value=0,
+    #     widget=forms.NumberInput(attrs={"placeholder": "Quantity", "class": "form-control"}),
+    #     error_messages={
+    #     'required': 'Please insert a quantity of product.',   
+    # }
+    # )
 
     product_category_name = forms.ModelChoiceField(
         label="",
@@ -98,24 +98,33 @@ class ProductForm(TranslatableModelForm):
             'required': 'Please choose availability ',
         }
     )
+    no_variant = forms.BooleanField(
+        required=False,
+        label="Tiada varian (satu harga & stok sahaja)",
+        widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
+    )
+
+    base_quantity = forms.IntegerField(
+        label="Stok (jika tiada varian)",
+        min_value=0,
+        required=False,                      # hanya wajib bila no_variant=True
+        widget=forms.NumberInput(attrs={"class": "form-control"})
+    )
 
 
     class Meta:
         model = Product
         fields = [
             "product_name",
-            "product_price",
             "product_category_name",
             "product_description",
             "product_image",
-            "product_quantity",
             "product_availability",
         ]
     
         labels = {
             "product_name": "Nama Produk",
             "product_price": "Harga (RM)",
-            "product_quantity": "Kuantiti",
             "product_category_name": "Kategori",
             "product_description": "Deskripsi",
         }
@@ -132,5 +141,38 @@ class ProductForm(TranslatableModelForm):
             if word_count < 3:
                 raise ValidationError("Product description must be at least 3 words.")
         return desc
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get("no_variant"):          # kes tiada varian
+            if cleaned.get("product_price") is None:
+                self.add_error("product_price", "Sila masukkan harga.")
+            if cleaned.get("base_quantity") is None:
+                self.add_error("base_quantity", "Sila masukkan stok.")
+        return cleaned
+
+
+class VariantForm(ModelForm):
+    class Meta:
+        model   = ProductVariant
+        exclude = ("product",)
+        widgets = {
+            "variant_name": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "Variant (e.g. 500 g)"}),
+            "variant_price": forms.NumberInput(
+                attrs={"class": "form-control", "step": "0.01"}),
+            "variant_quantity": forms.NumberInput(
+                attrs={"class": "form-control", "min": 0}),
+        }
+
+VariantFormSet = inlineformset_factory(
+    parent_model   = Product,
+    model          = ProductVariant,
+    form           = VariantForm,
+    extra          = 0,      # show one empty row
+    can_delete     = True,
+    min_num        = 1,      # at least one variant
+    validate_min   = False,
+)
 
 
