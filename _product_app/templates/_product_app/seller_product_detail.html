@@ -27,7 +27,7 @@
 
   <!-- Back Button -->
   <a href="{% url 'product_list' pk=shop.shop_id %}" class="btn btn-link mb-4">
-  <i class="fas fa-arrow-left"></i> Back
+    <i class="fas fa-arrow-left"></i> Back
   </a>
 
 
@@ -39,14 +39,14 @@
     <div class="card-body">
       <div class="row">
         <!-- Carousel Gambar Produk -->
-         {% if messages %}
+        {% if messages %}
         {% for m in messages %}
-          <div class="alert alert-{{ m.tags }} alert-dismissible fade show" role="alert">
-            {{ m }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
+        <div class="alert alert-{{ m.tags }} alert-dismissible fade show" role="alert">
+          {{ m }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         {% endfor %}
-      {% endif %}
+        {% endif %}
         <div class="col-md-6">
           <div id="prodCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
@@ -89,7 +89,7 @@
               {{ product.halal_status }}
             </span>
           </p>
-          <p class="mb-4"><strong>Stok:</strong> {{ product.product_quantity }}</p>
+          <p class="mb-4"><strong>Stok:</strong> {{ product.base_quantity }}</p>
 
           <h5>Deskripsi</h5>
           <p>{{ product.product_description|linebreaks }}</p>
@@ -104,12 +104,12 @@
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       {% if messages %}
-        {% for m in messages %}
-          <div class="alert alert-{{ m.tags }} alert-dismissible fade show" role="alert">
-            {{ m }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        {% endfor %}
+      {% for m in messages %}
+      <div class="alert alert-{{ m.tags }} alert-dismissible fade show" role="alert">
+        {{ m }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endfor %}
       {% endif %}
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
@@ -126,15 +126,11 @@
               {{ form.product_name.errors }}
             </div>
             <div class="col-md-6">
-             <label for="Product Price">Product Price</label>
+              <label for="Product Price">Product Price</label>
               {{ form.product_price }}
               {{ form.product_price.errors }}
             </div>
-            <div class="col-md-6">
-             <label for="Product Quantity">Quantity</label>
-              {{ form.product_quantity }}
-              {{ form.product_quantity.errors }}
-            </div>
+        
             <div class="col-md-6">
               <label for="Product Category">Category</label>
               {{ form.product_category_name }}
@@ -149,9 +145,60 @@
               <label class="form-label">Product Availability</label>
               {{ form.product_availability }}
               {% for err in form.product_availability.errors %}
-                <div class="text-danger small">{{ err }}</div>
+              <div class="text-danger small">{{ err }}</div>
               {% endfor %}
             </div>
+
+            <div class="form-check mb-3">
+              {{ form.no_variant }}
+              <label class="form-check-label">Tiada varian (satu harga & stok sahaja)</label>
+            </div>
+
+            <div id="base-qty-wrapper" class="mb-3" style="display:none;">
+              <label class="form-label">Stok</label>
+              {{ form.base_quantity }}
+              {% for err in form.base_quantity.errors %}
+              <div class="text-danger small">{{ err }}</div>
+              {% endfor %}
+            </div>
+
+            <h5 class="mt-4">Variants</h5>
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th>Variant Name</th>
+                  <th style="width:140px">Price (RM)</th>
+                  <th style="width:120px">Quantity</th>
+                  <th style="width:50px"></th>
+                </tr>
+              </thead>
+              <tbody id="variant-table">
+                {{ variant_fs.management_form }}
+                {% for vform in variant_fs %}
+                <tr class="variant-row">
+                  <td>
+                    {{ vform.variant_name }}{% for err in vform.variant_name.errors %}
+                    <div class="text-danger small">{{ err }}</div>{% endfor %}
+                  </td>
+                  <td>
+                    {{ vform.variant_price }}{% for err in vform.variant_price.errors %}
+                    <div class="text-danger small">{{ err }}</div>{% endfor %}
+                  </td>
+                  <td>
+                    {{ vform.variant_quantity }}{% for err in vform.variant_quantity.errors %}
+                    <div class="text-danger small">{{ err }}</div>{% endfor %}
+                  </td>
+                  <td>
+                    {{ vform.DELETE }}
+                    <button type="button" class="btn btn-link text-danger p-0 btn-remove-variant">🗑️</button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addVariantRow()">➕ Add
+              variant</button>
 
             <div class="mb-3">
               <label class="form-label">Pratonton Gambar (Maks 5)</label>
@@ -185,6 +232,85 @@
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
           <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
         </div>
+        <script>
+        /* 1. Tambah baris varian – OK */
+        function addVariantRow () {
+          if (document.getElementById("id_no_variant").checked) return;
+
+          const total = document.getElementById("id_variants-TOTAL_FORMS");
+          const idx   = parseInt(total.value, 10);
+
+          const row = `
+          <tr class="variant-row" id="variant-row-${idx}">
+            <td><input type="text"  name="variants-${idx}-variant_name"     class="form-control" placeholder="Variant"></td>
+            <td><input type="number" name="variants-${idx}-variant_price"   step="0.01" class="form-control"></td>
+            <td><input type="number" name="variants-${idx}-variant_quantity" min="0" class="form-control"></td>
+            <td class="text-center">
+              <button type="button" class="btn btn-link text-danger p-0 btn-remove-variant">🗑️</button>
+            </td>
+            <input type="checkbox" name="variants-${idx}-DELETE" style="display:none;">
+            <input type="hidden"   name="variants-${idx}-id">
+          </tr>`;
+          document.getElementById("variant-table").insertAdjacentHTML("beforeend", row);
+          total.value = idx + 1;
+          hookRemoveButtons();
+        }
+
+        /* 2. Padam baris varian */
+        function hookRemoveButtons () {
+          document.querySelectorAll(".btn-remove-variant").forEach(btn => {
+            btn.onclick = () => {
+              const row = btn.closest("tr");
+              row.querySelector('input[name$="-DELETE"]').checked = true;
+              row.style.display = "none";
+            };
+          });
+        }
+        document.addEventListener("DOMContentLoaded", hookRemoveButtons);
+
+        /* 3. Toggle “Tiada varian” */
+        document.addEventListener("DOMContentLoaded", () => {
+          const chk    = document.getElementById("id_no_variant");
+          const base   = document.getElementById("base-qty-wrapper");
+          const price  = document.getElementById("id_product_price")?.closest(".col-md-6");
+          const varSec = document.getElementById("variant-table").parentElement;
+          const btnAdd = document.querySelector('button[onclick="addVariantRow()"]');
+
+          /* soft-delete semua baris ketika tukar ke “no variant” */
+          function hideAllVariants () {
+            document.querySelectorAll("#variant-table .variant-row").forEach(r => {
+              r.querySelector('input[name$="-DELETE"]').checked = true;
+              r.style.display = "none";
+            });
+            /* ⛔ JANGAN sentuh TOTAL_FORMS di sini */
+          }
+
+          /* pulihkan baris asal semasa tukar kembali ke “variant” */
+          function reviveVariants () {
+            document.querySelectorAll("#variant-table .variant-row").forEach(r => {
+              r.querySelector('input[name$="-DELETE"]').checked = false;
+              r.style.display = "";
+            });
+          }
+
+          function toggleAll () {
+            const hide = chk.checked;
+            base .style.display = hide ? "" : "none";
+            price.style.display = hide ? "" : "none";
+            varSec.style.display = hide ? "none" : "";
+            btnAdd.disabled      = hide;
+
+            if (hide)  hideAllVariants();
+            else       reviveVariants();
+          }
+
+          chk.addEventListener("change", toggleAll);
+          toggleAll();           // set keadaan awal
+        });
+        </script>
+
+
+
       </form>
     </div>
   </div>
@@ -223,7 +349,7 @@
       const existingCount = previewContainer.querySelectorAll('.existing-thumb').length;
       if (existingCount + files.length > MAX_TOTAL) {
         alert(`Anda hanya boleh ada maks ${MAX_TOTAL} gambar. Anda sudah ada ${existingCount}.`);
-        input.value = "";  // clear selection
+        input.value = ""; // clear selection
         slotsCount.textContent = Math.max(0, MAX_TOTAL - existingCount);
         return;
       }

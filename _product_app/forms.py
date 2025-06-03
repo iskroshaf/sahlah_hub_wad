@@ -3,6 +3,7 @@ from django.forms import ModelForm,IntegerField,inlineformset_factory
 from _product_app.models import Product, ProductCategory,ProductVariant
 from django.core.exceptions import ValidationError
 from parler.forms import TranslatableModelForm
+from decimal import Decimal
 
 
 class ProductCategoryForm(ModelForm):
@@ -120,6 +121,9 @@ class ProductForm(TranslatableModelForm):
             "product_description",
             "product_image",
             "product_availability",
+            "product_price",
+            "no_variant",
+            
         ]
     
         labels = {
@@ -150,29 +154,76 @@ class ProductForm(TranslatableModelForm):
             if cleaned.get("base_quantity") is None:
                 self.add_error("base_quantity", "Sila masukkan stok.")
         return cleaned
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # bila edit & no-variant → paparkan stok sedia ada
+        if self.instance and self.instance.no_variant:
+            self.fields["base_quantity"].initial = self.instance.product_quantity
+
+
+
+
+
 
 
 class VariantForm(ModelForm):
+    # ----------- override field supaya WAJIB -----------
+    variant_price = forms.DecimalField(
+        label="",
+        min_value=Decimal("0.01"),
+        max_digits=10,
+        decimal_places=2,
+        required=True,
+        widget=forms.NumberInput(
+            attrs={"class": "form-control", "step": "0.01"}
+        ),
+        error_messages={
+            "required": "Sila isi harga varian.",
+            "min_value": "Harga mesti sekurang-kurangnya RM0.01.",
+        },
+    )
+    # ---------------------------------------------------
+
     class Meta:
         model   = ProductVariant
-        exclude = ("product",)
+        exclude = ("product","is_active")
         widgets = {
             "variant_name": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "Variant (e.g. 500 g)"}),
-            "variant_price": forms.NumberInput(
-                attrs={"class": "form-control", "step": "0.01"}),
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Variant (cth. 500 g)"
+                }
+            ),
+            # variant_price dipakaikan di atas
             "variant_quantity": forms.NumberInput(
-                attrs={"class": "form-control", "min": 0}),
+                attrs={"class": "form-control", "min": 0}
+            ),
         }
 
+    def clean(self):
+        """Jika semua field kosong, tandakan form sebagai ‘delete’."""
+        cleaned = super().clean()
+        empty_name  = not cleaned.get("variant_name")
+        empty_price = cleaned.get("variant_price") in (None, "")
+        empty_qty   = cleaned.get("variant_quantity") in (None, "")
+        if empty_name and empty_price and empty_qty:
+            # formset akan treat baris ni seolah2 di-DELETE
+            self.cleaned_data["DELETE"] = True
+        return cleaned
+
+
 VariantFormSet = inlineformset_factory(
-    parent_model   = Product,
-    model          = ProductVariant,
-    form           = VariantForm,
-    extra          = 0,      # show one empty row
-    can_delete     = True,
-    min_num        = 1,      # at least one variant
-    validate_min   = False,
+    parent_model = Product,
+    model        = ProductVariant,
+    form         = VariantForm,
+    extra        = 0,          # tiada baris kosong auto-spawn
+    can_delete   = True,
+    min_num      = 1,          # wajib ≥1 bila “Ada varian”
+    validate_min = False,      # kita kawal sendiri dgn no_variant
+    
 )
+
+
 
 

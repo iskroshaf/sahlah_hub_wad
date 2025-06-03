@@ -292,27 +292,40 @@
 
 <!-- ── Scripts ────────────────────────────────── -->
 <script>
+
+    function clearVariantRows() {
+    const rows = document.querySelectorAll("#variant-table .variant-row");
+    rows.forEach(row => {
+        // tandakan DELETE supaya Django tahu baris ni dah dibuang
+        const del = row.querySelector('input[name$="-DELETE"]');
+        if (del) del.checked = true;
+        row.remove();            // keluarkan dari DOM
+    });
+    // set semula bilangan borang dalam management form
+    document.getElementById("id_variants-TOTAL_FORMS").value = 0;
+}
     /* Add variant row */
     function addVariantRow() {
-        const total = document.getElementById("id_variants-TOTAL_FORMS");
-        const idx = parseInt(total.value, 10);
+    if (document.getElementById("id_no_variant").checked) return; // stop terus
 
-        const row = `
-  <tr class="variant-row" id="variant-row-${idx}">
-    <td><input type="text" name="variants-${idx}-variant_name" class="form-control" placeholder="Variant"></td>
-    <td><input type="number" name="variants-${idx}-variant_price" step="0.01" class="form-control"></td>
-    <td><input type="number" name="variants-${idx}-variant_quantity" min="0" class="form-control"></td>
-    <td class="text-center">
-      <button type="button" class="btn btn-link text-danger p-0 btn-remove-variant">🗑️</button>
-    </td>
-    <input type="checkbox" name="variants-${idx}-DELETE" id="id_variants-${idx}-DELETE" style="display:none;">
-    <input type="hidden" name="variants-${idx}-id">
-  </tr>`;
-        document.getElementById("variant-table").insertAdjacentHTML("beforeend", row);
-        total.value = idx + 1;
-        hookRemoveButtons(); // aktifkan ikon baharu
+    const total = document.getElementById("id_variants-TOTAL_FORMS");
+    const idx   = parseInt(total.value, 10);
+
+    const row = `
+      <tr class="variant-row" id="variant-row-${idx}">
+        <td><input type="text"  name="variants-${idx}-variant_name"     class="form-control" placeholder="Variant"></td>
+        <td><input type="number" name="variants-${idx}-variant_price"   step="0.01" class="form-control"></td>
+        <td><input type="number" name="variants-${idx}-variant_quantity" min="0" class="form-control"></td>
+        <td class="text-center">
+          <button type="button" class="btn btn-link text-danger p-0 btn-remove-variant">🗑️</button>
+        </td>
+        <input type="checkbox" name="variants-${idx}-DELETE" id="id_variants-${idx}-DELETE" style="display:none;">
+        <input type="hidden"   name="variants-${idx}-id">
+      </tr>`;
+    document.getElementById("variant-table").insertAdjacentHTML("beforeend", row);
+    total.value = idx + 1;
+    hookRemoveButtons();          // aktifkan ikon baharu
     }
-
     /* Padam baris */
     function hookRemoveButtons() {
         document.querySelectorAll(".btn-remove-variant").forEach(btn => {
@@ -330,20 +343,23 @@
 
     /* Toggle no-variant, price & variant table */
     document.addEventListener("DOMContentLoaded", () => {
-        const chk = document.getElementById("id_no_variant");
-        const base = document.getElementById("base-qty-wrapper");
-        const price = document.getElementById("price-wrapper");
-        const varSec = document.getElementById("variant-table").parentElement;
+    const chk     = document.getElementById("id_no_variant");
+    const base    = document.getElementById("base-qty-wrapper");
+    const price   = document.getElementById("price-wrapper");
+    const varSec  = document.getElementById("variant-table").parentElement;
+    const btnAdd  = document.querySelector('button[onclick="addVariantRow()"]');
 
-        function toggleAll() {
-            const hide = chk.checked;
-            base.style.display = hide ? '' : 'none';
-            price.style.display = hide ? '' : 'none';
-            varSec.style.display = hide ? 'none' : '';
-        }
-        chk.addEventListener("change", toggleAll);
-        toggleAll(); // keadaan awal
-    });
+    function toggleAll() {
+        const hide = chk.checked;
+        base.style.display  = hide ? ''  : 'none';
+        price.style.display = hide ? ''  : 'none';
+        varSec.style.display= hide ? 'none' : '';
+        btnAdd.disabled     = hide;      // lock/unlock butang
+        if (hide) clearVariantRows();    // kosongkan semua
+    }
+    chk.addEventListener("change", toggleAll);
+    toggleAll(); // set keadaan awal
+});
 </script>
 
 

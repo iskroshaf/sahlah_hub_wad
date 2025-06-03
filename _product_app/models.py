@@ -8,7 +8,6 @@ from django.dispatch import receiver
 
 
 def translate_text(text, target_language):
-    """Translate text using Google Cloud Translation API."""
     if not text:
         return ""
 
@@ -101,7 +100,12 @@ class Product(BaseTranslatableModel):
     
     shop = models.ForeignKey("_shop_app.Shop", on_delete=models.CASCADE)
     product_id = models.CharField(max_length=10, unique=True, primary_key=True)
-    product_price = models.DecimalField(max_digits=10, decimal_places=2)
+    product_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,    # ijinkan NULL
+        blank=True,   # optional untuk form
+    )
     product_quantity = models.PositiveIntegerField(
         default=0,
         editable=False,     # tak boleh diisi manual
@@ -122,6 +126,8 @@ class Product(BaseTranslatableModel):
         choices=PRODUCT_STATUS_CHOICES,
         default='available',
     )
+
+    no_variant = models.BooleanField(default=True)
     
     #Implement model Halal_Haram
     HALAL_STATUS_CHOICES =[
@@ -157,7 +163,6 @@ class ProductCategory(BaseTranslatableModel):
     )
     
     product_category_id = models.CharField(max_length=10, unique=True, primary_key=True)
-    
     def save(self, *args, **kwargs):
         if not self.product_category_id:
             self.product_category_id = generate_unique_id(
@@ -182,19 +187,21 @@ class ProductImage(models.Model):
     image = models.ImageField(upload_to='product_images/')
 
     class Meta:
-        db_table = "product_image"
+        db_table = "product_images"
 
     def __str__(self):
         return f"Image for {self.product.product_name}"
 
 class ProductVariant(models.Model):
-   
+    # … fields variant_name, variant_price, variant_quantity …
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name='variants'
     )
     variant_name     = models.CharField(max_length=50)
     variant_price    = models.DecimalField(max_digits=10, decimal_places=2)
     variant_quantity = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.product.product_name} – {self.variant_name}"
