@@ -4,6 +4,7 @@ from _product_app.models import Product, ProductCategory,ProductVariant
 from django.core.exceptions import ValidationError
 from parler.forms import TranslatableModelForm
 from decimal import Decimal
+from django.forms.models import BaseInlineFormSet
 
 
 class ProductCategoryForm(ModelForm):
@@ -204,25 +205,66 @@ class VariantForm(ModelForm):
     def clean(self):
         """Jika semua field kosong, tandakan form sebagai ‘delete’."""
         cleaned = super().clean()
-        empty_name  = not cleaned.get("variant_name")
-        empty_price = cleaned.get("variant_price") in (None, "")
-        empty_qty   = cleaned.get("variant_quantity") in (None, "")
-        if empty_name and empty_price and empty_qty:
-            # formset akan treat baris ni seolah2 di-DELETE
+        if not any(cleaned.get(f) for f in ("variant_name",
+                                            "variant_price",
+                                            "variant_quantity")):
+            # formset akan anggap ia baris kosong → umpama di-DELETE
             self.cleaned_data["DELETE"] = True
         return cleaned
 
+class VariantFormSetSoftDelete(BaseInlineFormSet):
+    def save(self, commit=True):
+        # 1) simpan form biasa (yang BUKAN delete) – commit=False
+        instances = super().save(commit=False)
+
+        if commit:
+            # pastikan baris biasa kekal aktif
+            for obj in instances:
+                obj.is_active = True
+                obj.save()
+
+        # 2) proses baris yang ditanda DELETE
+        for form in self.deleted_forms:
+            obj = form.instance
+            if obj.pk:                       # ← hanya jika memang wujud dlm DB
+                obj.is_active = False
+                if commit:
+                    obj.save(update_fields=["is_active"])
+            # kalau obj.pk is None ➜ ia baris baru yang dibatalkan, abaikan saja
+
+        # 3) many-to-many (jika ada)
+        if commit:
+            self.save_m2m()
+
+        return instances
+    def clean(self):
+        super().clean()
+
+        aktif = sum(
+            1
+            for form in self.forms
+            if form.cleaned_data and not form.cleaned_data.get("DELETE", False)
+        )
+        if aktif == 0:
+            raise ValidationError(
+                "Sekurang-kurangnya satu varian perlu ada, "
+                "atau tandakan kotak ‘Tiada varian’.",
+                code="no_active_variant",
+            )
 
 VariantFormSet = inlineformset_factory(
     parent_model = Product,
     model        = ProductVariant,
     form         = VariantForm,
+    formset      = VariantFormSetSoftDelete,
     extra        = 0,          # tiada baris kosong auto-spawn
     can_delete   = True,
     min_num      = 1,          # wajib ≥1 bila “Ada varian”
     validate_min = False,      # kita kawal sendiri dgn no_variant
     
 )
+
+
 
 
 

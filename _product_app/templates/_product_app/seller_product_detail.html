@@ -74,26 +74,83 @@
         </div>
 
         <!-- Maklumat Produk -->
-        <div class="col-md-6">
-          <h3 class="fw-bold">{{ product.product_name }}</h3>
-          <p class="text-muted mb-1">
-            Kategori: {{ product.product_category_name|default:"Tiada Kategori" }}
-          </p>
-          <h4 class="text-primary mb-2">RM {{ product.product_price }}</h4>
-          <p class="mb-2">
-            <span class="badge 
-              {% if product.halal_status == 'Halal' %}bg-success
-              {% elif product.halal_status == 'Haram' %}bg-danger
-              {% elif product.halal_status == 'Mashbooh' %}bg-warning text-dark
-              {% else %}bg-secondary{% endif %}">
-              {{ product.halal_status }}
-            </span>
-          </p>
-          <p class="mb-4"><strong>Stok:</strong> {{ product.base_quantity }}</p>
+       <div class="col-lg-6 d-flex flex-column gap-3">
 
-          <h5>Deskripsi</h5>
-          <p>{{ product.product_description|linebreaks }}</p>
-        </div>
+  {# ------------- MAKLUMAT ASAS ------------- #}
+  <div class="card h-100">
+    <div class="card-body">
+      <h3 class="fw-bold mb-1">{{ product.product_name }}</h3>
+
+      <p class="text-muted mb-2">
+        <i class="fas fa-tag me-1"></i>
+        {{ product.product_category_name|default:"Tiada Kategori" }}
+      </p>
+
+      <h4 class="text-primary fw-semibold mb-3">
+        RM {{ product.product_price }}
+      </h4>
+
+      <span class="badge 
+        {% if product.halal_status == 'Halal' %}bg-success
+        {% elif product.halal_status == 'Haram' %}bg-danger
+        {% elif product.halal_status == 'Mashbooh' %}bg-warning text-dark
+        {% else %}bg-secondary{% endif %}">
+        {{ product.halal_status }}
+      </span>
+    </div>
+  </div>
+
+  {# ------------- KAD VARIANT ------------- #}
+  {% if variant_list %}
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span class="fw-medium"><i class="fas fa-layer-group me-1"></i> Varian Aktif</span>
+
+      {# Lencana Stok Global #}
+      <span class="badge
+        {% if global_qty == 0 %}bg-danger
+        {% elif global_qty <= 5 %}bg-warning text-dark
+        {% else %}bg-success{% endif %}">
+        Stok: {{ global_qty }}
+      </span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-sm mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Nama</th>
+            <th class="text-end">Harga (RM)</th>
+            <th class="text-end">Kuantiti</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for v in variant_list %}
+          <tr>
+            <td>{{ v.variant_name }}</td>
+            <td class="text-end">{{ v.variant_price|floatformat:2 }}</td>
+            <td class="text-end">{{ v.variant_quantity }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {# ------------- DESKRIPSI ------------- #}
+  <div class="card">
+    <div class="card-header fw-medium">
+      <i class="fas fa-align-left me-1"></i> Deskripsi
+    </div>
+    <div class="card-body">
+      {{ product.product_description|linebreaks }}
+    </div>
+  </div>
+
+</div>
+
+
 
       </div>
     </div>
@@ -173,6 +230,11 @@
                 </tr>
               </thead>
               <tbody id="variant-table">
+                {% if variant_fs.non_form_errors %}
+                  <div class="alert alert-danger small">
+                    {{ variant_fs.non_form_errors.0 }}
+                  </div>
+                {% endif %}
                 {{ variant_fs.management_form }}
                 {% for vform in variant_fs %}
                 <tr class="variant-row">
@@ -189,6 +251,7 @@
                     <div class="text-danger small">{{ err }}</div>{% endfor %}
                   </td>
                   <td>
+                    {{ vform.id }}
                     {{ vform.DELETE }}
                     <button type="button" class="btn btn-link text-danger p-0 btn-remove-variant">🗑️</button>
                   </td>
@@ -261,8 +324,17 @@
           document.querySelectorAll(".btn-remove-variant").forEach(btn => {
             btn.onclick = () => {
               const row = btn.closest("tr");
-              row.querySelector('input[name$="-DELETE"]').checked = true;
+              // row.querySelector('input[name$="-DELETE"]').checked = true;  kalau aku nk padam hard
               row.style.display = "none";
+              row.querySelector('input[name$="-DELETE"]').checked = false; //nak soft delete
+              
+
+              const inactive = document.createElement("input");
+              inactive.type  = "hidden";
+              inactive.name  = row.querySelector('input[name$="-id"]').name.replace('-id', '-is_active');
+              inactive.value = "False";
+              row.appendChild(inactive);
+
             };
           });
         }

@@ -5,7 +5,7 @@ from django.contrib.messages import get_messages
 from decimal import Decimal
 from _product_app.forms import ProductCategoryForm, ProductForm,VariantFormSet
 from _product_app.models import Product, ProductCategory,ProductImage,ProductVariant
-from django.db.models import Case, When, Value, IntegerField, Q,Min
+from django.db.models import Case, When, Value, IntegerField, Q,Min,Sum
 from _shop_app.models import Shop
 import logging
 import os
@@ -430,8 +430,21 @@ def product_detail_view(request, pk, product_id):
         )
 
         new_images = request.FILES.getlist("product_images")
-        no_variant_now = form.data.get("no_variant") == "on"
 
+        no_variant_now = form.data.get("no_variant") == "on"
+        if no_variant_now:
+            active_variants_qs = product.variants.none()
+        else:
+            active_variants_qs = (
+                product.variants.filter(is_active=True)
+                                .exclude(variant_name="Default")              
+            )
+        variant_fs = VariantFormSet(
+        request.POST,
+        prefix="variants",
+        instance=product,
+        queryset=active_variants_qs,
+        )
         # Validasi: jangan melebihi baki slot gambar
         if len(new_images) > remaining_slots:
             messages.error(request, f"Maksimum tinggal {remaining_slots} slot imej sahaja.")
@@ -490,13 +503,23 @@ def product_detail_view(request, pk, product_id):
                     variant_fs.save()
 
                     # 3) Kemas kini harga produk = harga termurah varian aktif
-                    cheapest = product.variants.filter(is_active=True).aggregate(
-                        Min("variant_price")
-                    )["variant_price__min"]
-                    product.product_price = cheapest or Decimal("0.00")
+                    # cheapest = product.variants.filter(is_active=True).aggregate(
+                    #     Min("variant_price")
+                    # )["variant_price__min"]
+                    # product.product_price = cheapest or Decimal("0.00")
 
                     # 4) Dalam mod varian, stok (product_quantity) set ke 0
-                    product.product_quantity = 0
+                    # product.product_quantity = 
+
+                    product.product_price = (
+                        product.variants.filter(is_active=True)
+                                        .aggregate(Min("variant_price"))["variant_price__min"]
+                        or Decimal("0.00")
+                        )
+                    
+                    product.product_quantity = ( product.variants.filter(is_active=True).aggregate(Sum("variant_quantity"))["variant_quantity__sum"] or 0)
+
+
 
                 elif not prev_no_variant and no_variant_now:
                     # [B]  ADA → TIADA varian
@@ -504,7 +527,7 @@ def product_detail_view(request, pk, product_id):
                     product.variants.update(is_active=False)
 
                     # 2) Cari Default lama; jika wujud, update; jika tak, cipta baru
-                    default_var.variant_quantity = form.cleaned_data["base_quantity"] or 0
+                    
                     default_var = product.variants.filter(variant_name="Default").first()
                     if default_var:
                         # Update baris sedia ada
@@ -545,11 +568,21 @@ def product_detail_view(request, pk, product_id):
                         # Masih ADA varian → simpan FormSet biasa
                         variant_fs.instance = product
                         variant_fs.save()
-                        cheapest = product.variants.filter(is_active=True).aggregate(
-                            Min("variant_price")
-                        )["variant_price__min"]
-                        product.product_price = cheapest or Decimal("0.00")
-                        product.product_quantity = 0
+                        # cheapest = product.variants.filter(is_active=True).aggregate(
+                        #     Min("variant_price")
+                        # )["variant_price__min"]
+                        # product.product_price = cheapest or Decimal("0.00")
+                        # product.product_quantity = 0
+                        product.product_price = (
+                                product.variants.filter(is_active=True)
+                                                .aggregate(Min("variant_price"))["variant_price__min"]
+                                or Decimal("0.00")
+                            )
+                        product.product_quantity = (
+                                product.variants.filter(is_active=True)
+                                                .aggregate(Sum("variant_quantity"))["variant_quantity__sum"]
+                                or 0
+                            )
 
                 # Simpan flag no_variant dan commit Product
                 product.no_variant = no_variant_now
@@ -590,12 +623,23 @@ def product_detail_view(request, pk, product_id):
     else:
         # (GET) Init form & formset
         form = ProductForm(instance=product)
-        active_variants_qs = product.variants.filter(is_active=True)
+        active_variants_qs = product.variants.filter(is_active=True).exclude(variant_name="Default")
         variant_fs = VariantFormSet(
             prefix   = "variants",
             instance = product,
             queryset = active_variants_qs
         )
+        active_variants = product.variants.filter(is_active=True)
+
+    active_variants = (
+    product.variants.filter(is_active=True)
+                    .exclude(variant_name="Default")
+    )
+
+    global_qty = (
+        active_variants.aggregate(Sum("variant_quantity"))["variant_quantity__sum"]
+        or 0
+    )
 
     context = {
         "title": title,
@@ -604,6 +648,10 @@ def product_detail_view(request, pk, product_id):
         "product": product,
         "form": form,
         "variant_fs": variant_fs,
+        "variant_list": active_variants,
+        "global_qty":  active_variants.aggregate(     # ← baharu
+                      Sum("variant_quantity")
+                   )["variant_quantity__sum"] or 0,
         "remaining_slots": remaining_slots,
     }
     return render(request, "_product_app/seller_product_detail.html", context)
