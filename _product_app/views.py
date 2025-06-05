@@ -629,7 +629,7 @@ def product_detail_view(request, pk, product_id):
             instance = product,
             queryset = active_variants_qs
         )
-        active_variants = product.variants.filter(is_active=True)
+   
 
     active_variants = (
     product.variants.filter(is_active=True)
