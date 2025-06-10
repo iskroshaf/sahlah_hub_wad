@@ -5,6 +5,8 @@ from django.contrib.auth import update_session_auth_hash
 from .models import ShippingAddress
 from _product_app.models import Product
 from django.core.paginator import Paginator
+from django.db.models import Sum
+
 
 def customer_register_view(request):
     title = "Register"
@@ -181,3 +183,54 @@ def delete_shipping_address(request, pk):
     
     return render(request, "_customer_app/customer_delete_address.html", {"address": address})
 ################################################ End Delete Address Customer #############################################
+
+def customer_product_detail(request, product_id):
+    # ────────── Ambil produk ──────────
+    product = get_object_or_404(
+        Product.objects.select_related("shop"),
+        product_id=product_id,
+        product_availability="available",
+        shop__shop_status=1,
+    )
+
+    # ────────── Gambar ──────────
+    images_main = list(product.images.all())
+    if not images_main:
+        images_main = [ProductImage(image="images/placeholder.png")]
+
+    # ────────── Variant vs non-variant ──────────
+    if product.no_variant:
+        variant_list       = []
+        global_qty         = product.product_quantity
+        checked_variant_id = None                       # 🔹 tiada varian
+        selected_variant   = None    
+    else:
+        variant_list = product.variants.filter(is_active=True)
+        global_qty   = (
+            variant_list.aggregate(Sum("variant_quantity"))["variant_quantity__sum"]
+            or 0
+        )
+
+        # 🔹 Cari varian pertama yang masih ada stok (>0)
+        checked_variant_id = next(
+            (v.id for v in variant_list if v.variant_quantity > 0), 
+            None
+        )
+
+        selected_variant = next(                       # ➋
+            (v for v in variant_list if v.id == checked_variant_id),
+            None
+        )
+
+    # ────────── Context ──────────
+    context = {
+        "title":            product.product_name,
+        "theme":            "customer_theme",
+        "product":          product,
+        "variant_list":     variant_list,
+        "global_qty":       global_qty,
+        "images_main":      images_main,
+        "checked_variant_id": checked_variant_id,       # 🔹 hantar ke template
+        "selected_variant"   : selected_variant, 
+    }
+    return render(request, "_customer_app/customer_product_detail.html", context)

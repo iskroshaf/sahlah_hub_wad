@@ -1,0 +1,516 @@
+{% extends '_core_app/base.html' %}
+{% load static %}
+
+{% block title %}{{ product.product_name }} – Sahlan Hub{% endblock %}
+
+{% block content %}
+
+<style>
+    /* Container keseluruhan */
+    .variant-picker-container {
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 1rem;
+        background-color: #fff;
+    }
+
+    /* Header: Nama variant terpilih dan kuantiti terpilih */
+    .variant-picker-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .variant-picker-header .label-text {
+        font-weight: 600;
+        color: #333;
+        margin-right: 0.25rem;
+    }
+
+    .variant-picker-header .selected-variant,
+    .variant-picker-header .selected-variant-stock {
+        font-weight: 500;
+        color: #555;
+    }
+
+    /* Grid untuk susunan kad variant */
+    .variant-picker-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+    }
+
+    /* Sembunyikan input radio asal */
+    .variant-picker-grid input[type="radio"] {
+        display: none;
+    }
+
+    /* Gaya untuk setiap “kad” variant */
+    .variant-picker-grid .variant-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 0.75rem;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        background-color: #fafafa;
+        cursor: pointer;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    /* Nama variant */
+    .variant-picker-grid .variant-card .variant-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.25rem;
+    }
+
+    /* Harga variant */
+    .variant-picker-grid .variant-card .variant-price {
+        font-size: 0.85rem;
+        color: #777;
+        margin-bottom: 0.25rem;
+    }
+
+    /* Kuantiti variant */
+    .variant-picker-grid .variant-card .variant-stock {
+        font-size: 0.80rem;
+        color: #555;
+    }
+
+    /* Hover effect */
+    .variant-picker-grid .variant-card:hover {
+        background-color: #f5f5f5;
+        border-color: #bbb;
+    }
+
+    /* Gaya “checked” */
+    .variant-picker-grid input[type="radio"]:checked+.variant-card {
+        background-color: #343a40;
+        border-color: #343a40;
+    }
+
+    .variant-picker-grid input[type="radio"]:checked+.variant-card .variant-name {
+        color: #fff;
+    }
+
+    .variant-picker-grid input[type="radio"]:checked+.variant-card .variant-price {
+        color: #ddd;
+    }
+
+    .variant-picker-grid input[type="radio"]:checked+.variant-card .variant-stock {
+        color: #ccc;
+    }
+
+
+    .tf-product-media-thumbs .swiper-slide .item {
+        width: 80px;
+        /* laraskan ikut keperluan anda */
+        height: 80px;
+        /* laraskan ikut keperluan anda */
+        overflow: hidden;
+        /* sembunyikan lebihan pixel */
+        border-radius: 4px;
+        /* (optional) bulat sedikit */
+    }
+
+    /* 2. Pastikan <img> memenuhi container dan crop secukupnya */
+    .tf-product-media-thumbs .swiper-slide .item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        /* cover — memotong imej supaya memenuhi container */
+        display: block;
+        /* buang extra whitespace di bawah img */
+    }
+
+
+    /* 3. Jika mahu margin kecil antara setiap thumb */
+</style>
+
+
+<section class="flat-spacing">
+    <div class="tf-main-product section-image-zoom">
+        <div class="container">
+            <div class="row">
+                <!-- ───────────────────────── LEFT: IMAGE CAROUSEL ───────────────────────── -->
+                <div class="col-md-6">
+                    <div class="tf-product-media-wrap thumbs-bottom sticky-top">
+                        <div class="thumbs-slider">
+
+                            <!-- ─────────── Main Swiper ─────────── -->
+                            <div dir="ltr" class="swiper tf-product-media-main" id="gallery-swiper-started">
+                                <div class="swiper-wrapper">
+                                    {% for img in images_main %}
+                                    <div class="swiper-slide" data-color="{{ img.color|default:'gray' }}">
+                                        <a href="{{ img.image.url }}" target="_blank" class="item"
+                                            data-pswp-width="600px" data-pswp-height="800px">
+                                            <img id="main-image" class="tf-image-zoom lazyload"
+                                                data-zoom="{{ img.image.url }}" data-src="{{ img.image.url }}"
+                                                src="{{ img.image.url }}" alt="{{ product.product_name }}"
+                                                style="width:100%; max-width:500px; height:auto; object-fit:contain;" />
+                                        </a>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- ─────────── Thumbnail Swiper ─────────── -->
+                            <div dir="ltr" class="swiper tf-product-media-thumbs other-image-zoom"
+                                data-direction="horizontal">
+                                <div class="swiper-wrapper stagger-wrap">
+                                    {% for img in images_main %}
+                                    <div class="swiper-slide stagger-item" data-color="{{ img.color|default:'grey' }}">
+                                        <div class="item">
+                                            <img class="lazyload" data-src="{{ img.image.url }}"
+                                                src="{{ img.image.url }}" alt="{{ product.product_name }}" />
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+                {# ───────────────────────── RIGHT: PRODUCT INFO ───────────────────────── #}
+                <div class="col-md-6">
+                    <div class="tf-product-info-wrap position-relative">
+
+                        <div class="tf-product-info-list other-image-zoom">
+                            {# ---------- Heading ---------- #}
+                            <div class="tf-product-info-heading">
+                                <div class="tf-product-info-name">
+                                    <div class="text text-btn-uppercase">{{ product.product_category_name }}</div>
+                                    <h3 class="name">{{ product.product_name }}</h3>
+
+                                    <div class="sub">
+                                        {# Rating placeholder; ganti dgn rating sebenar jika ada #}
+                                        <div class="tf-product-info-rate me-4">
+                                            <div class="list-star">
+                                                {% for i in "12345" %}
+                                                <i class="icon icon-star"></i>
+                                                {% endfor %}
+                                            </div>
+                                            <div class="text text-caption-1">(0 reviews)</div>
+                                        </div>
+
+                                        {# jualan pantas optional #}
+                                        <div class="tf-product-info-sold">
+                                            <i class="icon icon-lightning"></i>
+                                            <div class="text text-caption-1">
+                                                {{ product.total_sold|default:"0" }} sold
+                                            </div>
+                                        </div>
+                                        {# ---------- Halal badge ---------- #}
+                                        {% if product.halal_status == "Halal" %}
+                                        <span class="badge bg-success text-uppercase">
+                                            {{ product.get_halal_status_display }}
+                                        </span>
+                                        {% elif product.halal_status == "Mashbooh" %}
+                                        <span class="badge bg-warning text-dark text-uppercase">
+                                            {{ product.get_halal_status_display }}
+                                        </span>
+                                        {% elif product.halal_status == "Haram" %}
+                                        <span class="badge bg-danger text-uppercase">
+                                            {{ product.get_halal_status_display }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                {# ---------- Harga ---------- #}
+                                <div class="tf-product-info-desc">
+                                    <div class="tf-product-info-price">
+                                        <h5 class="price-on-sale font-2 dynamic-price">RM {{ product.product_price }}
+                                        </h5>
+                                        <span id="out-of-stock-msg" class="text-danger small d-none">Out of Stock
+                                            ;)</span>
+                                    </div>
+
+
+
+                                    <p class="mt-3">{{ product.product_description|linebreaks }}</p>
+                                </div>
+                            </div>
+
+
+                            {# ---------- VARIANT PICKER (jika ada) ---------- #}
+                            {% if not product.no_variant %}
+                            <div class="variant-picker-container mt-4">
+                                <!-- Header: Nama variant terpilih dan kuantiti terpilih -->
+                                <div class="variant-picker-header mb-2">
+                                    <div>
+                                        <span class="label-text">Selected Variant:</span>
+                                        <span id="variant-current-name">
+                                            {% if selected_variant %}{{ selected_variant.variant_name }}{% else %}-{% endif %}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span class="label-text">Stock:</span>
+                                        <span id="variant-current-stock">
+                                            {% if selected_variant %}{{ selected_variant.variant_quantity }}{% else %}0{% endif %}
+                                        </span>
+
+                                    </div>
+                                </div>
+
+                                <!-- Grid kad untuk setiap variant -->
+                                <div class="variant-picker-grid">
+                                    {% for v in variant_list %}
+                                    <input type="radio" name="variant_id" class="size-btn" id="variant-{{ v.id }}"
+                                        value="{{ v.id }}" data-value="{{ v.variant_name }}"
+                                        data-price="{{ v.variant_price }}" data-stock="{{ v.variant_quantity }}"
+                                        {% if v.variant_quantity == 0 %}disabled{% endif %}
+                                        {% if v.id == checked_variant_id %}checked{% endif %}>
+
+                                    <label
+                                        class="variant-card {% if v.variant_quantity == 0 %}opacity-50 pointer-events-none{% endif %}"
+                                        for="variant-{{ v.id }}">
+                                        <span class="variant-name">{{ v.variant_name }}</span>
+                                        <span class="variant-price">RM {{ v.variant_price }}</span>
+                                        <span class="variant-stock">
+                                            {% if v.variant_quantity == 0 %}
+                                            Out&nbsp;of&nbsp;stock
+                                            {% else %}
+                                            Stock:&nbsp;{{ v.variant_quantity }}
+                                            {% endif %}
+                                        </span>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+
+                            {# ---------- Kuantiti ---------- #}
+                            <div class="tf-product-info-quantity mt-4">
+                                <div class="title mb_12">Quantity (stok: {{ global_qty }}):</div>
+                                <div class="wg-quantity">
+                                    <span class="qty-dec btn-quantity">−</span>
+                                    <input id="qty-input" class="quantity-product" type="number" name="qty" value="1"
+                                        min="1" step="1" readonly {# 🔒 block manual edit #}
+                                        max="{{ selected_variant.variant_quantity|default:1 }}">
+                                    <span class="qty-inc btn-quantity">＋</span>
+                                </div>
+                            </div>
+
+                            {# ---------- Butang ATC / BuyNow ---------- #}
+                            <div class="tf-product-info-by-btn mt-4">
+                                <form action="{}" method="post" class="flex-grow-1">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="qty" value="1" min="1" id="addcart-qty" readonly
+                                        max="{{ selected_variant.variant_quantity|default:1 }}">
+                                    {% if global_qty > 0 %}
+                                    <button id="add-to-cart-btn" class="btn-style-2 w-100">
+                                        Add to cart – <span id="price-total" class="fw-6">RM
+                                            {{ product.product_price }}</span>
+                                    </button>
+                                    {% else %}
+                                    <button class="btn-style-2 w-100 disabled" disabled>Out of stock</button>
+                                    {% endif %}
+                                </form>
+                            </div>
+
+                        </div> {# /tf-product-info-list #}
+                    </div>
+                </div> {# /col-md-6 #}
+
+            </div> {# /row #}
+        </div>
+    </div>
+</section>
+
+<!-- {# ── Sticky add-to-cart Bar (mobile) ── #}
+{% if global_qty > 0 %}
+<div class="tf-sticky-btn-atc d-md-none">
+    <form action="{}" method="post" class="form-sticky-atc">
+        {% csrf_token %}
+        <img src="{{ images_main.0.image.url }}" alt="" class="image">
+        <div class="content flex-grow-1">
+            <div class="text-title small">{{ product.product_name|truncatechars:25 }}</div>
+            <div class="text-title fw-6">RM {{ product.product_price }}</div>
+        </div>
+        <button class="tf-btn btn-reset radius-4 btn-add-to-cart">Add</button>
+    </form>
+</div>
+{% endif %} -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof totalPriceVariant === 'function') {
+            totalPriceVariant(); // ← ensure the listeners are attached
+        } else {
+            console.warn('totalPriceVariant is not defined');
+        }
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        /* ----------- ambil elemen ----------- */
+        const radios = document.querySelectorAll('input[name="variant_id"]');
+        const nameDisplay = document.getElementById('variant-current-name');
+        const stockDisplay = document.getElementById('variant-current-stock');
+        const priceNodes = document.querySelectorAll('.dynamic-price');
+        const atcBtn = document.getElementById('add-to-cart-btn');
+        const qtyInput = document.getElementById('qty-input');
+        const outMsg = document.getElementById('out-of-stock-msg');
+
+        /* ----------- fungsi bantu ----------- */
+        function toggleStockState(stock) {
+            const noStock = parseInt(stock, 10) <= 0;
+            outMsg.classList.toggle('d-none', !noStock); // papar/sembunyi mesej
+            atcBtn.disabled = noStock; // disable/enable butang
+            atcBtn.classList.toggle('disabled', noStock); // tambah kelas grey
+            qtyInput.disabled = noStock; // lock/unlock kuantiti
+        }
+
+        /* ----------- listener radio ----------- */
+        radios.forEach(radio => {
+            radio.addEventListener('change', function () {
+                const chosenName = this.dataset.value;
+                const chosenStock = this.dataset.stock;
+                const price = parseFloat(this.dataset.price).toFixed(2);
+
+                nameDisplay.textContent = chosenName;
+                stockDisplay.textContent = chosenStock;
+                priceNodes.forEach(n => n.textContent = `RM ${price}`);
+
+                toggleStockState(chosenStock); // ← kirim stok sebenar
+            });
+        });
+
+        /* ----------- panggil sekali untuk varian mula-mula ----------- */
+        const initial = document.querySelector('input[name="variant_id"]:checked');
+        if (initial) {
+            nameDisplay.textContent = initial.dataset.value; // ← guna ‘initial’
+            stockDisplay.textContent = initial.dataset.stock; // ← guna ‘initial’
+            priceNodes.forEach(n =>
+                n.textContent = `RM ${parseFloat(initial.dataset.price).toFixed(2)}`
+            );
+            toggleStockState(initial.dataset.stock);
+        }
+    });
+</script>
+<script>
+function totalPriceVariant () {
+
+    $(".tf-product-info-list").each(function () {
+
+        const $wrap   = $(this);
+        const $price  = $wrap.find(".price-on-sale");      // RM xx.xx
+        const $qty    = $wrap.find(".quantity-product");
+        const $total  = $("#price-total");                 // span dlm butang
+
+        /* ---------- helpers ---------- */
+        function cleanRM(text){
+            /* buang SEMUA selain digit & titik */
+            return text.replace(/[^\d.]/g,"");
+        }
+        function unitPrice(){
+            return parseFloat( cleanRM($price.text()) );
+        }
+        function setQty(val){
+            $qty.val(val);
+            updateDisplay();
+        }
+        function updateDisplay(){
+            const total = unitPrice() * +$qty.val();
+            $total.text("RM " + total.toFixed(2));
+        }
+
+        /* ---------- init ---------- */
+        const initStock = $wrap.find("input[name='variant_id']:checked")
+                               .data("stock") || 1;
+        $qty.data("max-stock", initStock).attr("max", initStock);
+        updateDisplay();                         // paparkan RM xx.xx awal
+
+        /* ---------- bila tukar varian ---------- */
+        $wrap.on("change","input[name='variant_id']",function(){
+            const newPrice = parseFloat( cleanRM($(this).data("price")) );
+            const newStock = parseInt($(this).data("stock"),10) || 1;
+
+            $price.text("RM " + newPrice.toFixed(2));
+            $qty.data("max-stock", newStock).attr("max", newStock);
+            setQty(1);                          // reset qty → 1
+        });
+
+        /* ---------- +  ---------- */
+        $wrap.on("click",".qty-inc",function(e){
+            e.stopImmediatePropagation();
+            const cur=+$qty.val(), max=+$qty.data("max-stock");
+            if(cur<max) setQty(cur+1);
+        });
+
+        /* ---------- − ---------- */
+        $wrap.on("click",".qty-dec",function(e){
+            e.stopImmediatePropagation();
+            const cur=+$qty.val();
+            if(cur>1) setQty(cur-1);
+        });
+
+    });
+}
+
+document.addEventListener("DOMContentLoaded", totalPriceVariant);
+</script>
+
+
+
+
+
+<!-- <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const mainImage = document.getElementById('main-image');
+        const mainImageLink = document.getElementById('main-image-link');
+        const thumbnails = document.querySelectorAll('.thumbnail-image');
+
+        thumbnails.forEach(function (th) {
+            th.addEventListener('click', function (evt) {
+                evt.preventDefault();
+                const newSrc = this.getAttribute('data-full-src');
+
+                mainImage.setAttribute('src', newSrc);
+                mainImage.setAttribute('data-zoom', newSrc);
+                mainImage.setAttribute('data-src', newSrc);
+                mainImageLink.setAttribute('href', newSrc);
+
+                thumbnails.forEach(img => img.classList.remove('active-thumb'));
+                this.classList.add('active-thumb');
+            });
+        });
+    });
+</script> -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var thumbsSwiper = new Swiper('.tf-product-media-thumbs', {
+            slidesPerView: 4,
+            spaceBetween: 4, // atau 0 jika anda nak tiada langsung jarak
+            freeMode: true,
+            watchSlidesProgress: true,
+            watchSlidesVisibility: true,
+            slideToClickedSlide: true
+        });
+
+        var mainSwiper = new Swiper('.tf-product-media-main', {
+            spaceBetween: 2, // ini gap untuk main image (jika guna butang navigasi)
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev'
+            },
+            thumbs: {
+                swiper: thumbsSwiper
+            }
+        });
+    });
+</script>
+
+
+
+{% endblock %}

@@ -69,7 +69,7 @@
                     <div class="card-product style-list" data-availability="{{ product.product_availability }}"
                         data-brand="{{ product.brand }}">
                         <div class="card-product-wrapper">
-                            <a href="{% url 'product_detail' product.product_id %}" class="product-img">
+                            <a href="{% url 'customer_product_detail' product.product_id %}" class="product-img">
                                 {% comment %} Ambil dua gambar pertama, kalau ada {% endcomment %}
                                 {% with product.images.all|slice:":2" as imgs %}
                                 {% if imgs %}
@@ -96,7 +96,7 @@
 
                             <!-- Harga sahaja: -->
                             <div class="price">
-                                <span class="current-price">${{ product.product_price }}</span>
+                                <span class="current-price">RM {{ product.product_price }}</span>
                             </div>
 
                             <!-- Deskripsi: -->
@@ -120,7 +120,11 @@
                             <span class="badge bg-success mt-2">
                                 {{ product.get_halal_status_display }}
                             </span>
-                            {% else %}
+                            {% elif product.halal_status == "Mashbooh" %}
+                            <span class="badge bg-warning text-dark mt-2">
+                                {{ product.get_halal_status_display }}
+                            </span>
+                            {% elif product.halal_status == "Haram" %}
                             <span class="badge bg-danger mt-2">
                                 {{ product.get_halal_status_display }}
                             </span>
@@ -139,8 +143,7 @@
                     <div class="card-product grid" data-availability="{{ product.product_availability }}"
                         data-brand="{{ product.brand }}">
                         <div class="card-product-wrapper">
-
-                            <a href="{% url 'product_detail' product.product_id %}" class="product-img">
+                            <a href="{% url 'customer_product_detail' product.product_id %}" class="product-img">
                                 {% with product.images.all|slice:":2" as imgs %}
                                 {% if imgs %}
                                 <!-- gambar utama -->
@@ -179,9 +182,17 @@
                             <span class="price current-price">${{ product.product_price }}</span>
 
                             {% if product.halal_status == "Halal" %}
-                            <span class="badge bg-success mt-2">{{ product.get_halal_status_display }}</span>
-                            {% else %}
-                            <span class="badge bg-danger  mt-2">{{ product.get_halal_status_display }}</span>
+                                <span class="badge bg-success mt-2">
+                                    {{ product.get_halal_status_display }}
+                                </span>
+                            {% elif product.halal_status == "Mashbooh" %}
+                                <span class="badge bg-warning text-dark mt-2">
+                                    {{ product.get_halal_status_display }}
+                                </span>
+                            {% elif product.halal_status == "Haram" %}
+                                <span class="badge bg-danger mt-2">
+                                    {{ product.get_halal_status_display }}
+                                </span>
                             {% endif %}
                         </div>
                     </div>
