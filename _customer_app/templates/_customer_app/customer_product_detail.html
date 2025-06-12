@@ -295,8 +295,8 @@
                                 <div class="wg-quantity">
                                     <span class="qty-dec btn-quantity">−</span>
                                     <input id="qty-input" class="quantity-product" type="number" name="qty" value="1"
-                                        min="1" step="1" readonly {# 🔒 block manual edit #}
-                                        max="{{ selected_variant.variant_quantity|default:1 }}">
+                                        min="1" step="1" readonly {% if product.no_variant %}max="{{ global_qty }}"{% endif %}>
+                                        
                                     <span class="qty-inc btn-quantity">＋</span>
                                 </div>
                             </div>
@@ -305,16 +305,12 @@
                             <div class="tf-product-info-by-btn mt-4">
                                 <form action="{}" method="post" class="flex-grow-1">
                                     {% csrf_token %}
-                                    <input type="hidden" name="qty" value="1" min="1" id="addcart-qty" readonly
-                                        max="{{ selected_variant.variant_quantity|default:1 }}">
-                                    {% if global_qty > 0 %}
-                                    <button id="add-to-cart-btn" class="btn-style-2 w-100">
-                                        Add to cart – <span id="price-total" class="fw-6">RM
+                                    <input type="hidden" name="qty" id="new-addcart-qty" value="1" />
+                                    <input type="hidden" name="variant_id" id="new-addcart-variant" />
+                                    <button id="new-add-to-cart-btn" class="btn-style-1 w-100" type="submit">
+                                        Beli Sekarang – <span id="new-price-total" class="fw-6">RM
                                             {{ product.product_price }}</span>
                                     </button>
-                                    {% else %}
-                                    <button class="btn-style-2 w-100 disabled" disabled>Out of stock</button>
-                                    {% endif %}
                                 </form>
                             </div>
 
@@ -327,166 +323,109 @@
     </div>
 </section>
 
-<!-- {# ── Sticky add-to-cart Bar (mobile) ── #}
-{% if global_qty > 0 %}
-<div class="tf-sticky-btn-atc d-md-none">
-    <form action="{}" method="post" class="form-sticky-atc">
-        {% csrf_token %}
-        <img src="{{ images_main.0.image.url }}" alt="" class="image">
-        <div class="content flex-grow-1">
-            <div class="text-title small">{{ product.product_name|truncatechars:25 }}</div>
-            <div class="text-title fw-6">RM {{ product.product_price }}</div>
-        </div>
-        <button class="tf-btn btn-reset radius-4 btn-add-to-cart">Add</button>
-    </form>
-</div>
-{% endif %} -->
-
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        if (typeof totalPriceVariant === 'function') {
-            totalPriceVariant(); // ← ensure the listeners are attached
-        } else {
-            console.warn('totalPriceVariant is not defined');
-        }
-    });
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        /* ----------- ambil elemen ----------- */
-        const radios = document.querySelectorAll('input[name="variant_id"]');
-        const nameDisplay = document.getElementById('variant-current-name');
-        const stockDisplay = document.getElementById('variant-current-stock');
-        const priceNodes = document.querySelectorAll('.dynamic-price');
-        const atcBtn = document.getElementById('add-to-cart-btn');
-        const qtyInput = document.getElementById('qty-input');
-        const outMsg = document.getElementById('out-of-stock-msg');
+document.addEventListener('DOMContentLoaded', function () {
 
-        /* ----------- fungsi bantu ----------- */
-        function toggleStockState(stock) {
-            const noStock = parseInt(stock, 10) <= 0;
-            outMsg.classList.toggle('d-none', !noStock); // papar/sembunyi mesej
-            atcBtn.disabled = noStock; // disable/enable butang
-            atcBtn.classList.toggle('disabled', noStock); // tambah kelas grey
-            qtyInput.disabled = noStock; // lock/unlock kuantiti
-        }
+  /* ───── Elemen & data utama ───── */
+  const radios   = document.querySelectorAll('input[name="variant_id"]');
+  const nameEl   = document.getElementById('variant-current-name');
+  const stockEl  = document.getElementById('variant-current-stock');
+  const priceEls = document.querySelectorAll('.dynamic-price');
+  const qtyInput = document.getElementById('qty-input');
+  const decBtn   = document.querySelector('.qty-dec');
+  const incBtn   = document.querySelector('.qty-inc');
 
-        /* ----------- listener radio ----------- */
-        radios.forEach(radio => {
-            radio.addEventListener('change', function () {
-                const chosenName = this.dataset.value;
-                const chosenStock = this.dataset.stock;
-                const price = parseFloat(this.dataset.price).toFixed(2);
+  const newPriceEl   = document.getElementById('new-price-total');
+  const newVariantIn = document.getElementById('new-addcart-variant');
+  const newQtyIn     = document.getElementById('new-addcart-qty');
 
-                nameDisplay.textContent = chosenName;
-                stockDisplay.textContent = chosenStock;
-                priceNodes.forEach(n => n.textContent = `RM ${price}`);
+  /* data daripada Django */
+  const productNoVariant = '{{ product.no_variant|yesno:"true,false" }}' === 'true';
+  const globalStock      = parseInt('{{ global_qty|default:"0" }}', 10);
 
-                toggleStockState(chosenStock); // ← kirim stok sebenar
-            });
-        });
+  /* elemen butang / mesej */
+  const atcBtn = document.getElementById('new-add-to-cart-btn');
+  const oosMsg = document.getElementById('out-of-stock-msg');
 
-        /* ----------- panggil sekali untuk varian mula-mula ----------- */
-        const initial = document.querySelector('input[name="variant_id"]:checked');
-        if (initial) {
-            nameDisplay.textContent = initial.dataset.value; // ← guna ‘initial’
-            stockDisplay.textContent = initial.dataset.stock; // ← guna ‘initial’
-            priceNodes.forEach(n =>
-                n.textContent = `RM ${parseFloat(initial.dataset.price).toFixed(2)}`
-            );
-            toggleStockState(initial.dataset.stock);
-        }
-    });
-</script>
-<script>
-function totalPriceVariant () {
+  /* ───── Helper: tukar status butang ───── */
+  function setButtonState(stock) {
+    if (stock <= 0) {
+      atcBtn.disabled = true;
+      atcBtn.classList.add('disabled', 'opacity-50');
+      atcBtn.innerHTML = 'Out of Stock';
+      oosMsg?.classList.remove('d-none');
+    } else {
+      atcBtn.disabled = false;
+      atcBtn.classList.remove('disabled', 'opacity-50');
+      atcBtn.innerHTML = `Beli Sekarang – <span id="new-price-total" class="fw-6">
+                            RM ${(parseFloat(newPriceEl.textContent.replace(/[^\d.]/g, '') || 0)).toFixed(2)}
+                          </span>`;
+      oosMsg?.classList.add('d-none');
+    }
+  }
 
-    $(".tf-product-info-list").each(function () {
+  /* ───── Helper: had qty ikut stok ───── */
+  function syncStock(stock) {
+    qtyInput.max = stock;
+    if (+qtyInput.value > +qtyInput.max) qtyInput.value = qtyInput.max;
+  }
 
-        const $wrap   = $(this);
-        const $price  = $wrap.find(".price-on-sale");      // RM xx.xx
-        const $qty    = $wrap.find(".quantity-product");
-        const $total  = $("#price-total");                 // span dlm butang
+  /* ───── Helper: harga & hidden input ───── */
+  function syncPriceAndHidden(radio) {
+    const unit  = parseFloat(radio.dataset.price) || 0;
+    const qty   = parseInt(qtyInput.value, 10)   || 1;
+    const total = (unit * qty).toFixed(2);
 
-        /* ---------- helpers ---------- */
-        function cleanRM(text){
-            /* buang SEMUA selain digit & titik */
-            return text.replace(/[^\d.]/g,"");
-        }
-        function unitPrice(){
-            return parseFloat( cleanRM($price.text()) );
-        }
-        function setQty(val){
-            $qty.val(val);
-            updateDisplay();
-        }
-        function updateDisplay(){
-            const total = unitPrice() * +$qty.val();
-            $total.text("RM " + total.toFixed(2));
-        }
+    priceEls.forEach(el => el.textContent = `RM ${unit.toFixed(2)}`);
+    newPriceEl.textContent = `RM ${total}`;
+    newVariantIn.value     = radio.value;
+    newQtyIn.value         = qty;
+  }
 
-        /* ---------- init ---------- */
-        const initStock = $wrap.find("input[name='variant_id']:checked")
-                               .data("stock") || 1;
-        $qty.data("max-stock", initStock).attr("max", initStock);
-        updateDisplay();                         // paparkan RM xx.xx awal
+  /* ───── Bila varian berubah ───── */
+  function updateVariant(radio) {
+    nameEl.textContent  = radio.dataset.value;
+    stockEl.textContent = radio.dataset.stock;
+    syncStock(radio.dataset.stock);
+    qtyInput.value = 1;
+    syncPriceAndHidden(radio);
+    setButtonState(radio.dataset.stock);          // <── panggilan baharu
+  }
 
-        /* ---------- bila tukar varian ---------- */
-        $wrap.on("change","input[name='variant_id']",function(){
-            const newPrice = parseFloat( cleanRM($(this).data("price")) );
-            const newStock = parseInt($(this).data("stock"),10) || 1;
+  /* listener untuk radio varian */
+  radios.forEach(radio => {
+    radio.addEventListener('change', () => updateVariant(radio));
+  });
 
-            $price.text("RM " + newPrice.toFixed(2));
-            $qty.data("max-stock", newStock).attr("max", newStock);
-            setQty(1);                          // reset qty → 1
-        });
+  /* listener +/- qty */
+  incBtn.addEventListener('click', () => {
+    if (+qtyInput.value < +qtyInput.max) qtyInput.value++;
+    const cur = document.querySelector('input[name="variant_id"]:checked');
+    if (cur) syncPriceAndHidden(cur);
+  });
+  decBtn.addEventListener('click', () => {
+    if (+qtyInput.value > +qtyInput.min) qtyInput.value--;
+    const cur = document.querySelector('input[name="variant_id"]:checked');
+    if (cur) syncPriceAndHidden(cur);
+  });
 
-        /* ---------- +  ---------- */
-        $wrap.on("click",".qty-inc",function(e){
-            e.stopImmediatePropagation();
-            const cur=+$qty.val(), max=+$qty.data("max-stock");
-            if(cur<max) setQty(cur+1);
-        });
+  /* ───── Inisialisasi sebaik DOM siap ───── */
+  const initial = document.querySelector('input[name="variant_id"]:checked');
+  if (initial) {
+    updateVariant(initial);
+  }
 
-        /* ---------- − ---------- */
-        $wrap.on("click",".qty-dec",function(e){
-            e.stopImmediatePropagation();
-            const cur=+$qty.val();
-            if(cur>1) setQty(cur-1);
-        });
-
-    });
-}
-
-document.addEventListener("DOMContentLoaded", totalPriceVariant);
+  // produk tanpa varian → guna stok global
+  if (productNoVariant) {
+    setButtonState(globalStock);
+  } else {
+    // kalau tiada varian terpilih, mungkin semua habis stok
+    setButtonState(initial ? initial.dataset.stock : 0);
+  }
+});
 </script>
 
 
-
-
-
-<!-- <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const mainImage = document.getElementById('main-image');
-        const mainImageLink = document.getElementById('main-image-link');
-        const thumbnails = document.querySelectorAll('.thumbnail-image');
-
-        thumbnails.forEach(function (th) {
-            th.addEventListener('click', function (evt) {
-                evt.preventDefault();
-                const newSrc = this.getAttribute('data-full-src');
-
-                mainImage.setAttribute('src', newSrc);
-                mainImage.setAttribute('data-zoom', newSrc);
-                mainImage.setAttribute('data-src', newSrc);
-                mainImageLink.setAttribute('href', newSrc);
-
-                thumbnails.forEach(img => img.classList.remove('active-thumb'));
-                this.classList.add('active-thumb');
-            });
-        });
-    });
-</script> -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var thumbsSwiper = new Swiper('.tf-product-media-thumbs', {
