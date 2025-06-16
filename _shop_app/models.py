@@ -38,7 +38,7 @@ class Shop(models.Model):
         null=True,
         blank=True,
     )
-    shop_delivery_fee = models.DecimalField(max_digits=10, decimal_places=2 , default= 0.00,null=True)       #  ← pentingblank=True)
+    
 
     delivery_price_type = models.CharField(
         max_length=6,

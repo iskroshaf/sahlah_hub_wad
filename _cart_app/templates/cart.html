@@ -1,0 +1,274 @@
+{% extends '_core_app/base.html' %}
+{% load static %}
+
+{% block title %}Your Cart{% endblock %}
+
+{# =============================================================
+   CART PAGE – Grouped by Shop (Shopee‑like) – ENGLISH VERSION
+   ========================================================== #}
+
+{% block content %}
+<div class="container-xxl">
+  <h3 class="mb-4 fw-bold">Your Cart</h3>
+  <form method="post" action="{% url 'cart:checkout' %}" novalidate>
+    {% csrf_token %}
+    <div class="row g-4">
+      <!-- ================= LEFT COLUMN ================= -->
+      <div class="col-lg-8">
+
+        {# ---------- LOOP SHOPS --------------------------------- #}
+        {% for blk in shops_data %}
+        <div class="card shadow-sm mb-4">
+          <div class="card-header d-flex align-items-center justify-content-between bg-white py-2">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-shop fs-5 text-primary"></i>
+              <h6 class="mb-0 fw-semibold text-truncate" style="max-width:220px">{{ blk.shop.shop_name }}</h6>
+            </div>
+            <a href="{{ blk.shop.get_absolute_url }}" class="small">View Shop</a>
+          </div>
+
+          <ul class="list-group list-group-flush">
+            {% for it in cart_items %}{% if it.shop.pk == blk.shop.pk %}
+            <li class="list-group-item cart-item py-3 d-flex align-items-start flex-wrap gap-3"
+              data-variant-id="{{ it.variant.pk }}" data-set-url="{% url 'cart:ajax-set-qty' it.variant.pk %}"
+              data-remove-url="{% url 'cart:ajax-remove-item' it.variant.pk %}" data-shop="{{ it.shop.pk }}">
+              <div class="flex-shrink-0" style="width:80px">
+                {% with img=it.variant.product.images.all|first %}
+                {% if img %}
+                <img src="{{ img.image.url }}" class="img-fluid rounded" alt="{{ it.variant.product.product_name }}">
+                {% else %}
+                <img src="{% static 'images/placeholder.png' %}" class="img-fluid rounded" alt="No image">
+                {% endif %}
+                {% endwith %}
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="mb-1 fw-semibold text-truncate" style="max-width:280px">{{ it.variant.product.product_name }}
+                </h6>
+                <div class="small text-muted mb-2">{{ it.variant.variant_name }}</div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <div class="input-group input-group-sm" style="width:110px">
+                    <button type="button" class="btn btn-outline-secondary qty-dec"
+                      {% if it.quantity <= 1 %}disabled{% endif %}><i class="bi bi-dash">-</i></button>
+                    <span class="form-control text-center bg-white quantity-display">{{ it.quantity }}</span>
+                    <button type="button" class="btn btn-outline-secondary qty-inc"><i class="bi bi-plus">+</i></button>
+                  </div>
+                  <span class="fw-semibold">RM {{ it.variant.variant_price }}</span>
+                  <span class="text-muted">=</span>
+                  <span class="fw-semibold item-subtotal">RM {{ it.subtotal }}</span>
+                </div>
+              </div>
+              <button type="button"
+                class="btn btn-outline-danger btn-sm btn-remove ms-auto d-flex align-items-center gap-1"><i
+                  class="bi bi-trash"></i><span class="d-none d-md-inline">Remove</span></button>
+            </li>
+            {% endif %}{% endfor %}
+          </ul>
+
+          <div class="border-top p-3 d-flex align-items-center gap-2">
+            <i class="bi bi-truck"></i>
+            {% if blk.methods %}
+            <select class="form-select form-select-sm w-auto ship-select" name="ship-shop{{ blk.shop.pk }}"
+              data-shop="{{ blk.shop.pk }}">
+              {% for dm in blk.methods %}
+              <option value="{{ dm.pk }}" data-fee="{{ dm.base_price }}"
+                {% if dm.pk|stringformat:'s' == blk.selected_id|stringformat:'s' %}selected{% endif %}>{{ dm.name }} —
+                RM {{ dm.base_price }}</option>
+              {% endfor %}
+            </select>
+            {% else %}
+            <span class="small">Flat rate: <strong>RM {{ blk.selected_fee }}</strong></span>
+            <input type="hidden" name="flat_fee_shop{{ blk.shop.pk }}" value="{{ blk.selected_fee }}">
+            {% endif %}
+            <input type="hidden" class="ship-fee-hidden" data-shop="{{ blk.shop.pk }}" value="{{ blk.selected_fee }}">
+            <input type="hidden" id="ship-id-shop{{ blk.shop.pk }}" name="ship_sel_{{ blk.shop.pk }}"
+              value="{% if blk.methods %}{{ blk.methods.0.pk }}{% else %}{{ blk.selected_id }}{% endif %}">
+          </div>
+        </div>
+        {% endfor %}
+
+        {% if not cart_items %}
+        <div class="alert alert-info">Your cart is empty.</div>
+        {% endif %}
+      </div>
+
+      <!-- ================= RIGHT COLUMN ================= -->
+      <aside class="col-lg-4">
+        <div class="card shadow-sm sticky-top" style="top:80px">
+          <div class="card-body">
+            <h5 class="mb-3">Order Summary</h5>
+            <ul class="list-unstyled mb-3">
+              <li class="d-flex justify-content-between"><span>Subtotal</span><strong id="cart-total">RM
+                  {{ cart_total }}</strong></li>
+              <li class="d-flex justify-content-between"><span>Shipping</span><strong id="shipping-fee">RM
+                  {{ grand_fee }}</strong></li>
+              <li class="d-flex justify-content-between border-top pt-3"><span>Grand Total</span><strong
+                  id="grand-total">RM {{ cart_total|add:grand_fee }}</strong></li>
+            </ul>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+              <label class="form-check-label small" for="agreeTerms">I agree to the <a href="{}">Terms &amp;
+                  Conditions</a></label>
+            </div>
+            <button type="submit" id="btn-checkout" class="btn btn-success w-100 mb-2" {% if not cart_items %} disabled{% endif %}>Proceed to Checkout</button>
+            <a href="{}" class="btn btn-outline-secondary w-100">Continue Shopping</a>
+          </div>
+        </div>
+
+        {% if recommendations %}
+        <div class="card shadow-sm mt-4">
+          <div class="card-body">
+            <h6 class="title mb-3">You May Also Like</h6>
+            <div class="swiper tf-minicart-recommendations">
+              <div class="swiper-wrapper">
+                {% for prod in recommendations %}
+                <div class="swiper-slide" style="width:160px">
+                  <div class="card border-0">
+                    <a href="{{ prod.get_absolute_url }}"><img src="{{ prod.thumbnail.url }}"
+                        class="card-img-top rounded" loading="lazy" alt="{{ prod.product_name }}"></a>
+                    <div class="card-body p-2 text-center">
+                      <a class="link-dark d-block text-truncate small mb-1"
+                        href="{{ prod.get_absolute_url }}">{{ prod.product_name }}</a>
+                      <div class="fw-semibold small">RM {{ prod.price }}</div>
+                      <button type="button" class="btn btn-sm btn-outline-primary add-reco-to-cart"
+                        data-add-url="{% url 'cart:ajax-add-product' prod.pk %}">Add</button>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </aside>
+    </div>
+  </form>
+</div>
+
+{# ================== SCRIPTS ===================== #}
+<script>
+  function getCookie(n) {
+    const v = document.cookie.match('(^|;)\\s*' + n + '\\s*=\\s*([^;]+)');
+    return v ? v.pop() : '';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const cartEl = document.getElementById('cart-total');
+    const feeEl = document.getElementById('shipping-fee');
+    const grandEl = document.getElementById('grand-total');
+
+    /* --- Set hidden shipping inputs once on load & whenever changed --- */
+    const syncShippingHidden = () => {
+      document.querySelectorAll('.ship-select').forEach(sel => {
+        const shop = sel.dataset.shop;
+        const opt = sel.selectedOptions[0];
+        document.querySelector(`.ship-fee-hidden[data-shop="${shop}"]`).value = opt.dataset.fee;
+        document.getElementById(`ship-id-shop${shop}`).value = opt.value; // always numeric
+      });
+    };
+
+    const calcShipTotal = () => {
+      syncShippingHidden();
+      return [...document.querySelectorAll('.ship-fee-hidden')]
+        .reduce((sum, el) => sum + (parseFloat(el.value) || 0), 0);
+    };
+
+    const recalcGrand = () => {
+      const cart = parseFloat(cartEl.textContent.replace(/[^\\d.]/g, '')) || 0;
+      const ship = calcShipTotal();
+      feeEl.textContent = 'RM ' + ship.toFixed(2);
+      grandEl.textContent = 'RM ' + (cart + ship).toFixed(2);
+    };
+
+    recalcGrand();
+    document.querySelectorAll('.ship-select').forEach(sel => sel.addEventListener('change', recalcGrand));
+
+    /* ---------- Qty buttons & remove ---------- */
+    document.querySelectorAll('.cart-item').forEach(card => {
+      const setUrl = card.dataset.setUrl;
+      const removeUrl = card.dataset.removeUrl;
+      const decBtn = card.querySelector('.qty-dec');
+      const incBtn = card.querySelector('.qty-inc');
+      const qtyEl = card.querySelector('.quantity-display');
+      const subEl = card.querySelector('.item-subtotal');
+      const checkoutBtn = document.getElementById('btn-checkout');
+
+      const updateQty = q => fetch(setUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+          qty: q
+        })
+      }).then(r => r.json()).then(d => {
+        if (d.error) return alert(d.error);
+        qtyEl.textContent = d.quantity;
+        subEl.textContent = 'RM ' + Number(d.subtotal).toFixed(2);
+        cartEl.textContent = 'RM ' + Number(d.total).toFixed(2);
+        decBtn.disabled = d.quantity <= 1;
+        recalcGrand();
+      });
+
+      decBtn.addEventListener('click', () => {
+        const cur = parseInt(qtyEl.textContent, 10);
+        if (cur > 1) updateQty(cur - 1);
+      });
+      incBtn.addEventListener('click', () => updateQty(parseInt(qtyEl.textContent, 10) + 1));
+
+      card.querySelector('.btn-remove').addEventListener('click', () => {
+        if (!confirm('Remove this item?')) return;
+
+        fetch(removeUrl, {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': getCookie('csrftoken'),
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          })
+          .then(r => r.json())
+          .then(d => {
+            card.remove();
+
+           
+            const shopPk = card.dataset.shop; 
+            const shopCard = document.querySelector(`.ship-fee-hidden[data-shop="${shopPk}"]`) ?.closest( '.card');
+            const anyLeft = shopCard && shopCard.querySelector('.cart-item'); 
+            const checkoutBtn = document.getElementById('btn-checkout');
+
+            if (!anyLeft && shopCard) {
+              shopCard.remove(); 
+            }
+
+            
+            cartEl.textContent = 'RM ' + Number(d.total).toFixed(2);
+            recalcGrand();
+
+            if (!document.querySelector('.cart-item')) {
+              document.querySelector('.col-lg-8').innerHTML =
+                '<div class="alert alert-info">Your cart is empty.</div>';
+              checkoutBtn.disabled = true;
+            }
+          });
+      });
+    });
+
+   
+    document.querySelectorAll('.add-reco-to-cart').forEach(btn => btn.addEventListener('click', () => {
+      fetch(btn.dataset.addUrl, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(r => r.json()).then(d => {
+          if (d.error) return alert(d.error);
+          location.reload();
+        });
+    }));
+  });
+</script>
+{% endblock %}

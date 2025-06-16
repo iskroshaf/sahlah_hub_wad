@@ -6,7 +6,6 @@
 {% block content %}
 
 <style>
-    /* Container keseluruhan */
     .variant-picker-container {
         border: 1px solid #e0e0e0;
         border-radius: 10px;
@@ -14,7 +13,7 @@
         background-color: #fff;
     }
 
-    /* Header: Nama variant terpilih dan kuantiti terpilih */
+
     .variant-picker-header {
         display: flex;
         justify-content: space-between;
@@ -33,7 +32,7 @@
         color: #555;
     }
 
-    /* Grid untuk susunan kad variant */
+
     .variant-picker-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -41,12 +40,12 @@
         margin-top: 0.75rem;
     }
 
-    /* Sembunyikan input radio asal */
+
     .variant-picker-grid input[type="radio"] {
         display: none;
     }
 
-    /* Gaya untuk setiap “kad” variant */
+
     .variant-picker-grid .variant-card {
         display: flex;
         flex-direction: column;
@@ -125,6 +124,50 @@
         /* cover — memotong imej supaya memenuhi container */
         display: block;
         /* buang extra whitespace di bawah img */
+    }
+
+    .ship-card {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        padding: .75rem 1rem;
+        border: 1px solid #d9d9d9;
+        border-radius: .75rem;
+        cursor: pointer;
+        transition: background .25s, border-color .25s, box-shadow .25s;
+    }
+
+    .ship-card:hover {
+        background: #f7f7f7;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, .05);
+    }
+
+    .ship-card .courier-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.1rem;
+    }
+
+    input.ship-radio:checked+.ship-card {
+        border-color: #198754;
+        background: #f0fff5;
+    }
+
+    input.ship-radio:checked+.ship-card .courier-icon {
+        background: #198754;
+        color: #fff;
+    }
+
+    .badge-default {
+        position: absolute;
+        top: .5rem;
+        right: .5rem;
     }
 
 
@@ -231,7 +274,7 @@
                                         <h5 class="price-on-sale font-2 dynamic-price">RM {{ product.product_price }}
                                         </h5>
                                         <span id="out-of-stock-msg" class="text-danger small d-none">Out of Stock
-                                            ;)</span>
+                                            !</span>
                                     </div>
 
 
@@ -244,7 +287,7 @@
                             {# ---------- VARIANT PICKER (jika ada) ---------- #}
                             {% if not product.no_variant %}
                             <div class="variant-picker-container mt-4">
-                                <!-- Header: Nama variant terpilih dan kuantiti terpilih -->
+
                                 <div class="variant-picker-header mb-2">
                                     <div>
                                         <span class="label-text">Selected Variant:</span>
@@ -261,7 +304,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Grid kad untuk setiap variant -->
+
                                 <div class="variant-picker-grid">
                                     {% for v in variant_list %}
                                     <input type="radio" name="variant_id" class="size-btn" id="variant-{{ v.id }}"
@@ -295,24 +338,92 @@
                                 <div class="wg-quantity">
                                     <span class="qty-dec btn-quantity">−</span>
                                     <input id="qty-input" class="quantity-product" type="number" name="qty" value="1"
-                                        min="1" step="1" readonly {% if product.no_variant %}max="{{ global_qty }}"{% endif %}>
-                                        
+                                        min="1" step="1" readonly {% if product.no_variant %}max="{{ global_qty }}"
+                                        {% endif %}>
+
                                     <span class="qty-inc btn-quantity">＋</span>
                                 </div>
                             </div>
 
+                            {# --- Penghantaran --- #}
+                            <div class="tf-product-info-delivery mt-4">
+                                <div class="title mb_12">Shipping:</div>
+
+                                {% if shop_deliveries %}
+                                {# ----- hidden helpers utk JS (guna METHOD id) ----- #}
+                                {% with fee=shop_deliveries.0.method.base_price|add:shop_deliveries.0.extra_surcharge %}
+                                <input type="hidden" id="ship-fee" value="{{ fee }}">
+                                {% endwith %}
+                                <input type="hidden" id="ship-method-id" value="{{ shop_deliveries.0.method.id }}">
+                                {# ← nombor #}
+
+                                <div class="d-grid gap-2">
+                                    {% for sd in shop_deliveries %}
+                                    {% with fee=sd.method.base_price|add:sd.extra_surcharge %}
+                                    <label class="position-relative">
+
+                                        {# ===================== RADIO ===================== #}
+                                        <input type="radio" class="form-check-input d-none ship-radio"
+                                            name="delivery_method_id" {# ✅ sama dgn view #} id="ship-{{ sd.id }}"
+                                            value="{{ sd.method.id }}" {# ✅ hantar ID jadual delivery_method #}
+                                            data-fee="{{ fee }}" {% if forloop.first %}checked{% endif %}>
+
+                                        <div class="ship-card">
+                                            <div class="courier-icon"><i class="bi bi-truck"></i></div>
+
+                                            <div class="flex-grow-1">
+                                                <div class="fw-semibold">{{ sd.method.name }}</div>
+                                                <small class="text-muted">
+                                                    {{ sd.method.est_day_min }}–{{ sd.method.est_day_max }} hari
+                                                </small>
+                                            </div>
+
+                                            <div class="fw-semibold">RM {{ fee }}</div>
+                                        </div>
+
+                                        {% if forloop.first %}
+                                        <span class="badge bg-success badge-default">Default</span>
+                                        {% endif %}
+                                    </label>
+                                    {% endwith %}
+                                    {% endfor %}
+                                </div>
+
+                                {% else %}
+                                <p class="mb-2">
+                                    Caj penghantaran kedai:
+                                    <strong>RM {{ default_ship_fee }}</strong>
+                                </p>
+                                <input type="hidden" id="ship-fee" value="0">
+                                <input type="hidden" id="ship-method-id" value="">
+                                {% endif %}
+                            </div>
+
+
                             {# ---------- Butang ATC / BuyNow ---------- #}
                             <div class="tf-product-info-by-btn mt-4">
-                                <form action="{}" method="post" class="flex-grow-1">
+                                <form action="{% url 'cart:add' %}" method="post" class="flex-grow-1">
                                     {% csrf_token %}
-                                    <input type="hidden" name="qty" id="new-addcart-qty" value="1" />
-                                    <input type="hidden" name="variant_id" id="new-addcart-variant" />
+                                    <input type="hidden" name="qty" id="new-addcart-qty" value="1">
+                                    <input type="hidden" name="variant_id" id="new-addcart-variant"
+                                        value="{{ selected_variant.id|default:'' }}">
+
+                                    {# ✅ gunakan delivery_method_id dan isikan nilai default (method.id) #}
+                                    {% if shop_deliveries %}
+                                    <input type="hidden" name="delivery_method_id" id="new-addcart-delivery"
+                                        value="{{ shop_deliveries.0.method.id }}">
+                                    {% else %}
+                                    {% endif %}
+
+                                    <input type="hidden" name="product_id" value="{{ product.id }}">
+
                                     <button id="new-add-to-cart-btn" class="btn-style-1 w-100" type="submit">
-                                        Beli Sekarang – <span id="new-price-total" class="fw-6">RM
+                                        Buy&nbsp;Now&nbsp;–&nbsp;<span id="new-price-total" class="fw-6">RM
                                             {{ product.product_price }}</span>
                                     </button>
                                 </form>
                             </div>
+
 
                         </div> {# /tf-product-info-list #}
                     </div>
@@ -323,107 +434,265 @@
     </div>
 </section>
 
+<!-- <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        /* ─── Elemen produk ─── */
+        const radios = document.querySelectorAll('input[name="variant_id"]');
+        const nameEl = document.getElementById('variant-current-name');
+        const stockEl = document.getElementById('variant-current-stock');
+        const priceEls = document.querySelectorAll('.dynamic-price');
+        const qtyInput = document.getElementById('qty-input');
+        const decBtn = document.querySelector('.qty-dec');
+        const incBtn = document.querySelector('.qty-inc');
+
+        /* ─── Elemen penghantaran ─── */
+        const shipRadios = document.querySelectorAll('.ship-radio');
+        const shipFeeInp = document.getElementById('ship-fee'); // hidden fee
+        const shipIdInp = document.getElementById('ship-id'); // hidden id (boleh null)
+
+        /* ─── Lain-lain ─── */
+        const newPriceEl = document.getElementById('new-price-total');
+        const newVariantIn = document.getElementById('new-addcart-variant');
+        const newQtyIn = document.getElementById('new-addcart-qty');
+
+        const productNoVariant = '{{ product.no_variant|yesno:"true,false" }}' === 'true';
+        const globalStock = parseInt('{{ global_qty|default:"0" }}', 10);
+
+        const atcBtn = document.getElementById('new-add-to-cart-btn');
+        const oosMsg = document.getElementById('out-of-stock-msg');
+        const baseUnitPrice = parseFloat('{{ selected_variant.variant_price }}') || 0;
+
+        /* ─── Util: butang beli aktif/disable ─── */
+        function setButtonState(stock) {
+            if (stock <= 0) {
+                atcBtn.disabled = true;
+                atcBtn.classList.add('disabled', 'opacity-50');
+                atcBtn.textContent = 'Out of Stock';
+                if (oosMsg) oosMsg.classList.remove('d-none');
+            } else {
+                atcBtn.disabled = false;
+                atcBtn.classList.remove('disabled', 'opacity-50');
+                atcBtn.innerHTML = `Beli Sekarang – <span id="new-price-total" class="fw-6">
+                          ${newPriceEl.textContent}
+                        </span>`;
+                if (oosMsg) oosMsg.classList.add('d-none');
+            }
+        }
+
+        /* ─── Hitung TOTAL (unit × qty + penghantaran) ─── */
+        function recalcTotal() {
+            const curVar = document.querySelector('input[name="variant_id"]:checked');
+            const unit = curVar ? parseFloat(curVar.dataset.price) : baseUnitPrice;
+            const qty = parseInt(qtyInput.value, 10) || 1;
+            const ship = parseFloat(shipFeeInp.value) || 0;
+            const total = (unit * qty + ship).toFixed(2);
+
+            priceEls.forEach(el => el.textContent = `RM ${unit.toFixed(2)}`);
+            newPriceEl.textContent = `RM ${total}`;
+
+            const curStock = stockEl ? parseInt(stockEl.textContent || 0, 10) : globalStock;
+            setButtonState(curStock);
+        }
+        /* ─── Bila varian berubah ─── */
+        function updateVariant(radio) {
+            nameEl.textContent = radio.dataset.value;
+            stockEl.textContent = radio.dataset.stock;
+
+            /* hadkan qty ikut stok */
+            qtyInput.max = radio.dataset.stock;
+            if (+qtyInput.value > +qtyInput.max) qtyInput.value = qtyInput.max;
+
+            /* Harga unit */
+            priceEls.forEach(el => el.textContent = `RM ${parseFloat(radio.dataset.price).toFixed(2)}`);
+
+            /* Hidden inputs */
+            newVariantIn.value = radio.value;
+            newQtyIn.value = qtyInput.value;
+
+            recalcTotal();
+        }
+
+        /* ─── Listener varian ─── */
+        radios.forEach(radio => {
+            radio.addEventListener('change', () => updateVariant(radio));
+        });
+
+        /* ─── Listener qty ─── */
+        incBtn.addEventListener('click', () => {
+            if (+qtyInput.value < +qtyInput.max) qtyInput.value++;
+            newQtyIn.value = qtyInput.value;
+            recalcTotal();
+        });
+        decBtn.addEventListener('click', () => {
+            if (+qtyInput.value > +qtyInput.min) qtyInput.value--;
+            newQtyIn.value = qtyInput.value;
+            recalcTotal();
+        });
+
+        /* ─── Listener penghantaran ─── */
+        shipRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                shipFeeInp.value = radio.dataset.fee; // update hidden fee
+                if (shipIdInp) shipIdInp.value = radio.value; // update hidden id (jika ada)
+                recalcTotal();
+            });
+        });
+
+        /* ─── Inisialisasi ─── */
+        const initialVar = document.querySelector('input[name="variant_id"]:checked');
+        if (initialVar) {
+            updateVariant(initialVar);
+        } else {
+            recalcTotal();
+        }
+
+        /* terakhir */
+        if (productNoVariant) {
+            setButtonState(globalStock);
+        } else {
+            setButtonState(initialVar ? parseInt(initialVar.dataset.stock, 10) : 0);
+        }
+    });
+</script> -->
+
+
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        /* ─── Variant Elements ─── */
+        const radios = document.querySelectorAll('input[name="variant_id"]');
+        const nameEl = document.getElementById('variant-current-name');
+        const stockEl = document.getElementById('variant-current-stock');
+        const priceEls = document.querySelectorAll('.dynamic-price');
+        const qtyInput = document.getElementById('qty-input');
+        const decBtn = document.querySelector('.qty-dec');
+        const incBtn = document.querySelector('.qty-inc');
 
-  /* ───── Elemen & data utama ───── */
-  const radios   = document.querySelectorAll('input[name="variant_id"]');
-  const nameEl   = document.getElementById('variant-current-name');
-  const stockEl  = document.getElementById('variant-current-stock');
-  const priceEls = document.querySelectorAll('.dynamic-price');
-  const qtyInput = document.getElementById('qty-input');
-  const decBtn   = document.querySelector('.qty-dec');
-  const incBtn   = document.querySelector('.qty-inc');
+        /* ─── Shipping Elements ─── */
+        const shipRadios = document.querySelectorAll('.ship-radio');
+        const shipFeeInp = document.getElementById('ship-fee');
+        const shipIdInp = document.getElementById('ship-id');
 
-  const newPriceEl   = document.getElementById('new-price-total');
-  const newVariantIn = document.getElementById('new-addcart-variant');
-  const newQtyIn     = document.getElementById('new-addcart-qty');
+        /* ─── Hidden & Button ─── */
+        const newPriceEl = document.getElementById('new-price-total');
+        const newVariantIn = document.getElementById('new-addcart-variant');
+        const deliveryInp = document.getElementById('new-addcart-delivery');
+        const newQtyIn = document.getElementById('new-addcart-qty');
+        const atcBtn = document.getElementById('new-add-to-cart-btn');
+        const oosMsg = document.getElementById('out-of-stock-msg');
 
-  /* data daripada Django */
-  const productNoVariant = '{{ product.no_variant|yesno:"true,false" }}' === 'true';
-  const globalStock      = parseInt('{{ global_qty|default:"0" }}', 10);
+        /* ─── Data from template ─── */
+        const productNoVariant = '{{ product.no_variant|yesno:"true,false" }}' === 'true';
+        const globalStock = parseInt('{{ global_qty|default:"0" }}', 10);
+        let baseUnitPrice = parseFloat('{{ selected_variant.variant_price }}') || 0;
 
-  /* elemen butang / mesej */
-  const atcBtn = document.getElementById('new-add-to-cart-btn');
-  const oosMsg = document.getElementById('out-of-stock-msg');
+        /* ─── Enable/Disable “Buy” Button ─── */
+        function setButtonState(stock) {
+            if (stock <= 0) {
+                atcBtn.disabled = true;
+                atcBtn.classList.add('disabled', 'opacity-50');
+                atcBtn.textContent = 'Out of Stock';
+                if (oosMsg) oosMsg.classList.remove('d-none');
+            } else {
+                atcBtn.disabled = false;
+                atcBtn.classList.remove('disabled', 'opacity-50');
+                atcBtn.innerHTML =
+                    `Beli Sekarang – <span id="new-price-total" class="fw-6">${newPriceEl.textContent}</span>`;
+                if (oosMsg) oosMsg.classList.add('d-none');
+            }
+        }
 
-  /* ───── Helper: tukar status butang ───── */
-  function setButtonState(stock) {
-    if (stock <= 0) {
-      atcBtn.disabled = true;
-      atcBtn.classList.add('disabled', 'opacity-50');
-      atcBtn.innerHTML = 'Out of Stock';
-      oosMsg?.classList.remove('d-none');
-    } else {
-      atcBtn.disabled = false;
-      atcBtn.classList.remove('disabled', 'opacity-50');
-      atcBtn.innerHTML = `Beli Sekarang – <span id="new-price-total" class="fw-6">
-                            RM ${(parseFloat(newPriceEl.textContent.replace(/[^\d.]/g, '') || 0)).toFixed(2)}
-                          </span>`;
-      oosMsg?.classList.add('d-none');
+        
+        function recalcTotal() {
+            const curVar = document.querySelector('input[name="variant_id"]:checked');
+            const unit = curVar ? parseFloat(curVar.dataset.price) : baseUnitPrice;
+            const qty = parseInt(qtyInput.value, 10) || 1;
+            const ship = parseFloat(shipFeeInp.value) || 0;
+            const total = (unit * qty + ship).toFixed(2);
+
+            priceEls.forEach(el => el.textContent = `RM ${unit.toFixed(2)}`);
+            newPriceEl.textContent = `RM ${total}`;
+
+            const curStock = stockEl ? parseInt(stockEl.textContent, 10) : globalStock;
+            setButtonState(curStock);
+        }
+
+        
+        function updateVariant(radio) {
+            nameEl.textContent = radio.dataset.value;
+            stockEl.textContent = radio.dataset.stock;
+            qtyInput.max = radio.dataset.stock;
+            if (+qtyInput.value > +qtyInput.max) qtyInput.value = qtyInput.max;
+            baseUnitPrice = parseFloat(radio.dataset.price);
+            priceEls.forEach(el => el.textContent = `RM ${baseUnitPrice.toFixed(2)}`);
+            newVariantIn.value = radio.value;
+            newQtyIn.value = qtyInput.value;
+            recalcTotal();
+        }
+
+         const syncDeliveryHidden = () => {
+            const checked = document.querySelector('.ship-radio:checked');
+            const hidden  = document.getElementById('new-addcart-delivery');
+            if (checked && hidden) hidden.value = checked.value;
+        };
+
+        syncDeliveryHidden();
+
+        window.addEventListener('pageshow', syncDeliveryHidden);
+
+        /* ─── Event Listeners ─── */
+        radios.forEach(r => r.addEventListener('change', () => updateVariant(r)));
+        incBtn.addEventListener('click', () => {
+            if (+qtyInput.value < +qtyInput.max) qtyInput.value++;
+            newQtyIn.value = qtyInput.value;
+            recalcTotal();
+        });
+        decBtn.addEventListener('click', () => {
+            if (+qtyInput.value > +qtyInput.min) qtyInput.value--;
+            newQtyIn.value = qtyInput.value;
+            recalcTotal();
+        });
+
+
+
+        /* ─── Initialization ─── */
+        const initialVar = document.querySelector('input[name="variant_id"]:checked');
+        if (initialVar) updateVariant(initialVar);
+        else recalcTotal();
+
+        if (productNoVariant) setButtonState(globalStock);
+        else setButtonState(initialVar ? parseInt(initialVar.dataset.stock, 10) : 0);
+
+        if (deliveryInp) {
+            const checkedShip = document.querySelector('.ship-radio:checked');
+            deliveryInp.value = checkedShip ? checkedShip.value : '';
+        }
+    });
+</script>
+<script>
+    document.querySelectorAll('.ship-radio').forEach(radio=>{
+    radio.addEventListener('change', () => {
+        // salin nilai radio terpilih ke hidden field dalam form
+        const hidden = document.getElementById('new-addcart-delivery');
+        if (hidden) hidden.value = radio.value;
+    });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const checked = document.querySelector('.ship-radio:checked');
+    if (checked) {
+        document.getElementById('new-addcart-delivery').value = checked.value;
     }
-  }
 
-  /* ───── Helper: had qty ikut stok ───── */
-  function syncStock(stock) {
-    qtyInput.max = stock;
-    if (+qtyInput.value > +qtyInput.max) qtyInput.value = qtyInput.max;
-  }
-
-  /* ───── Helper: harga & hidden input ───── */
-  function syncPriceAndHidden(radio) {
-    const unit  = parseFloat(radio.dataset.price) || 0;
-    const qty   = parseInt(qtyInput.value, 10)   || 1;
-    const total = (unit * qty).toFixed(2);
-
-    priceEls.forEach(el => el.textContent = `RM ${unit.toFixed(2)}`);
-    newPriceEl.textContent = `RM ${total}`;
-    newVariantIn.value     = radio.value;
-    newQtyIn.value         = qty;
-  }
-
-  /* ───── Bila varian berubah ───── */
-  function updateVariant(radio) {
-    nameEl.textContent  = radio.dataset.value;
-    stockEl.textContent = radio.dataset.stock;
-    syncStock(radio.dataset.stock);
-    qtyInput.value = 1;
-    syncPriceAndHidden(radio);
-    setButtonState(radio.dataset.stock);          // <── panggilan baharu
-  }
-
-  /* listener untuk radio varian */
-  radios.forEach(radio => {
-    radio.addEventListener('change', () => updateVariant(radio));
-  });
-
-  /* listener +/- qty */
-  incBtn.addEventListener('click', () => {
-    if (+qtyInput.value < +qtyInput.max) qtyInput.value++;
-    const cur = document.querySelector('input[name="variant_id"]:checked');
-    if (cur) syncPriceAndHidden(cur);
-  });
-  decBtn.addEventListener('click', () => {
-    if (+qtyInput.value > +qtyInput.min) qtyInput.value--;
-    const cur = document.querySelector('input[name="variant_id"]:checked');
-    if (cur) syncPriceAndHidden(cur);
-  });
-
-  /* ───── Inisialisasi sebaik DOM siap ───── */
-  const initial = document.querySelector('input[name="variant_id"]:checked');
-  if (initial) {
-    updateVariant(initial);
-  }
-
-  // produk tanpa varian → guna stok global
-  if (productNoVariant) {
-    setButtonState(globalStock);
-  } else {
-    // kalau tiada varian terpilih, mungkin semua habis stok
-    setButtonState(initial ? initial.dataset.stock : 0);
-  }
+    // listener sedia ada
+    document.querySelectorAll('.ship-radio').forEach(r =>
+        r.addEventListener('change', () => {
+            document.getElementById('new-addcart-delivery').value = r.value;
+        })
+    );
 });
 </script>
+
 
 
 <script>

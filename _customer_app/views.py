@@ -5,8 +5,10 @@ from django.contrib.auth import update_session_auth_hash
 from .models import ShippingAddress
 from _product_app.models import Product
 from django.core.paginator import Paginator
-from django.db.models import Sum
-
+from django.db.models import Sum, Value
+from _delivery_app.models import DeliveryMethod,ShopDelivery       
+from types import SimpleNamespace
+from decimal import Decimal
 
 def customer_register_view(request):
     title = "Register"
@@ -183,9 +185,38 @@ def delete_shipping_address(request, pk):
     
     return render(request, "_customer_app/customer_delete_address.html", {"address": address})
 ################################################ End Delete Address Customer #############################################
+def get_shipping_options(shop):
+    
+   
+    if shop.delivery_price_type == "custom":
+        fee = Decimal(shop.shop_delivery_fee or 0)
+        return [], None, fee
+
+    qs = (
+        shop.shopdelivery_set
+        .select_related("method")
+        .filter(method__is_active=True)
+        .order_by("method__name")
+    )
+
+    # Fallback → gunakan semua DeliveryMethod aktif, surcharge 0
+    if not qs.exists():
+        qs = [
+            SimpleNamespace(
+                method=dm,
+                extra_surcharge=Decimal("0.00"),
+                id=f"dm-{dm.id}",                # pseudo-id utk HTML
+            )
+            for dm in DeliveryMethod.objects.filter(is_active=True).order_by("name")
+        ]
+
+    sd0  = qs[0]
+    fee0 = sd0.method.base_price + sd0.extra_surcharge
+    return qs, sd0, fee0
 
 def customer_product_detail(request, product_id):
-    # ────────── Ambil produk ──────────
+    theme = "customer_theme"
+    
     product = get_object_or_404(
         Product.objects.select_related("shop"),
         product_id=product_id,
@@ -193,44 +224,50 @@ def customer_product_detail(request, product_id):
         shop__shop_status=1,
     )
 
-    # ────────── Gambar ──────────
-    images_main = list(product.images.all())
-    if not images_main:
-        images_main = [ProductImage(image="images/placeholder.png")]
+    shop_deliveries, default_sd, default_fee = get_shipping_options(product.shop)
 
-    # ────────── Variant vs non-variant ──────────
+  
+    images_main = list(product.images.all()) or [
+        ProductImage(image="images/placeholder.png")
+    ]
+
+   
     if product.no_variant:
-        variant_list       = []
+        default_var = product.variants.first() or ProductVariant.objects.create(
+            product          = product,
+            variant_name     = "Default",
+            variant_price    = product.product_price,
+            variant_quantity = product.product_quantity,
+            is_active        = True,
+        )
+        variant_list       = [default_var]
         global_qty         = product.product_quantity
-        checked_variant_id = None                       # 🔹 tiada varian
-        selected_variant   = None    
+        checked_id         = default_var.id
+        selected_variant   = default_var
     else:
         variant_list = product.variants.filter(is_active=True)
-        global_qty   = (
-            variant_list.aggregate(Sum("variant_quantity"))["variant_quantity__sum"]
-            or 0
+        global_qty   = variant_list.aggregate(
+            Sum("variant_quantity")
+        )["variant_quantity__sum"] or 0
+        checked_id   = next((v.id for v in variant_list if v.variant_quantity > 0), None)
+        selected_variant = next(
+            (v for v in variant_list if v.id == checked_id), None
         )
 
-        # 🔹 Cari varian pertama yang masih ada stok (>0)
-        checked_variant_id = next(
-            (v.id for v in variant_list if v.variant_quantity > 0), 
-            None
-        )
-
-        selected_variant = next(                       # ➋
-            (v for v in variant_list if v.id == checked_variant_id),
-            None
-        )
-
-    # ────────── Context ──────────
+    
     context = {
-        "title":            product.product_name,
-        "theme":            "customer_theme",
-        "product":          product,
-        "variant_list":     variant_list,
-        "global_qty":       global_qty,
-        "images_main":      images_main,
-        "checked_variant_id": checked_variant_id,       # 🔹 hantar ke template
-        "selected_variant"   : selected_variant, 
+        "product":            product,
+        "variant_list":       variant_list,
+        "global_qty":         global_qty,
+        "images_main":        images_main,
+         'theme': 'customer_theme',
+        "checked_variant_id": checked_id,
+        "selected_variant":   selected_variant,
+
+        "shop_deliveries":    shop_deliveries,   
+        "default_ship":       default_sd,        
+        "default_ship_fee":   default_fee,
     }
-    return render(request, "_customer_app/customer_product_detail.html", context)
+    return render(request,
+                  "_customer_app/customer_product_detail.html",
+                  context)

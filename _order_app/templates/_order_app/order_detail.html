@@ -1,0 +1,18 @@
+{% extends '_core_app/base.html' %}
+
+{% block content %}
+<h3>Pesanan #{{ order.pk }}</h3>
+
+<p>Diterima pada {{ order.created_at|date:"SHORT_DATETIME_FORMAT" }}</p>
+
+<h5>Produk</h5>
+<ul>
+  {% for item in order.items.all %}
+    <li>{{ item.variant }} × {{ item.quantity }} — RM {{ item.unit_price }}</li>
+  {% endfor %}
+</ul>
+
+<p><strong>Subtotal produk:</strong> RM {{ order.total_products }}</p>
+<p><strong>Caj penghantaran:</strong> RM {{ order.shipping_fee }}</p>
+<p><strong>Jumlah keseluruhan:</strong> RM {{ order.total_products|add:order.shipping_fee }}</p>
+{% endblock %}
