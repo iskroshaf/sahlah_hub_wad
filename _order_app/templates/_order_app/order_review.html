@@ -1,246 +1,320 @@
 {% extends "_core_app/base.html" %}
 {% load static %}
-{% block title %}Semak &amp; Bayar{% endblock %}
+{% block title %}Review & Pay{% endblock %}
 
 {% block content %}
+{# ======  STYLE  ====== #}
 <style>
-    /* ===== address-card styling ===== */
-    .address-card {
-        cursor: pointer;
-        transition: .25s;
+    /* --- address summary card --- */
+    #alamat-ringkas {
+        background: #f8f9fa;
+        border: 1px solid #e1e1e1;
+        border-radius: .6rem;
     }
 
-    .address-card:hover {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 .125rem rgba(13, 110, 253, .25);
+    /* --- cart card --- */
+    .cart-card {
+        max-height: 64vh;
+        border: 1px solid #e0e0e0;
+        border-radius: .7rem;
+        box-shadow: 0 12px 24px rgba(0, 0, 0, .08);
+        overflow: hidden;
     }
 
-    .address-radio:checked+.address-card {
-        border-color: #0d6efd;
-        background-color: #f0f8ff;
+    .cart-header {
+        background: #fff;
+        border-bottom: 1px solid #e0e0e0;
+        padding: .9rem 1.25rem;
+    }
+
+    .cart-scroll {
+        overflow-y: auto;
+        scrollbar-width: thin;
+    }
+
+    .cart-scroll::-webkit-scrollbar {
+        width: 4px
+    }
+
+    .cart-scroll::-webkit-scrollbar-thumb {
+        background: #bcbcbc;
+        border-radius: 4px
+    }
+
+    .cart-line {
+        display: grid;
+        grid-template-columns: 66px 1fr auto;
+        /* img | teks | qty/harga */
+        gap: .8rem;
+        align-items: center;
+        padding: 1rem 1.25rem;
+    }
+
+    .cart-line:hover {
+        background: #fafafa;
+    }
+
+    .cart-line+.cart-line {
+        border-top: 1px solid #efefef
+    }
+
+    .cart-img {
+        width: 66px;
+        height: 66px;
+        object-fit: cover;
+        border-radius: .45rem;
+    }
+
+    .title-truncate {
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+
+        line-clamp: 2;
+    }
+
+    .qty-badge {
+        background: #000;
+        color: #fff;
+        font-size: .68rem;
+        padding: .22rem .55rem;
+        border-radius: 40px;
+    }
+
+    .price-small {
+        font-size: .9rem;
+        font-weight: 600
+    }
+
+    .cart-footer {
+        background: #fff;
+        border-top: 1px solid #e0e0e0;
+        padding: 1rem 1.25rem;
+        position: sticky;
+        bottom: 0;
+    }
+
+    .cart-total-label {
+        font-size: .95rem;
+        font-weight: 600
+    }
+
+    .cart-total-num {
+        font-size: 1.45rem;
+        font-weight: 700
     }
 </style>
-<section>
-    <div class="container">
-        <div class="row">
-            <!-- ================= KOLUM KIRI ================= -->
-            <div class="col-xl-6">
-                <div class="flat-spacing tf-page-checkout">
 
-                    {# ---------- BLOK MAKLUMAT (Kiri Atas) ---------- #}
-                    <div class="wrap">
-                        <h5 class="title mb-3">Alamat Penghantaran</h5>
+<section class="container my-4">
 
-                        <!-- ── Ringkasan Alamat Dipilih ── -->
-                        <div id="alamat-ringkas" class="border rounded p-3 mb-3 bg-light">
-                            {% with a=alamat_list.0 %}
-                            {% if a %}
-                            <strong>{{ a.full_name }}</strong><br>
-                            {{ a.address_line1 }}, {{ a.city }}, {{ a.state }} ({{ a.postcode }})<br>
-                            <span class="text-muted small">{{ a.phone }}</span>
+    <div class="row gy-4 gx-lg-5">
+
+        {# ─────────── SHIPPING (always first) ─────────── #}
+        <div class="col-12 col-lg-6 order-1 order-lg-1">
+            <div class="card shadow-sm rounded-3 h-100">
+                <div class="card-header bg-white border-0 p-3 d-flex justify-content-between align-items-center">
+                    <h5 class="m-0 fw-bold text-uppercase" style="letter-spacing:.02em">
+                        <i class="bi bi-geo-alt me-2"></i>Shipping Address
+                    </h5>
+                    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalAlamat">
+                        Change
+                    </button>
+                </div>
+
+                <div class="card-body" id="alamat-ringkas">
+                    {% with a=alamat_list.0 %}
+                    {% if a %}
+                    <p class="mb-1 fw-semibold">{{ a.full_name }}</p>
+                    <p class="mb-1">
+                        {{ a.address_line1 }}, {{ a.city }}, {{ a.state }} ({{ a.postcode }})
+                    </p>
+                    <p class="text-muted small mb-0">{{ a.phone }}</p>
+                    {% else %}
+                    <p class="mb-0 fst-italic text-muted">No saved address</p>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+
+        {# ─────────── CART (second on mobile, right on desktop) ─────────── #}
+        <div class="col-12 col-lg-6 ms-lg-auto order-2 order-lg-2">
+            <div class="cart-card d-flex flex-column">
+                <div class="cart-header">
+                    <h5 class="m-0 fw-bold text-uppercase" style="letter-spacing:.02em">
+                        <i class="bi bi-cart3 me-2"></i>Your Cart
+                    </h5>
+                </div>
+
+                <div class="cart-scroll flex-grow-1">
+
+                    {% for item in order.items.all %}
+                    <div class="cart-line">
+                        <a href="{{ item.variant.product.get_absolute_url }}">
+                            {% with img=item.variant.product.images.all|first %}
+                            {% if img %}
+                            <img src="{{ img.image.url }}" alt="" class="cart-img">
                             {% else %}
-                            <em>Tiada alamat tersimpan</em>
+                            <img src="{% static 'images/placeholder.png' %}" alt="" class="cart-img">
                             {% endif %}
                             {% endwith %}
+                        </a>
+
+                        <div class="flex-grow-1">
+                            <a href="{{ item.variant.product.get_absolute_url }}"
+                                class="d-block title-truncate text-dark fw-semibold"
+                                title="{{ item.variant.product.product_name }}">
+                                {{ item.variant.product.product_name }}
+                            </a>
+                            <small class="text-muted">{{ item.variant.variant_name }}</small>
                         </div>
 
-                        <!-- ── Butang tukar ── -->
-                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
-                            data-bs-target="#modalAlamat">
-                            Tukar Alamat
-                        </button>
-
-                        <!-- ── Borang hantar ke order_review POST ── -->
-                        <form id="alamat-form" method="post" class="mt-4">
-                            {% csrf_token %}
-                            <input type="hidden" name="alamat_id" id="inputAlamat"
-                                {% if alamat_list %}value="{{ alamat_list.0.id }}" {% endif %}>
-
-                            <button class="tf-btn">
-                                <span class="text">Bayar Sekarang</span>
-                            </button>
-                        </form>
+                        <div class="text-end">
+                            <span class="qty-badge me-2">{{ item.quantity }}</span>
+                            <div class="price-small">RM {{ item.unit_price|floatformat:2 }}</div>
+                        </div>
                     </div>
-                    {# ---------- BLOK PILIHAN PEMBAYARAN ---------- #}
-                    <div class="wrap">
-                        <h5 class="title">Pilih Kaedah Bayaran</h5>
+                    {% endfor %}
 
-                        <!-- Guna form POST ke order_review view sendiri -->
-                        <form id="alamat-form" method="post">
-                            {% csrf_token %}
-                            <div class="payment-box" id="payment-box">
+                </div><!-- /.scroll -->
 
-                                <!-- ToyyibPay (Gateway) -->
-                                <div class="payment-item payment-choose-card active">
-                                    <label for="toyyib-method" class="payment-header" data-bs-toggle="collapse"
-                                        data-bs-target="#toyyib-payment">
-                                        <input type="radio" name="payment-method" class="tf-check-rounded"
-                                            id="toyyib-method" value="toyyibpay" checked>
-                                        <span class="text-title">FPX / Kad (ToyyibPay)</span>
-                                    </label>
-                                    <div id="toyyib-payment" class="collapse show" data-bs-parent="#payment-box">
-                                        <div class="payment-body">
-                                            <p class="text-secondary small">
-                                                Anda akan dialihkan ke gerbang ToyyibPay untuk bayaran selamat.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- COD / Tunai -->
-                                <div class="payment-item">
-                                    <label for="cod-method" class="payment-header collapsed" data-bs-toggle="collapse"
-                                        data-bs-target="#cod-payment">
-                                        <input type="radio" name="payment-method" id="cod-method"
-                                            class="tf-check-rounded" value="cod">
-                                        <span class="text-title">Bayar semasa terima</span>
-                                    </label>
-                                    <div id="cod-payment" class="collapse" data-bs-parent="#payment-box">
-                                        <div class="payment-body">
-                                            <p class="text-secondary small">
-                                                Wakil kurier kami akan kutip bayaran semasa penghantaran.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <button class="tf-btn btn-reset mt-3">
-                                <span class="text">Bayar Sekarang</span>
-                            </button>
-                        </form>
+                <div class="cart-footer">
+                    <div class="d-flex justify-content-between text-muted small mb-1">
+                        <span>Shipping</span>
+                        <span>RM&nbsp;{{ order.shipping_fee|floatformat:2 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-baseline">
+                        <span class="cart-total-label">Total</span>
+                        <span class="cart-total-num">
+                            RM&nbsp;{{ order.total_products|add:order.shipping_fee|floatformat:2 }}
+                        </span>
                     </div>
                 </div>
-            </div>
+            </div><!-- /.cart-card -->
+        </div>
 
-            <!-- =============== PEMISAH =============== -->
-            <div class="col-xl-1 d-none d-xl-block">
-                <div class="line-separation"></div>
-            </div>
-            <div class="modal fade" id="modalAlamat" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Pilih Alamat</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
+        {# ─────────── PAYMENT (third on mobile, middle on desktop) ─────────── #}
+        <div class="col-12 col-lg-6 order-3 order-lg-3">
+            <div class="card shadow-sm rounded-3 h-100">
+                <div class="card-header bg-white border-0 p-3">
+                    <h5 class="m-0 fw-bold text-uppercase" style="letter-spacing:.02em">
+                        <i class="bi bi-credit-card me-2"></i>Payment Method
+                    </h5>
+                </div>
 
-                        <div class="modal-body">
-                            {% if alamat_list %}
-                            {% for a in alamat_list %}
-                            <div class="form-check border rounded p-3 mb-2">
-                                <input class="form-check-input" type="radio" name="modal_alamat"
-                                    id="addr{{ forloop.counter }}" value="{{ a.id }}"
-                                    {% if forloop.first %}checked{% endif %}>
-                                <label class="form-check-label w-100" for="addr{{ forloop.counter }}">
-                                    <strong>{{ a.full_name }}</strong><br>
-                                    {{ a.address_line1 }}{% if a.address_line2 %}, {{ a.address_line2 }}{% endif %}<br>
-                                    {{ a.postcode }} {{ a.city }}, {{ a.state }}<br>
-                                    <span class="text-muted small">{{ a.phone }}</span>
+                <div class="card-body">
+                    <form id="alamat-form" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="alamat_id" id="inputAlamat"
+                            {% if alamat_list %}value="{{ alamat_list.0.id }}" {% endif %}>
+
+                        <div class="payment-box">
+
+                            <!-- ToyyibPay -->
+                            <div class="payment-item payment-choose-card active mb-3">
+                                <label class="payment-header" for="toyyib-method" data-bs-toggle="collapse"
+                                    data-bs-target="#toyyib-pay">
+                                    <input type="radio" id="toyyib-method" name="payment-method" value="toyyibpay"
+                                        class="tf-check-rounded" checked>
+                                    <span class="text-title">FPX / Card (ToyyibPay)</span>
                                 </label>
+                                <div id="toyyib-pay" class="collapse show">
+                                    <p class="payment-body text-secondary small mb-0">
+                                        You’ll be redirected to ToyyibPay’s secure gateway to complete payment.
+                                    </p>
+                                </div>
                             </div>
-                            {% endfor %}
-                            {% else %}
-                            <div class="alert alert-warning">
-                                Tiada alamat disimpan. <a href="{% url 'profile:alamat-baru' %}">Tambah Alamat</a>.
-                            </div>
-                            {% endif %}
-                        </div>
 
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                            <button type="button" id="btn-guna-alamat" class="btn btn-primary">Guna Alamat</button>
+                            <!-- Cash on Delivery -->
+                            <div class="payment-item">
+                                <label class="payment-header collapsed" for="cod-method" data-bs-toggle="collapse"
+                                    data-bs-target="#cod-pay">
+                                    <input type="radio" id="cod-method" name="payment-method" class="tf-check-rounded"
+                                        value="cod">
+                                    <span class="text-title">Cash on delivery</span>
+                                </label>
+                                <div id="cod-pay" class="collapse">
+                                    <p class="payment-body text-secondary small mb-0">
+                                        Our courier will collect payment upon delivery.
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div><!-- /.payment-box -->
+
+                        <button class="tf-btn mt-4"><span class="text">Pay&nbsp;Now</span></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {# ───────────── Address modal (unchanged) ───────────── #}
+        <div class="modal fade" id="modalAlamat" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Select an Address</h5>
+                        <button class="btn-close" type="button" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        {% if alamat_list %}
+                        {% for a in alamat_list %}
+                        <div class="form-check border rounded p-3 mb-2">
+                            <input class="form-check-input" type="radio" name="modal_alamat"
+                                id="addr{{ forloop.counter }}" value="{{ a.id }}"
+                                {% if forloop.first %}checked{% endif %}>
+                            <label class="form-check-label w-100" for="addr{{ forloop.counter }}">
+                                <strong>{{ a.full_name }}</strong><br>
+                                {{ a.address_line1 }}{% if a.address_line2 %}, {{ a.address_line2 }}{% endif %}<br>
+                                {{ a.postcode }} {{ a.city }}, {{ a.state }}<br>
+                                <span class="text-muted small">{{ a.phone }}</span>
+                            </label>
                         </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="alert alert-warning">
+                            No addresses saved. <a href="{% url 'profile:alamat-baru' %}">Add Address</a>.
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+                        <button id="btn-guna-alamat" class="btn btn-primary" type="button">Use Address</button>
                     </div>
                 </div>
             </div>
+        </div>
 
-
-            <!-- ================= KOLUM KANAN ================= -->
-            <div class="col-xl-5">
-                <div class="flat-spacing flat-sidebar-checkout">
-                    <div class="sidebar-checkout-content">
-
-                        <h5 class="title">Troli Anda</h5>
-                        <div class="list-product">
-
-                            {% for item in order.items.all %}
-                            <div class="item-product">
-                                <a href="{{ item.variant.product.get_absolute_url }}" class="img-product">
-                                    {% with img=item.variant.product.images.all|first %}
-                                    {% if img %}
-                                    <img src="{{ img.image.url }}" alt="img-product">
-                                    {% else %}
-                                    <img src="{% static 'images/placeholder.png' %}" alt="img-product">
-                                    {% endif %}
-                                    {% endwith %}
-                                </a>
-                                <div class="content-box">
-                                    <div class="info">
-                                        <a href="{{ item.variant.product.get_absolute_url }}"
-                                            class="name-product link text-title">{{ item.variant.product.product_name }}</a>
-                                        <div class="variant text-caption-1 text-secondary">
-                                            <span class="size">{{ item.variant.variant_name }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="total-price text-button">
-                                        <span class="count">{{ item.quantity }}</span> ×
-                                        <span class="price">RM {{ item.unit_price|floatformat:2 }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-
-                        </div>
-
-                        <!-- Ringkasan Harga -->
-                        <div class="sec-total-price mt-4">
-                            <div class="top text-button">
-                                <div class="d-flex justify-content-between">
-                                    <span>Penghantaran</span>
-                                    <span>RM {{ order.shipping_fee|floatformat:2 }}</span>
-                                </div>
-                            </div>
-                            <div class="bottom mt-2">
-                                <h5 class="d-flex justify-content-between">
-                                    <span>Jumlah</span>
-                                    <span class="total-price-checkout">
-                                        RM {{ order.total_products|add:order.shipping_fee|floatformat:2 }}
-                                    </span>
-                                </h5>
-                            </div>
-                        </div>
-
-                    </div> <!-- sidebar-checkout-content -->
-                </div>
-            </div>
-        </div><!-- row -->
-    </div><!-- container -->
+    </div><!-- /.row -->
 </section>
+
+
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const ringkas = document.getElementById('alamat-ringkas');
+        const summary = document.getElementById('alamat-ringkas');
         const inputId = document.getElementById('inputAlamat');
-        const gunaBtn = document.getElementById('btn-guna-alamat');
+        const useBtn = document.getElementById('btn-guna-alamat');
+        const modalEl = document.getElementById('modalAlamat');
 
-        gunaBtn ?.addEventListener('click', () => {
-            // alamat yang dipilih dalam modal
+        useBtn?.addEventListener('click', () => {
             const chosen = document.querySelector('input[name="modal_alamat"]:checked');
             if (!chosen) return;
 
-            // salin ID ke input tersembunyi
-            inputId.value = chosen.value;
 
-            // kemas kini ringkasan alamat pada page
-            const label = chosen.nextElementSibling.innerHTML;
-            ringkas.innerHTML = label;
+            if (inputId) inputId.value = chosen.value;
 
-            // tutup modal
-            bootstrap.Modal.getInstance(document.getElementById('modalAlamat')).hide();
+
+            summary.innerHTML = chosen.nextElementSibling.innerHTML;
+
+
+            bootstrap.Modal.getInstance(modalEl).hide();
         });
     });
 </script>
-
 {% endblock %}

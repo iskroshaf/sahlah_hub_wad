@@ -4,74 +4,141 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.conf import settings
+from django.utils import timezone
+from _transaction_app.utils import refresh_transaction 
+from json import JSONDecodeError
 import requests
+import re
+import json
 
 from .models import Transaction
 from _order_app.models import Order
 
 def create_payment(request, order_id):
-    order = get_object_or_404(Order, pk=order_id)
-    transaction = Transaction.objects.create(
-        user=order.user,
-        gateway='toyyibpay',
-        amount=order.total_products + order.shipping_fee,
-    )
-    payload = {
-        'userSecretKey':     settings.TOYYIBPAY_SECRET_KEY,
-        'categoryCode':      settings.TOYYIBPAY_CATEGORY_CODE,
-        'billName':          f"Sahlan Order #{order.id}",
-        'billDescription':   f"Pembayaran untuk order #{order.id} di Sahlan Hub",
-        'billPriceSetting':  0,
-        'billPayorInfo':     0,
-        'billPaymentChannel': "",
-        'billAmount':        str(int(transaction.amount * 100)),
-        'billReturnUrl':     settings.TOYYIBPAY_RETURN_URL,
-        'billCallbackUrl':   settings.TOYYIBPAY_CALLBACK_URL,
-        'billTo':            order.user.get_full_name() if order.user else "",
-        'billEmail':         order.user.email if order.user else "",
-        'billPhone':         request.POST.get('phone', ''),
-    }
-    resp = requests.post(
-        settings.TOYYIBPAY_API_URL,  # https://dev.toyyibpay.com/index.php/api/createBill
-        data=payload
-    )
-    try:
-        resp = requests.post(settings.TOYYIBPAY_API_URL, data=payload)
-        resp.raise_for_status()
-        data = resp.json()
-        if isinstance(data, list) and data:
-            bill_code = data[0].get('BillCode')
-            if bill_code:
-                transaction.bill_code = bill_code
-                transaction.save()
-                return redirect(f"{settings.TOYYIBPAY_BASE_URL}/{bill_code}")
-        transaction.status = Transaction.Status.FAILED
-        transaction.save()
-        return HttpResponse("Failed to create bill", status=500)
-    except Exception as e:
-        transaction.status = Transaction.Status.FAILED
-        transaction.save()
-        return HttpResponse(f"Error: {str(e)}", status=500)
 
+    order = get_object_or_404(
+        Order, pk=order_id, status=Order.Status.PENDING
+    )
+
+    # ── pilih alamat dipilih / fallback ke profil ──────────────────
+    alamat = None
+    if request.POST.get('alamat_id'):
+        alamat = get_object_or_404(
+            ShippingAddress,
+            pk=request.POST['alamat_id'], 
+            user=order.user,
+        )
+
+    bill_name  = (alamat.full_name if alamat else order.user.get_full_name())
+    bill_phone = (alamat.phone if alamat else getattr(order.user, 'phone_number', ''))
+    bill_phone = re.sub(r'\D', '', bill_phone)      # digit sahaja
+    bill_email = order.user.email
+
+    # ── cipta rekod transaksi awal ────────────────────────────────
+    txn = order.transaction
+    if not txn:
+        txn = Transaction.objects.create(
+            user   = order.user,
+            amount = order.total_products + order.shipping_fee,
+            status = Transaction.Status.PENDING,
+        )
+        order.transaction = txn
+        order.save()
+
+
+    payload = {
+        'userSecretKey':    settings.TOYYIBPAY_SECRET_KEY,
+        'categoryCode':     settings.TOYYIBPAY_CATEGORY_CODE,
+        'billName':         f"Sahlan Order #{order.id}",
+        'billDescription':  f"Pembayaran untuk order #{order.id} di Sahlan Hub",
+        'billPriceSetting': 1,
+        'billPayorInfo':    1,          # papar borang + pre-isi
+        'billTo': '',
+        'billPaymentChannel': '',      # 1 = Online Banking (FPX) sahaja
+        'billAmount':       str(int(txn.amount * 100)),  # sen
+        'billChargeToCustomer':0,
+        'billReturnUrl':    settings.TOYYIBPAY_RETURN_URL,
+        'billCallbackUrl':  settings.TOYYIBPAY_CALLBACK_URL,
+
+        'billTo':    bill_name,
+        'billEmail': bill_email,
+        'billPhone': bill_phone,
+    }
+
+    try:
+        resp = requests.post(settings.TOYYIBPAY_API_URL, data=payload, timeout=15)
+        resp.raise_for_status()
+        data = resp.json()     
+             
+        if not (isinstance(data, list) and data and data[0].get("BillCode")):
+            raise ValueError("BillCode not returned")
+
+        bill_code = data[0]["BillCode"]
+    # try:
+    #     resp = requests.post(settings.TOYYIBPAY_API_URL, data=payload, timeout=15)
+    #     print("ToyyibPay status:", resp.status_code)
+    #     print("ToyyibPay body  :", resp.text[:300])   
+    #     resp.raise_for_status()
+    
+    #     data = resp.json()                   # kalau JSON sah, teruskan
+    except json.JSONDecodeError:
+        print("Not JSON =>", resp.text)      # debug cepat
+        return None
+
+    except Exception as exc:
+        txn.status = Transaction.Status.FAILED
+        txn.save()
+        return HttpResponse(f"ToyyibPay error: {exc}", status=502)
+    
+    txn.bill_code = bill_code
+    txn.save()
+
+    return redirect(f"https://dev.toyyibpay.com/{bill_code}")
+
+
+        
 @csrf_exempt
 def payment_callback(request):
-    if request.method == 'POST':
-        status_id   = request.POST.get('status_id')
-        bill_code   = request.POST.get('billcode')
-        paid_amount = request.POST.get('paid_amount')
-        try:
-            transaction = Transaction.objects.get(bill_code=bill_code)
-            if status_id == '2':
-                transaction.status = Transaction.Status.SUCCESS
-            elif status_id == '3':
-                transaction.status = Transaction.Status.FAILED
-            else:
-                transaction.status = Transaction.Status.PENDING
-            transaction.save()
-            return HttpResponse('OK')
-        except Transaction.DoesNotExist:
-            return HttpResponse('Transaction not found', status=404)
-    return HttpResponse('Method not allowed', status=405)
+    bill_code = request.POST.get('billcode')
+    status    = request.POST.get('paymentStatus')
+    if not bill_code:
+        return HttpResponse(status=400)
+
+    txn = get_object_or_404(Transaction, bill_code=bill_code)
+    order = getattr(txn, "order", None)
+
+    if status == "1":
+        txn.status   = Transaction.Status.SUCCESS
+        txn.paid_at  = timezone.now()
+        if order:
+            order.status = Order.Status.PAID
+            order.save()
+    elif status == "3":
+        txn.status   = Transaction.Status.FAILED
+        if order:
+            order.status = Order.Status.FAILED
+            order.save()
+    else:                          
+        txn.status = Transaction.Status.PENDING
+
+    txn.save()
+    return HttpResponse("OK")
+
 
 def payment_success(request):
-    return render(request, 'paymentSuccess.html')
+    theme="customer_theme"
+
+    bill_code = request.GET.get('billcode')
+    txn = get_object_or_404(Transaction, bill_code=bill_code)
+    order = getattr(txn, "order", None)
+
+
+    if txn.status == Transaction.Status.PENDING:
+        refresh_transaction(bill_code)                   
+
+    return render(request, "paymentSuccess.html",{
+        "transaction": txn,
+        "order": order,
+        "redirect_seconds": 10,
+    })
+    

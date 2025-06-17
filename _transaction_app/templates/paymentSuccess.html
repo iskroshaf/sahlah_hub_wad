@@ -1,14 +1,144 @@
 {% extends "_core_app/base.html" %}
 {% load static %}
-
 {% block title %}Pembayaran Berjaya{% endblock %}
 
 {% block content %}
-<div class="container mx-auto py-8">
-  <div class="bg-white shadow-md rounded-lg p-6 text-center">
-    <h1 class="text-2xl font-semibold mb-4">💳 Pembayaran Berjaya!</h1>
-    <p class="mb-4">Terima kasih kerana membuat pembayaran anda. Order anda kini telah dikemaskini sebagai <strong>Paid</strong>.</p>
-    <a href="{}" class="inline-block px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Lihat Detail Order</a>
+
+<style>
+/* ----------  VARIABEL & RESET RINGAN  ---------- */
+:root{
+  --clr-bg:          #f9fafc;
+  --clr-card:        #ffffff;
+  --clr-shadow:      rgba(0,0,0,.07);
+  --clr-text:        #313144;
+  --clr-muted:       #7d8198;
+  --clr-primary:     #1c1c1d;
+  --clr-primary-hov: #1e4fc6;
+  --clr-success:     #0a5f35;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--clr-bg);font-family:"Inter",system-ui,-apple-system,sans-serif;color:var(--clr-text)}
+
+
+.page-wrap{
+  min-height:65vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:2rem 1rem;
+}
+
+
+.card{
+  width:100%;
+  max-width:500px;
+  background:var(--clr-card);
+  border-radius:1.25rem;
+  padding:2.5rem 2rem;
+  box-shadow:0 15px 35px var(--clr-shadow);
+  text-align:center;
+}
+
+@media(max-width:420px){
+  .card{padding:2rem 1.25rem}
+}
+
+
+.tick-wrap{
+  width:86px;height:86px;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 1.75rem;
+  border-radius:50%;
+  background:rgba(22,163,74,.12);
+}
+.tick-wrap svg{width:52px;height:52px;stroke:var(--clr-success)}
+
+
+h1{font-size:1.6rem;font-weight:600;margin-bottom:.5rem}
+p.lead{color:var(--clr-muted);margin-bottom:2rem}
+
+
+.receipt-row{
+  display:flex;justify-content:space-between;gap:1rem;
+  font-size:.95rem;padding:.35rem 0;
+}
+.receipt-row span:first-child{color:var(--clr-muted)}
+.receipt{margin-bottom:2.25rem}
+
+.btn-primary{
+  display:inline-block;width:100%;text-align:center;
+  background:var(--clr-primary);color:#fff;font-weight:500;
+  padding:.75rem 1rem;border-radius:.65rem;
+  text-decoration:none;transition:background .18s ease;
+}
+.btn-primary:hover{background:var(--clr-primary-hov)}
+
+/* ----------  PROGRESS BAR  ---------- */
+.progress-box{margin-top:2rem}
+.bar{
+  width:100%;height:.4rem;border-radius:10px;background:#dfe3f0;overflow:hidden;
+}
+.bar>div{
+  height:100%;width:0;background:var(--clr-primary);transition:width 1s linear;
+}
+.countdown{
+  margin-top:.5rem;font-size:.75rem;color:var(--clr-muted);
+}
+</style>
+
+<section class="page-wrap">
+  <div class="card">
+
+    <!-- ikon -->
+    <div class="tick-wrap">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="3">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+      </svg>
+    </div>
+
+    <h1>Pembayaran Berjaya!</h1>
+    <p class="lead">Terima kasih, pembayaran anda telah diterima.</p>
+
+    <!-- resit -->
+    <div class="receipt">
+      <div class="receipt-row"><span>No. Pesanan</span><span>#{{ order.id }}</span></div>
+      <div class="receipt-row"><span>Bill Code</span><span>{{ transaction.bill_code }}</span></div>
+      <div class="receipt-row"><span>Amaun Dibayar</span><span>RM {{ transaction.amount|floatformat:2 }}</span></div>
+      <div class="receipt-row"><span>Tarikh</span><span>{{ transaction.paid_at|date:"d M Y, h:i A" }}</span></div>
+    </div>
+
+    <!-- CTA -->
+    <a href="" class="btn-primary">Lihat Butiran Pesanan</a>
+
+    <!-- progress + auto-redirect -->
+    <div class="progress-box">
+      <div class="bar"><div id="barFill"></div></div>
+      <p class="countdown">Anda akan dialihkan ke halaman utama dalam
+        <span id="sec">{{ redirect_seconds }}</span> saat…
+      </p>
+    </div>
+
   </div>
-</div>
+</section>
+
+<!-- <script>
+(function(){
+  const total={{ redirect_seconds|default:10 }};
+  let current=0;
+  const secEl=document.getElementById('sec');
+  const bar=document.getElementById('barFill');
+
+  const timer=setInterval(()=>{
+    current++;
+    const remain=total-current;
+    bar.style.width=((current/total)*100)+'%';
+    if(remain>=0) secEl.textContent=remain;
+    if(current>=total){
+      clearInterval(timer);
+      window.location.href="{% url 'home' %}";
+    }
+  },1000);
+})();
+</script> -->
 {% endblock %}

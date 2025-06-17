@@ -13,6 +13,7 @@ from .services import (add_to_cart,set_quantity,get_items,_get_cart,cart_total a
 from _product_app.models import ProductVariant
 from _delivery_app.models import DeliveryMethod
 from _order_app.models import Order, OrderItem,OrderShipping
+from _transaction_app.models import Transaction
 
 
 # ────────────────────────────────────────────────────────────────────
@@ -144,12 +145,7 @@ def cart_page(request):
 @require_POST
 @transaction.atomic
 def checkout(request):
-    """
-    Buat pesanan:
-      • Tambah caj penghantaran setiap kedai bergantung kepada sama ada
-        – pilih DeliveryMethod (admin-price), ATAU
-        – kadar tetap (flat-rate).
-    """
+   
     cart = _get_cart(request)
     if not cart.items.exists():
         messages.error(request, "Troli kosong.")
@@ -157,14 +153,14 @@ def checkout(request):
 
     # ── 1) Kedai admin-price: ship_sel_<shop_pk>=<dm_pk> ────────────
     sel_map = {
-        k.replace("ship_sel_", ""): v                      # {shop_pk: '2'}
+        k.replace("ship_sel_", ""): v                    
         for k, v in request.POST.items()
-        if k.startswith("ship_sel_") and v                # buang kosong
+        if k.startswith("ship_sel_") and v                
     }
 
     # ── 2) Kedai flat-rate: flat_fee_shop<shop_pk>=<fee> ───────────
     flat_map = {
-        k.replace("flat_fee_shop", ""): Decimal(v)        # {shop_pk: Decimal('4.00')}
+        k.replace("flat_fee_shop", ""): Decimal(v)        
         for k, v in request.POST.items()
         if k.startswith("flat_fee_shop")
     }
@@ -182,12 +178,13 @@ def checkout(request):
     # 2) flat-rate
     total_ship_fee += sum(flat_map.values())
 
-    # ── Cipta Order induk ───────────────────────────────────────────
+
     order = Order.objects.create(
         user          = request.user if request.user.is_authenticated else None,
         session_key   = request.session.session_key,
         shipping_fee  = total_ship_fee,
         total_products= cart_total_fn(request),
+        status         = Order.Status.PENDING,
     )
 
     # ── OrderItem ───────────────────────────────────────────────────
@@ -229,8 +226,16 @@ def checkout(request):
 
     OrderShipping.objects.bulk_create(shipping_rows)
 
+    txn = Transaction.objects.create(
+        user   = order.user,
+        amount = order.total_products + order.shipping_fee,
+        status = Transaction.Status.PENDING,
+    )
+    order.transaction = txn
+    order.save()
+
     # ── Bersih troli & tamat ───────────────────────────────────────
-    cart.items.all().delete()
+    #cart.items.all().delete()
     messages.success(request, "Pesanan diterima!")
     return redirect('order-review', order_id=order.id)
 

@@ -12,9 +12,16 @@ from _customer_app.models import ShippingAddress
 
 
 class Order(models.Model):
+    class Status(models.TextChoices):
+        PENDING  = "PENDING",  "Pending Payment"
+        PAID     = "PAID",     "Paid"
+        FAILED   = "FAILED",   "Payment Failed"
+        CANCELLED= "CANCELLED","Cancelled"
+
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        related_name="orders",      # unik bagi Order ↔ User
+        related_name="orders",      
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
@@ -44,12 +51,17 @@ class Order(models.Model):
         on_delete=models.SET_NULL,
         related_name='orders',
     )
+    status = models.CharField(
+        max_length=10, choices=Status.choices, default=Status.PENDING
+    )
     shipping_fee  = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total_products = models.DecimalField(max_digits=10, decimal_places=2)
 
     eta_min = models.PositiveIntegerField(default=0)
     eta_max = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    
 
     def __str__(self):
         if self.transaction and self.transaction.bill_code:
