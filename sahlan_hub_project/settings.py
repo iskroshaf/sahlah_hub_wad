@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     '_delivery_app',
     '_cart_app',
     '_order_app',
+    '_transaction_app',
     
 
     # Built-in Django apps
@@ -210,3 +211,13 @@ INTERNAL_IPS = [
 GOOGLE_CLOUD_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_CLOUD_CREDENTIALS
 
+
+
+TOYYIBPAY_SECRET_KEY    = "88zx3tvk-6uyr-a1g5-sdma-lcv6tpb7oul8"
+TOYYIBPAY_CATEGORY_CODE = "ee1zzpss"
+TOYYIBPAY_API_URL       = "https://dev.toyyibpay.com/index.php/api/createBill"
+TOYYIBPAY_BASE_URL      = "https://dev.toyyibpay.com"
+TOYYIBPAY_CALLBACK_URL =  "https://d967-2001-e68-5450-8d3f-500b-c3a4-3eaa-4cef.ngrok-free.app/transaction/payment/callback/"
+TOYYIBPAY_RETURN_URL   =  "https://d967-2001-e68-5450-8d3f-500b-c3a4-3eaa-4cef.ngrok-free.app/transaction/payment/success/"
+
+ALLOWED_HOSTS = ['*']

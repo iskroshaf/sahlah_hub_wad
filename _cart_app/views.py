@@ -232,7 +232,7 @@ def checkout(request):
     # ── Bersih troli & tamat ───────────────────────────────────────
     cart.items.all().delete()
     messages.success(request, "Pesanan diterima!")
-    return render(request, "_order_app/order_detail.html", {"order": order})
+    return redirect('order-review', order_id=order.id)
 
 
 

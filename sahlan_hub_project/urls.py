@@ -19,8 +19,8 @@ urlpatterns = [
     path('delivery/',include('_delivery_app.urls')),
     path('cart/', include('_cart_app.urls')),
     path('orders/', include('_order_app.urls',)),
-
-    
+    path('transaction/', include('_transaction_app.urls')),
+ 
     path('set-language/', set_language, name='set_language'),
     path("__reload__/", include("django_browser_reload.urls")),
 ]
