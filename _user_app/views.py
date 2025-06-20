@@ -45,7 +45,15 @@ def user_login(request):
                 return redirect("login")
 
             if user.role == "C":
+                missing = (
+                    not user.first_name or
+                    not user.phone_number or
+                    not user.birthdate  
+                )
+                if missing:
+                    return redirect("Update_profile")
                 return redirect("customer_home")
+
             elif user.role == "S":
                 return redirect("seller_dashboard")
             elif user.role == "A":

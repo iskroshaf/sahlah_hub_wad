@@ -117,92 +117,107 @@
 
                             <div class="tf-select mb_20">
                                 <label for="phone_number" class="mb-2">Phone Number :</label>
-                                <input type="text" id="phone_number" name="phone_number"
-                                    placeholder="012-336-1233 or 011-1111-1111" maxlength="13"
-                                    value="{{ request.user.phone_number }}">
-                            </div>
+                                <input type="tel" id="phone_number" name="phone_number" placeholder="+60 12-345 6789"
+                                    autocomplete="tel" required
+                                    class="form-control {% if form.phone_number.errors %}is-invalid{% endif %}"
+                                    value="{{ form.phone_number.value|default:request.user.phone_number }}">
+                                {% if form.phone_number.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.phone_number.errors.0 }}
+                                </div>
+                                {% endif %}
 
-                            <label for="gender" class="form-label">Gender :</label>
-                            <div class="tf-select mb_20">
-                                <select class="text-title" name="gender" id="gender">
-                                    <option value="M" {% if request.user.gender == "M" %}selected{% endif %}>Male
-                                    </option>
-                                    <option value="F" {% if request.user.gender == "F" %}selected{% endif %}>Female
-                                    </option>
-                                    <option value="U" {% if request.user.gender == "U" %}selected{% endif %}>Unknown
-                                    </option>
-                                </select>
-                            </div>
+                                <label for="gender" class="form-label">Gender :</label>
+                                <div class="tf-select mb_20">
+                                    <select class="text-title" name="gender" id="gender">
+                                        <option value="M" {% if request.user.gender == "M" %}selected{% endif %}>Male
+                                        </option>
+                                        <option value="F" {% if request.user.gender == "F" %}selected{% endif %}>Female
+                                        </option>
+                                        <option value="U" {% if request.user.gender == "U" %}selected{% endif %}>Unknown
+                                        </option>
+                                    </select>
+                                </div>
 
-                            <div class="tf-select mb_20">
-                                <label for="birthdate" class="mb-2">Date Of Birth :</label>
-                                <input type="date" id="birthdate" name="birthdate"
-                                    value="{{ request.user.birthdate|date:'Y-m-d' }}">
-                            </div>
+                                <div class="tf-select mb_20">
+                                    <label for="birthdate" class="mb-2">Date Of Birth :</label>
 
-                        </div>
+                                    <input type="date" id="birthdate" name="birthdate"
+                                        class="form-control {% if form.birthdate.errors %}is-invalid{% endif %}"
+                                        value="{{ form.birthdate.value|default:request.user.birthdate|date:'Y-m-d' }}"
+                                        max="{{ form.birthdate.value|default:request.user.birthdate|date:'Y-m-d' }}"
+                                        {# opsyenal: had tarikh #}>
 
-                        <div class="account-password">
-
-                            <!-- Password Section (hidden by default) -->
-                            <div id="password-section" style="display: none;">
-
-                                <!-- Current Password Field -->
-                                <fieldset class="position-relative password-item mb_20">
-                                    <input class="input-password" type="password" placeholder="Current Password*"
-                                        name="current_password" tabindex="2" aria-required="true">
-                                    <span class="toggle-password unshow">
-                                        <i class="icon-eye-hide-line"></i>
-                                    </span>
-                                    {% if form.current_password.errors %}
-                                    <div class="error">
-                                        {% for error in form.current_password.errors %}
-                                        <p>{{ error }}</p>
-                                        {% endfor %}
+                                    {% if form.birthdate.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.birthdate.errors.0 }}
                                     </div>
                                     {% endif %}
-                                </fieldset>
-
-                                <!-- New Password Field -->
-                                <fieldset class="position-relative password-item mb_20">
-                                    <input class="input-password" type="password" placeholder="New Password*"
-                                        name="new_password" tabindex="2" aria-required="true">
-                                    <span class="toggle-password unshow">
-                                        <i class="icon-eye-hide-line"></i>
-                                    </span>
-                                    {% if form.new_password.errors %}
-                                    <div class="error">
-                                        {% for error in form.new_password.errors %}
-                                        <p>{{ error }}</p>
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
-                                </fieldset>
-
-                                <!-- Confirm Password Field -->
-                                <fieldset class="position-relative password-item">
-                                    <input class="input-password" type="password" placeholder="Confirm Password*"
-                                        name="confirm_password" tabindex="2" aria-required="true">
-                                    <span class="toggle-password unshow">
-                                        <i class="icon-eye-hide-line"></i>
-                                    </span>
-                                    {% if form.confirm_password.errors %}
-                                    <div class="error">
-                                        {% for error in form.confirm_password.errors %}
-                                        <p>{{ error }}</p>
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
-                                </fieldset>
+                                </div>
 
                             </div>
-                        </div>
 
-                        <div class="button-submit">
-                            <button class="tf-btn btn-fill" type="submit">
-                                <span class="text text-button">Update Account</span>
-                            </button>
-                        </div>
+                            <div class="account-password">
+
+                                <!-- Password Section (hidden by default) -->
+                                <div id="password-section" style="display: none;">
+
+                                    <!-- Current Password Field -->
+                                    <fieldset class="position-relative password-item mb_20">
+                                        <input class="input-password" type="password" placeholder="Current Password*"
+                                            name="current_password" tabindex="2" aria-required="true">
+                                        <span class="toggle-password unshow">
+                                            <i class="icon-eye-hide-line"></i>
+                                        </span>
+                                        {% if form.current_password.errors %}
+                                        <div class="error">
+                                            {% for error in form.current_password.errors %}
+                                            <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </fieldset>
+
+                                    <!-- New Password Field -->
+                                    <fieldset class="position-relative password-item mb_20">
+                                        <input class="input-password" type="password" placeholder="New Password*"
+                                            name="new_password" tabindex="2" aria-required="true">
+                                        <span class="toggle-password unshow">
+                                            <i class="icon-eye-hide-line"></i>
+                                        </span>
+                                        {% if form.new_password.errors %}
+                                        <div class="error">
+                                            {% for error in form.new_password.errors %}
+                                            <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </fieldset>
+
+                                    <!-- Confirm Password Field -->
+                                    <fieldset class="position-relative password-item">
+                                        <input class="input-password" type="password" placeholder="Confirm Password*"
+                                            name="confirm_password" tabindex="2" aria-required="true">
+                                        <span class="toggle-password unshow">
+                                            <i class="icon-eye-hide-line"></i>
+                                        </span>
+                                        {% if form.confirm_password.errors %}
+                                        <div class="error">
+                                            {% for error in form.confirm_password.errors %}
+                                            <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </fieldset>
+
+                                </div>
+                            </div>
+
+                            <div class="button-submit">
+                                <button class="tf-btn btn-fill" type="submit">
+                                    <span class="text text-button">Update Account</span>
+                                </button>
+                            </div>
                     </form>
                 </div>
             </div>
@@ -250,22 +265,60 @@
     });
 </script>
 <script>
-    const phoneInput = document.getElementById('dob');
+    document.addEventListener("DOMContentLoaded", () => {
+        const el = document.getElementById("phone_number");
 
-    phoneInput.addEventListener('input', function (e) {
-        let value = e.target.value.replace(/\D/g, ''); // Remove non-numeric characters
 
-        // Format the input into 011-xxx-xxxx or 012-xxx-xxxx
-        if (value.length <= 3) {
-            e.target.value = value;
-        } else if (value.length <= 6) {
-            e.target.value = value.replace(/(\d{3})(\d{1,3})/, '$1-$2');
-        } else {
-            e.target.value = value.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+        function enforcePrefix(value = "") {
+
+            let digits = value.replace(/\D/g, "");
+
+
+            if (digits === "") return "";
+
+
+            if (digits.startsWith("60")) digits = digits.slice(2);
+            if (digits.startsWith("0")) digits = digits.slice(1);
+
+
+            digits = digits.slice(0, 10);
+
+
+            let out = "+60";
+            if (digits.length <= 2) {
+                out += digits;
+            } else if (digits.length <= 5) {
+                out += digits.slice(0, 2) + "-" + digits.slice(2);
+            } else if (digits.length <= 9) {
+                out += digits.slice(0, 2) + "-" + digits.slice(2, 6) + "-" + digits.slice(6);
+            } else {
+                out += digits.slice(0, 2) + "-" + digits.slice(2, 6) + "-" + digits.slice(6, 10);
+            }
+            return out;
         }
-    });
 
-    // Ensure only valid phone numbers are accepted
+
+        el.value = enforcePrefix(el.value);
+
+
+        el.addEventListener("input", () => {
+            const posBefore = el.selectionStart;
+            el.value = enforcePrefix(el.value);
+
+            el.setSelectionRange(el.value.length, el.value.length);
+        });
+
+
+        el.addEventListener("keydown", (e) => {
+            if (
+                !e.key.match(/[0-9]/) &&
+                !["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Home", "End"].includes(e
+                    .key)
+            ) {
+                e.preventDefault();
+            }
+        });
+    });
 </script>
 
 <script>

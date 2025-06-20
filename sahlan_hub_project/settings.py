@@ -221,3 +221,4 @@ TOYYIBPAY_CALLBACK_URL =  "https://2c3c-2405-3800-847-1397-3062-791f-c9f2-ac83.n
 TOYYIBPAY_RETURN_URL   =  "https://2c3c-2405-3800-847-1397-3062-791f-c9f2-ac83.ngrok-free.app/transaction/payment/success/"
 
 ALLOWED_HOSTS = ['*']
+

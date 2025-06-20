@@ -9,6 +9,8 @@ from django.db.models import Sum, Value
 from _delivery_app.models import DeliveryMethod,ShopDelivery       
 from types import SimpleNamespace
 from decimal import Decimal
+from django.contrib.auth.decorators import login_required
+from _customer_app.decorators import customer_requirements_complete
 
 def customer_register_view(request):
     title = "Register"
@@ -39,6 +41,8 @@ def customer_register_view(request):
     return render(request, "_customer_app/customer_register.html", context)
 
 
+@login_required
+@customer_requirements_complete
 def customer_home_view(request):
     title = "Customer Home"
     theme = "customer_theme"
@@ -57,7 +61,7 @@ def customer_home_view(request):
     return render(request, "_customer_app/customer_home.html", context)
 
 
-
+@login_required
 def customer_update_profile(request):
     title = "Update Profile"
     theme = "customer_theme"
@@ -80,7 +84,7 @@ def customer_update_profile(request):
 
             form.save()
             messages.success(request, "Profile updated successfully!")
-            return redirect("customer_home")
+            return redirect("Update_profile")
         else:
             print(form.errors)
             messages.error(request, "Please fix the errors highlighted below.")
@@ -96,7 +100,7 @@ def customer_update_profile(request):
 
  # pastikan import ini ada
 
-
+@login_required
 def customer_update_password(request):
     title = "Change Password"
     theme = "customer_theme"
@@ -126,6 +130,7 @@ def customer_update_password(request):
 
 
 ####################################### Update_Homepagee###########################################
+@login_required
 def customer_update_address(request):
     title = "Customer Address"
     theme = "customer_theme"
@@ -155,6 +160,7 @@ def customer_update_address(request):
 
 
 ################################# Edit Address Customer ########################################################
+@login_required
 def edit_shipping_address(request, address_id):
     address = get_object_or_404(ShippingAddress, id=address_id, user=request.user)
 
@@ -178,6 +184,7 @@ def edit_shipping_address(request, address_id):
 
 
 ################################################ Delete Address Customer #############################################
+@login_required
 def delete_shipping_address(request, pk):
     address = get_object_or_404(ShippingAddress, pk=pk, user=request.user)
     
@@ -188,6 +195,8 @@ def delete_shipping_address(request, pk):
     
     return render(request, "_customer_app/customer_delete_address.html", {"address": address})
 ################################################ End Delete Address Customer #############################################
+
+@login_required
 def get_shipping_options(shop):
     
    
@@ -217,6 +226,7 @@ def get_shipping_options(shop):
     fee0 = sd0.method.base_price + sd0.extra_surcharge
     return qs, sd0, fee0
 
+@login_required
 def customer_product_detail(request, product_id):
     theme = "customer_theme"
     
