@@ -8,9 +8,9 @@ app = FastAPI()
 class InputData(BaseModel):
     text: str
 
-MODEL_PATH = "xlm-roberta-base"
+#MODEL_PATH = "xlm-roberta-base"
 # offkan sebab model trainning terlalu besar.. 
-# MODEL_PATH = "./_product_app/fine_tuning/fine_tuned_xlm"
+MODEL_PATH = "./_product_app/fine_tuning/fine_tuned_xlm"
 # kene train model didalam fine_tuned.
 tokenizer = XLMRobertaTokenizer.from_pretrained(MODEL_PATH)
 model = XLMRobertaForSequenceClassification.from_pretrained(MODEL_PATH, num_labels=3)

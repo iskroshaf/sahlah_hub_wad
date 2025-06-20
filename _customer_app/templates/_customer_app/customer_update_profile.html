@@ -8,31 +8,32 @@
 
 <style>
     /* Default: sembunyi mobile view */
-.mobile-view {
-    display: none;
-}
-
-/* Untuk phone view (max 767px) */
-@media (max-width: 767px) {
-    .desktop-view {
-        display: none; /* sorok desktop style */
-    }
-
     .mobile-view {
-        display: flex; /* tunjuk avatar versi mobile */
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 20px;
+        display: none;
     }
 
-    .mobile-view img {
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-        border-radius: 50%;
-    }
-}
+    /* Untuk phone view (max 767px) */
+    @media (max-width: 767px) {
+        .desktop-view {
+            display: none;
+            /* sorok desktop style */
+        }
 
+        .mobile-view {
+            display: flex;
+            /* tunjuk avatar versi mobile */
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .mobile-view img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+    }
 </style>
 <section class="flat-spacing">
     <div class="container">
@@ -40,6 +41,14 @@
             {% include "_customer_app/account_sidebar.html" %}
             <div class="my-account-content">
                 <div class="account-details">
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
                     <form action="{% url 'Update_profile' %}" method="POST" enctype="multipart/form-data"
                         class="form-account-details form-has-password">
                         {% csrf_token %}
@@ -47,9 +56,9 @@
                             <div class="account-avatar mobile-view">
                                 <div class="image">
                                     {% if request.user.image_avatar %}
-                                        <img src="{{ request.user.image_avatar.url }}" alt="User Avatar">
+                                    <img src="{{ request.user.image_avatar.url }}" alt="User Avatar">
                                     {% else %}
-                                        <img src="{% static 'images/user-default.jpg' %}" alt="Default Avatar">
+                                    <img src="{% static 'images/user-default.jpg' %}" alt="Default Avatar">
                                     {% endif %}
                                 </div>
                             </div>
@@ -62,7 +71,7 @@
                                     <div id="emailHelp" class="form-text">We'll never share your email with anyone else.
                                     </div>
                                 </div>
-                               
+
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email address</label>
                                     <input type="email" class="form-control" id="email" name="email"
@@ -74,20 +83,35 @@
                             <div class="cols mb_20">
                                 <div class="mb-3">
                                     <label for="image_avatar" class="form-label">Profile Picture</label>
-                                    <input type="file" class="form-control" id="image_avatar" name="image_avatar" accept="image/*">
+                                    <input type="file" class="form-control" id="image_avatar" name="image_avatar"
+                                        accept="image/*">
                                 </div>
                             </div>
 
                             <div class="cols mb_20">
                                 <div class="mb-3">
                                     <label for="first_name" class="form-label">First Name</label>
-                                    <input type="text" class="form-control" id="first_name" name="first_name"
-                                        value="{{ request.user.first_name }}">
+                                    <input type="text"
+                                        class="form-control {% if form.first_name.errors %}is-invalid{% endif %}"
+                                        id="first_name" name="first_name"
+                                        value="{{ form.first_name.value|default_if_none:'' }}">
+                                    {% if form.first_name.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.first_name.errors.0 }} {# first error only; loop if you want all #}
+                                    </div>
+                                    {% endif %}
                                 </div>
                                 <div class="mb-3">
                                     <label for="last_name" class="form-label">Last Name</label>
-                                    <input type="text" class="form-control" id="last_name" name="last_name"
-                                        value="{{ request.user.last_name }}">
+                                    <input type="text"
+                                        class="form-control {% if form.last_name.errors %}is-invalid{% endif %}"
+                                        id="last_name" name="last_name"
+                                        value="{{ form.last_name.value|default_if_none:'' }}">
+                                    {% if form.last_name.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.last_name.errors.0 }} {# first error only; loop if you want all #}
+                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
 
@@ -101,9 +125,12 @@
                             <label for="gender" class="form-label">Gender :</label>
                             <div class="tf-select mb_20">
                                 <select class="text-title" name="gender" id="gender">
-                                    <option value="M" {% if request.user.gender == "M" %}selected{% endif %}>Male</option>
-                                    <option value="F" {% if request.user.gender == "F" %}selected{% endif %}>Female</option>
-                                    <option value="U" {% if request.user.gender == "U" %}selected{% endif %}>Unknown</option>
+                                    <option value="M" {% if request.user.gender == "M" %}selected{% endif %}>Male
+                                    </option>
+                                    <option value="F" {% if request.user.gender == "F" %}selected{% endif %}>Female
+                                    </option>
+                                    <option value="U" {% if request.user.gender == "U" %}selected{% endif %}>Unknown
+                                    </option>
                                 </select>
                             </div>
 
@@ -116,10 +143,10 @@
                         </div>
 
                         <div class="account-password">
-                           
+
                             <!-- Password Section (hidden by default) -->
                             <div id="password-section" style="display: none;">
-                        
+
                                 <!-- Current Password Field -->
                                 <fieldset class="position-relative password-item mb_20">
                                     <input class="input-password" type="password" placeholder="Current Password*"
@@ -128,14 +155,14 @@
                                         <i class="icon-eye-hide-line"></i>
                                     </span>
                                     {% if form.current_password.errors %}
-                                        <div class="error">
-                                            {% for error in form.current_password.errors %}
-                                                <p>{{ error }}</p>
-                                            {% endfor %}
-                                        </div>
+                                    <div class="error">
+                                        {% for error in form.current_password.errors %}
+                                        <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
                                     {% endif %}
                                 </fieldset>
-                        
+
                                 <!-- New Password Field -->
                                 <fieldset class="position-relative password-item mb_20">
                                     <input class="input-password" type="password" placeholder="New Password*"
@@ -144,14 +171,14 @@
                                         <i class="icon-eye-hide-line"></i>
                                     </span>
                                     {% if form.new_password.errors %}
-                                        <div class="error">
-                                            {% for error in form.new_password.errors %}
-                                                <p>{{ error }}</p>
-                                            {% endfor %}
-                                        </div>
+                                    <div class="error">
+                                        {% for error in form.new_password.errors %}
+                                        <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
                                     {% endif %}
                                 </fieldset>
-                        
+
                                 <!-- Confirm Password Field -->
                                 <fieldset class="position-relative password-item">
                                     <input class="input-password" type="password" placeholder="Confirm Password*"
@@ -160,17 +187,17 @@
                                         <i class="icon-eye-hide-line"></i>
                                     </span>
                                     {% if form.confirm_password.errors %}
-                                        <div class="error">
-                                            {% for error in form.confirm_password.errors %}
-                                                <p>{{ error }}</p>
-                                            {% endfor %}
-                                        </div>
+                                    <div class="error">
+                                        {% for error in form.confirm_password.errors %}
+                                        <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
                                     {% endif %}
                                 </fieldset>
-                        
+
                             </div>
                         </div>
-                        
+
                         <div class="button-submit">
                             <button class="tf-btn btn-fill" type="submit">
                                 <span class="text text-button">Update Account</span>
@@ -199,11 +226,13 @@
 <script>
     window.REQUIRED_CODE_ERROR_MESSAGE = 'Please choose a country code';
     window.LOCALE = 'en';
-    window.EMAIL_INVALID_MESSAGE = window.SMS_INVALID_MESSAGE = "The information provided is invalid. Please review the field format and try again.";
+    window.EMAIL_INVALID_MESSAGE = window.SMS_INVALID_MESSAGE =
+        "The information provided is invalid. Please review the field format and try again.";
 
     window.REQUIRED_ERROR_MESSAGE = "This field cannot be left blank. ";
 
-    window.GENERIC_INVALID_MESSAGE = "The information provided is invalid. Please review the field format and try again.";
+    window.GENERIC_INVALID_MESSAGE =
+        "The information provided is invalid. Please review the field format and try again.";
 
     window.translation = {
         common: {
@@ -237,7 +266,6 @@
     });
 
     // Ensure only valid phone numbers are accepted
-
 </script>
 
 <script>
@@ -249,5 +277,5 @@
             section.style.display = "none";
         }
     }
-    </script>
+</script>
 {% endblock %}

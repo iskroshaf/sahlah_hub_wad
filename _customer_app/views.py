@@ -82,7 +82,10 @@ def customer_update_profile(request):
             messages.success(request, "Profile updated successfully!")
             return redirect("customer_home")
         else:
+            print(form.errors)
+            messages.error(request, "Please fix the errors highlighted below.")
             context['form'] = form
+
     else:
         form = ProfileUpdateForm(instance=user)
 

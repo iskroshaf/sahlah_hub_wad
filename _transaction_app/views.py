@@ -141,4 +141,11 @@ def payment_success(request):
         "order": order,
         "redirect_seconds": 10,
     })
+
+def payment_failed(request):
+    bill_code = request.GET.get("billcode")
+    txn   = get_object_or_404(Transaction, bill_code=bill_code)
+    order = getattr(txn, "order", None)
+    return render(request, "payment_failed.html",
+                  {"order": order, "transaction": txn})
     

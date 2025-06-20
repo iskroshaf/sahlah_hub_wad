@@ -193,13 +193,14 @@ class ProductImage(models.Model):
         return f"Image for {self.product.product_name}"
 
 class ProductVariant(models.Model):
-    # … fields variant_name, variant_price, variant_quantity …
+
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name='variants'
     )
     variant_name     = models.CharField(max_length=50)
     variant_price    = models.DecimalField(max_digits=10, decimal_places=2)
     variant_quantity = models.PositiveIntegerField(default=0)
+
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -207,8 +208,8 @@ class ProductVariant(models.Model):
         return f"{self.product.product_name} – {self.variant_name}"
 
     class Meta:
-        db_table = "product_variant"
-    
+            db_table = "product_variant"
+
 
 
 # ── signal handler ──────────────────────────────────────────
