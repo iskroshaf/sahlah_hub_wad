@@ -22,15 +22,17 @@ def add_to_cart(request, variant_id: int, qty: int):
 
     if qty < 1:
         raise ValidationError("Kuantiti minimum ialah 1.")
-    if qty > variant.variant_quantity:               # ← ganti di sini
+
+    existing = CartItem.objects.filter(cart=cart, variant=variant).first()
+    current_qty = existing.quantity if existing else 0
+    if current_qty + qty > variant.variant_quantity:
         raise ValidationError("Stok tak mencukupi.")
 
-    item, created = CartItem.objects.get_or_create(
-        cart=cart, variant=variant, defaults={'quantity': qty}
-    )
-    if not created:
-        CartItem.objects.filter(pk=item.pk).update(quantity=F('quantity') + qty)
-
+    if existing:
+        CartItem.objects.filter(pk=existing.pk).update(quantity=F("quantity") + qty)
+    else:
+        CartItem.objects.create(cart=cart, variant=variant, quantity=qty)
+        
 # ---------------- set kuantiti tepat ----------------
 def set_quantity(request, variant_id: int, qty: int):
     cart = _get_cart(request)

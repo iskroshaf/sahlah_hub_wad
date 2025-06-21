@@ -1,5 +1,7 @@
 {% extends '_core_app/base.html' %}
-{% load static %}
+{% load static cart_extras %}
+
+
 
 {% block title %}{{ product.product_name }} – Sahlan Hub{% endblock %}
 
@@ -175,7 +177,7 @@
 </style>
 
 
-<section class="flat-spacing">
+<section data-product-id="{{ product.id }}" class="flat-spacing">
     <div class="tf-main-product section-image-zoom">
         <div class="container">
             <div class="row">
@@ -222,11 +224,12 @@
 
 
 
+                
                 {# ───────────────────────── RIGHT: PRODUCT INFO ───────────────────────── #}
                 <div class="col-md-6">
                     <div class="tf-product-info-wrap position-relative">
-
                         <div class="tf-product-info-list other-image-zoom">
+
                             {# ---------- Heading ---------- #}
                             <div class="tf-product-info-heading">
                                 <div class="tf-product-info-name">
@@ -234,36 +237,30 @@
                                     <h3 class="name">{{ product.product_name }}</h3>
 
                                     <div class="sub">
-                                        {# Rating placeholder; ganti dgn rating sebenar jika ada #}
+                                        {# Rating placeholder #}
                                         <div class="tf-product-info-rate me-4">
                                             <div class="list-star">
-                                                {% for i in "12345" %}
-                                                <i class="icon icon-star"></i>
-                                                {% endfor %}
+                                                {% for _ in "12345" %}<i class="icon icon-star"></i>{% endfor %}
                                             </div>
                                             <div class="text text-caption-1">(0 reviews)</div>
                                         </div>
 
-                                        {# jualan pantas optional #}
                                         <div class="tf-product-info-sold">
                                             <i class="icon icon-lightning"></i>
-                                            <div class="text text-caption-1">
-                                                {{ product.total_sold|default:"0" }} sold
+                                            <div class="text text-caption-1">{{ product.total_sold|default:"0" }} sold
                                             </div>
                                         </div>
-                                        {# ---------- Halal badge ---------- #}
+
+                                        {# Halal badge #}
                                         {% if product.halal_status == "Halal" %}
-                                        <span class="badge bg-success text-uppercase">
-                                            {{ product.get_halal_status_display }}
-                                        </span>
+                                        <span
+                                            class="badge bg-success text-uppercase">{{ product.get_halal_status_display }}</span>
                                         {% elif product.halal_status == "Mashbooh" %}
-                                        <span class="badge bg-warning text-dark text-uppercase">
-                                            {{ product.get_halal_status_display }}
-                                        </span>
+                                        <span
+                                            class="badge bg-warning text-dark text-uppercase">{{ product.get_halal_status_display }}</span>
                                         {% elif product.halal_status == "Haram" %}
-                                        <span class="badge bg-danger text-uppercase">
-                                            {{ product.get_halal_status_display }}
-                                        </span>
+                                        <span
+                                            class="badge bg-danger text-uppercase">{{ product.get_halal_status_display }}</span>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -271,58 +268,52 @@
                                 {# ---------- Harga ---------- #}
                                 <div class="tf-product-info-desc">
                                     <div class="tf-product-info-price">
-                                        <h5 class="price-on-sale font-2 dynamic-price">RM {{ product.product_price }}
+                                        <h5 class="price-on-sale font-2 dynamic-price">
+                                            RM {{ selected_variant.variant_price|default:product.product_price }}
                                         </h5>
-                                        <span id="out-of-stock-msg" class="text-danger small d-none">Out of Stock
-                                            !</span>
+                                        <span id="out-of-stock-msg" class="text-danger small d-none">Out of
+                                            Stock&nbsp;!</span>
                                     </div>
-
-
 
                                     <p class="mt-3">{{ product.product_description|linebreaks }}</p>
                                 </div>
                             </div>
 
-
-                            {# ---------- VARIANT PICKER (jika ada) ---------- #}
+                            {# ---------- VARIANT PICKER ---------- #}
                             {% if not product.no_variant %}
                             <div class="variant-picker-container mt-4">
-
                                 <div class="variant-picker-header mb-2">
                                     <div>
                                         <span class="label-text">Selected Variant:</span>
-                                        <span id="variant-current-name">
-                                            {% if selected_variant %}{{ selected_variant.variant_name }}{% else %}-{% endif %}
-                                        </span>
+                                        <span
+                                            id="variant-current-name">{{ selected_variant.variant_name|default:"-" }}</span>
                                     </div>
                                     <div>
                                         <span class="label-text">Stock:</span>
-                                        <span id="variant-current-stock">
-                                            {% if selected_variant %}{{ selected_variant.variant_quantity }}{% else %}0{% endif %}
-                                        </span>
-
+                                        <span
+                                            id="variant-current-stock">{{ selected_variant.remaining|default:"0" }}</span>
                                     </div>
                                 </div>
 
-
                                 <div class="variant-picker-grid">
                                     {% for v in variant_list %}
-                                    <input type="radio" name="variant_id" class="size-btn" id="variant-{{ v.id }}"
-                                        value="{{ v.id }}" data-value="{{ v.variant_name }}"
-                                        data-price="{{ v.variant_price }}" data-stock="{{ v.variant_quantity }}"
-                                        {% if v.variant_quantity == 0 %}disabled{% endif %}
+                                    <input type="radio" id="variant-{{ v.id }}" class="size-btn" name="variant_id"
+                                        value="{{ v.id }}" data-price="{{ v.variant_price }}"
+                                        data-remaining="{{ v.remaining }}" data-name="{{ v.variant_name }}"
+                                        {% if v.remaining == 0 %}disabled{% endif %}
                                         {% if v.id == checked_variant_id %}checked{% endif %}>
 
-                                    <label
-                                        class="variant-card {% if v.variant_quantity == 0 %}opacity-50 pointer-events-none{% endif %}"
-                                        for="variant-{{ v.id }}">
+                                    <label for="variant-{{ v.id }}"
+                                        class="variant-card{% if v.remaining == 0 %} opacity-50 pointer-events-none{% endif %}">
                                         <span class="variant-name">{{ v.variant_name }}</span>
                                         <span class="variant-price">RM {{ v.variant_price }}</span>
                                         <span class="variant-stock">
-                                            {% if v.variant_quantity == 0 %}
+                                            {% if v.remaining == 0 %}
                                             Out&nbsp;of&nbsp;stock
+                                            {% elif v.incart %}
+                                            In&nbsp;cart:&nbsp;{{ v.incart }} / {{ v.variant_quantity }}
                                             {% else %}
-                                            Stock:&nbsp;{{ v.variant_quantity }}
+                                            Stock:&nbsp;{{ v.remaining }}
                                             {% endif %}
                                         </span>
                                     </label>
@@ -331,8 +322,7 @@
                             </div>
                             {% endif %}
 
-
-                            {# ---------- Kuantiti ---------- #}
+                            {# ---------- QUANTITY ---------- #}
                             <div class="tf-product-info-quantity mt-4">
                                 <div class="title mb_12">Quantity (stok: {{ global_qty }}):</div>
                                 <div class="wg-quantity">
@@ -340,45 +330,40 @@
                                     <input id="qty-input" class="quantity-product" type="number" name="qty" value="1"
                                         min="1" step="1" readonly {% if product.no_variant %}max="{{ global_qty }}"
                                         {% endif %}>
-
                                     <span class="qty-inc btn-quantity">＋</span>
                                 </div>
                             </div>
 
-                            {# --- Penghantaran --- #}
+                            {# ---------- SHIPPING ---------- #}
                             <div class="tf-product-info-delivery mt-4">
                                 <div class="title mb_12">Shipping:</div>
 
                                 {% if shop_deliveries %}
-                                {# ----- hidden helpers utk JS (guna METHOD id) ----- #}
-                                {% with fee=shop_deliveries.0.method.base_price|add:shop_deliveries.0.extra_surcharge %}
+                                {# hidden default fee for JS #}
+                                {% with first_sd=shop_deliveries.0 %}
+                                {% with fee=first_sd.method.base_price|add:first_sd.extra_surcharge %}
                                 <input type="hidden" id="ship-fee" value="{{ fee }}">
                                 {% endwith %}
-                                <input type="hidden" id="ship-method-id" value="{{ shop_deliveries.0.method.id }}">
-                                {# ← nombor #}
+                                <input type="hidden" id="ship-method-id" value="{{ first_sd.method.id }}">
+                                {% endwith %}
 
                                 <div class="d-grid gap-2">
                                     {% for sd in shop_deliveries %}
                                     {% with fee=sd.method.base_price|add:sd.extra_surcharge %}
                                     <label class="position-relative">
-
-                                        {# ===================== RADIO ===================== #}
                                         <input type="radio" class="form-check-input d-none ship-radio"
-                                            name="delivery_method_id" {# ✅ sama dgn view #} id="ship-{{ sd.id }}"
-                                            value="{{ sd.method.id }}" {# ✅ hantar ID jadual delivery_method #}
+                                            name="delivery_method_id" id="ship-{{ sd.id }}" value="{{ sd.method.id }}"
                                             data-fee="{{ fee }}" {% if forloop.first %}checked{% endif %}>
 
                                         <div class="ship-card">
                                             <div class="courier-icon"><i class="bi bi-truck"></i></div>
-
                                             <div class="flex-grow-1">
                                                 <div class="fw-semibold">{{ sd.method.name }}</div>
                                                 <small class="text-muted">
                                                     {{ sd.method.est_day_min }}–{{ sd.method.est_day_max }} hari
                                                 </small>
                                             </div>
-
-                                            <div class="fw-semibold">RM {{ fee }}</div>
+                                            <div class="fw-semibold">RM&nbsp;{{ fee }}</div>
                                         </div>
 
                                         {% if forloop.first %}
@@ -390,307 +375,238 @@
                                 </div>
 
                                 {% else %}
-                                <p class="mb-2">
-                                    Caj penghantaran kedai:
-                                    <strong>RM {{ default_ship_fee }}</strong>
-                                </p>
-                                <input type="hidden" id="ship-fee" value="0">
+                                <p class="mb-2">Caj penghantaran kedai:
+                                    <strong>RM {{ default_ship_fee }}</strong></p>
+                                <input type="hidden" id="ship-fee" value="{{ default_ship_fee }}">
                                 <input type="hidden" id="ship-method-id" value="">
                                 {% endif %}
                             </div>
 
-
-                            {# ---------- Butang ATC / BuyNow ---------- #}
+                            {# ---------- BUY NOW ---------- #}
                             <div class="tf-product-info-by-btn mt-4">
                                 <form action="{% url 'cart:add' %}" method="post" class="flex-grow-1">
                                     {% csrf_token %}
-                                    <input type="hidden" name="qty" id="new-addcart-qty" value="1">
+                                    <input type="hidden" name="product_id" value="{{ product.id }}">
                                     <input type="hidden" name="variant_id" id="new-addcart-variant"
-                                        value="{{ selected_variant.id|default:'' }}">
+                                        value="{{ selected_variant.id }}">
+                                    <input type="hidden" name="qty" id="new-addcart-qty" value="1">
 
-                                    {# ✅ gunakan delivery_method_id dan isikan nilai default (method.id) #}
                                     {% if shop_deliveries %}
                                     <input type="hidden" name="delivery_method_id" id="new-addcart-delivery"
                                         value="{{ shop_deliveries.0.method.id }}">
                                     {% else %}
+                                    <input type="hidden" name="delivery_method_id" id="new-addcart-delivery" value="">
                                     {% endif %}
 
-                                    <input type="hidden" name="product_id" value="{{ product.id }}">
-
-                                    <button id="new-add-to-cart-btn" class="btn-style-1 w-100" type="submit">
-                                        Buy&nbsp;Now&nbsp;–&nbsp;<span id="new-price-total" class="fw-6">RM
-                                            {{ product.product_price }}</span>
+                                    <button id="new-add-to-cart-btn" class="btn-style-1 w-100">
+                                        Buy&nbsp;Now&nbsp;–&nbsp;<span id="new-price-total" class="fw-6">
+                                            RM {{ selected_variant.variant_price|default:product.product_price }}
+                                        </span>
                                     </button>
                                 </form>
                             </div>
 
-
-                        </div> {# /tf-product-info-list #}
+                        </div>{# /tf-product-info-list #}
                     </div>
-                </div> {# /col-md-6 #}
+                </div>{# /col-md-6 #}
+
 
             </div> {# /row #}
         </div>
     </div>
 </section>
 
-<!-- <script>
-    document.addEventListener('DOMContentLoaded', function () {
-
-        /* ─── Elemen produk ─── */
-        const radios = document.querySelectorAll('input[name="variant_id"]');
-        const nameEl = document.getElementById('variant-current-name');
-        const stockEl = document.getElementById('variant-current-stock');
-        const priceEls = document.querySelectorAll('.dynamic-price');
-        const qtyInput = document.getElementById('qty-input');
-        const decBtn = document.querySelector('.qty-dec');
-        const incBtn = document.querySelector('.qty-inc');
-
-        /* ─── Elemen penghantaran ─── */
-        const shipRadios = document.querySelectorAll('.ship-radio');
-        const shipFeeInp = document.getElementById('ship-fee'); // hidden fee
-        const shipIdInp = document.getElementById('ship-id'); // hidden id (boleh null)
-
-        /* ─── Lain-lain ─── */
-        const newPriceEl = document.getElementById('new-price-total');
-        const newVariantIn = document.getElementById('new-addcart-variant');
-        const newQtyIn = document.getElementById('new-addcart-qty');
-
-        const productNoVariant = '{{ product.no_variant|yesno:"true,false" }}' === 'true';
-        const globalStock = parseInt('{{ global_qty|default:"0" }}', 10);
-
-        const atcBtn = document.getElementById('new-add-to-cart-btn');
-        const oosMsg = document.getElementById('out-of-stock-msg');
-        const baseUnitPrice = parseFloat('{{ selected_variant.variant_price }}') || 0;
-
-        /* ─── Util: butang beli aktif/disable ─── */
-        function setButtonState(stock) {
-            if (stock <= 0) {
-                atcBtn.disabled = true;
-                atcBtn.classList.add('disabled', 'opacity-50');
-                atcBtn.textContent = 'Out of Stock';
-                if (oosMsg) oosMsg.classList.remove('d-none');
-            } else {
-                atcBtn.disabled = false;
-                atcBtn.classList.remove('disabled', 'opacity-50');
-                atcBtn.innerHTML = `Beli Sekarang – <span id="new-price-total" class="fw-6">
-                          ${newPriceEl.textContent}
-                        </span>`;
-                if (oosMsg) oosMsg.classList.add('d-none');
-            }
-        }
-
-        /* ─── Hitung TOTAL (unit × qty + penghantaran) ─── */
-        function recalcTotal() {
-            const curVar = document.querySelector('input[name="variant_id"]:checked');
-            const unit = curVar ? parseFloat(curVar.dataset.price) : baseUnitPrice;
-            const qty = parseInt(qtyInput.value, 10) || 1;
-            const ship = parseFloat(shipFeeInp.value) || 0;
-            const total = (unit * qty + ship).toFixed(2);
-
-            priceEls.forEach(el => el.textContent = `RM ${unit.toFixed(2)}`);
-            newPriceEl.textContent = `RM ${total}`;
-
-            const curStock = stockEl ? parseInt(stockEl.textContent || 0, 10) : globalStock;
-            setButtonState(curStock);
-        }
-        /* ─── Bila varian berubah ─── */
-        function updateVariant(radio) {
-            nameEl.textContent = radio.dataset.value;
-            stockEl.textContent = radio.dataset.stock;
-
-            /* hadkan qty ikut stok */
-            qtyInput.max = radio.dataset.stock;
-            if (+qtyInput.value > +qtyInput.max) qtyInput.value = qtyInput.max;
-
-            /* Harga unit */
-            priceEls.forEach(el => el.textContent = `RM ${parseFloat(radio.dataset.price).toFixed(2)}`);
-
-            /* Hidden inputs */
-            newVariantIn.value = radio.value;
-            newQtyIn.value = qtyInput.value;
-
-            recalcTotal();
-        }
-
-        /* ─── Listener varian ─── */
-        radios.forEach(radio => {
-            radio.addEventListener('change', () => updateVariant(radio));
-        });
-
-        /* ─── Listener qty ─── */
-        incBtn.addEventListener('click', () => {
-            if (+qtyInput.value < +qtyInput.max) qtyInput.value++;
-            newQtyIn.value = qtyInput.value;
-            recalcTotal();
-        });
-        decBtn.addEventListener('click', () => {
-            if (+qtyInput.value > +qtyInput.min) qtyInput.value--;
-            newQtyIn.value = qtyInput.value;
-            recalcTotal();
-        });
-
-        /* ─── Listener penghantaran ─── */
-        shipRadios.forEach(radio => {
-            radio.addEventListener('change', () => {
-                shipFeeInp.value = radio.dataset.fee; // update hidden fee
-                if (shipIdInp) shipIdInp.value = radio.value; // update hidden id (jika ada)
-                recalcTotal();
-            });
-        });
-
-        /* ─── Inisialisasi ─── */
-        const initialVar = document.querySelector('input[name="variant_id"]:checked');
-        if (initialVar) {
-            updateVariant(initialVar);
-        } else {
-            recalcTotal();
-        }
-
-        /* terakhir */
-        if (productNoVariant) {
-            setButtonState(globalStock);
-        } else {
-            setButtonState(initialVar ? parseInt(initialVar.dataset.stock, 10) : 0);
-        }
-    });
-</script> -->
 
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        /* ─── Variant Elements ─── */
-        const radios = document.querySelectorAll('input[name="variant_id"]');
-        const nameEl = document.getElementById('variant-current-name');
-        const stockEl = document.getElementById('variant-current-stock');
-        const priceEls = document.querySelectorAll('.dynamic-price');
-        const qtyInput = document.getElementById('qty-input');
-        const decBtn = document.querySelector('.qty-dec');
-        const incBtn = document.querySelector('.qty-inc');
-
-        /* ─── Shipping Elements ─── */
-        const shipRadios = document.querySelectorAll('.ship-radio');
-        const shipFeeInp = document.getElementById('ship-fee');
-        const shipIdInp = document.getElementById('ship-id');
-
-        /* ─── Hidden & Button ─── */
-        const newPriceEl = document.getElementById('new-price-total');
-        const newVariantIn = document.getElementById('new-addcart-variant');
-        const deliveryInp = document.getElementById('new-addcart-delivery');
-        const newQtyIn = document.getElementById('new-addcart-qty');
-        const atcBtn = document.getElementById('new-add-to-cart-btn');
-        const oosMsg = document.getElementById('out-of-stock-msg');
-
-        /* ─── Data from template ─── */
-        const productNoVariant = '{{ product.no_variant|yesno:"true,false" }}' === 'true';
-        const globalStock = parseInt('{{ global_qty|default:"0" }}', 10);
-        let baseUnitPrice = parseFloat('{{ selected_variant.variant_price }}') || 0;
-
-        /* ─── Enable/Disable “Buy” Button ─── */
-        function setButtonState(stock) {
-            if (stock <= 0) {
-                atcBtn.disabled = true;
-                atcBtn.classList.add('disabled', 'opacity-50');
-                atcBtn.textContent = 'Out of Stock';
-                if (oosMsg) oosMsg.classList.remove('d-none');
-            } else {
-                atcBtn.disabled = false;
-                atcBtn.classList.remove('disabled', 'opacity-50');
-                atcBtn.innerHTML =
-                    `Beli Sekarang – <span id="new-price-total" class="fw-6">${newPriceEl.textContent}</span>`;
-                if (oosMsg) oosMsg.classList.add('d-none');
-            }
-        }
-
-        
-        function recalcTotal() {
-            const curVar = document.querySelector('input[name="variant_id"]:checked');
-            const unit = curVar ? parseFloat(curVar.dataset.price) : baseUnitPrice;
-            const qty = parseInt(qtyInput.value, 10) || 1;
-            const ship = parseFloat(shipFeeInp.value) || 0;
-            const total = (unit * qty + ship).toFixed(2);
-
-            priceEls.forEach(el => el.textContent = `RM ${unit.toFixed(2)}`);
-            newPriceEl.textContent = `RM ${total}`;
-
-            const curStock = stockEl ? parseInt(stockEl.textContent, 10) : globalStock;
-            setButtonState(curStock);
-        }
-
-        
-        function updateVariant(radio) {
-            nameEl.textContent = radio.dataset.value;
-            stockEl.textContent = radio.dataset.stock;
-            qtyInput.max = radio.dataset.stock;
-            if (+qtyInput.value > +qtyInput.max) qtyInput.value = qtyInput.max;
-            baseUnitPrice = parseFloat(radio.dataset.price);
-            priceEls.forEach(el => el.textContent = `RM ${baseUnitPrice.toFixed(2)}`);
-            newVariantIn.value = radio.value;
-            newQtyIn.value = qtyInput.value;
-            recalcTotal();
-        }
-
-         const syncDeliveryHidden = () => {
-            const checked = document.querySelector('.ship-radio:checked');
-            const hidden  = document.getElementById('new-addcart-delivery');
-            if (checked && hidden) hidden.value = checked.value;
-        };
-
-        syncDeliveryHidden();
-
-        window.addEventListener('pageshow', syncDeliveryHidden);
-
-        /* ─── Event Listeners ─── */
-        radios.forEach(r => r.addEventListener('change', () => updateVariant(r)));
-        incBtn.addEventListener('click', () => {
-            if (+qtyInput.value < +qtyInput.max) qtyInput.value++;
-            newQtyIn.value = qtyInput.value;
-            recalcTotal();
-        });
-        decBtn.addEventListener('click', () => {
-            if (+qtyInput.value > +qtyInput.min) qtyInput.value--;
-            newQtyIn.value = qtyInput.value;
-            recalcTotal();
-        });
-
-
-
-        /* ─── Initialization ─── */
-        const initialVar = document.querySelector('input[name="variant_id"]:checked');
-        if (initialVar) updateVariant(initialVar);
-        else recalcTotal();
-
-        if (productNoVariant) setButtonState(globalStock);
-        else setButtonState(initialVar ? parseInt(initialVar.dataset.stock, 10) : 0);
-
-        if (deliveryInp) {
-            const checkedShip = document.querySelector('.ship-radio:checked');
-            deliveryInp.value = checkedShip ? checkedShip.value : '';
-        }
-    });
+<script id="product-data" type="application/json">
+{
+    "productNoVariant": {{ product.no_variant|yesno:"true,false" }},
+    "globalStock": {{ global_qty|default:"0" }},
+    "baseUnitPrice": {{ selected_variant.variant_price|default:"0" }}
+}
 </script>
-<script>
-    document.querySelectorAll('.ship-radio').forEach(radio=>{
-    radio.addEventListener('change', () => {
-        // salin nilai radio terpilih ke hidden field dalam form
-        const hidden = document.getElementById('new-addcart-delivery');
-        if (hidden) hidden.value = radio.value;
-    });
+<script type="module">
+/* ---------- Grab DOM ---------- */
+const productId = document.querySelector('[data-product-id]')?.dataset.productId || '';
+
+const radios        = document.querySelectorAll('input[name="variant_id"]');
+const nameEl        = document.getElementById('variant-current-name');
+const stockEl       = document.getElementById('variant-current-stock');
+const priceEls      = document.querySelectorAll('.dynamic-price');
+const qtyInput      = document.getElementById('qty-input');
+const decBtn        = document.querySelector('.qty-dec');
+const incBtn        = document.querySelector('.qty-inc');
+const shipRadios    = document.querySelectorAll('.ship-radio');
+const shipFeeInp    = document.getElementById('ship-fee');
+const atcBtn        = document.getElementById('new-add-to-cart-btn');
+const newPriceEl    = document.getElementById('new-price-total');
+const newVariantIn  = document.getElementById('new-addcart-variant');
+const newQtyIn      = document.getElementById('new-addcart-qty');
+const newDeliveryIn = document.getElementById('new-addcart-delivery');
+const oosMsg        = document.getElementById('out-of-stock-msg');
+
+const data = JSON.parse(document.getElementById('product-data').textContent);
+const productNoVariant = data.productNoVariant === true || data.productNoVariant === "true";
+const globalStock = parseInt(data.globalStock, 10);
+let baseUnitPrice = parseFloat(data.baseUnitPrice) || 0;
+
+
+/* ---------- helpers ---------- */
+const setBtnState = (remain) => {
+    if (remain <= 0) {
+        atcBtn.disabled = true;
+        atcBtn.classList.add('disabled','opacity-50');
+        atcBtn.textContent = 'Out of Stock';
+        oosMsg?.classList.remove('d-none');
+    } else {
+        atcBtn.disabled = false;
+        atcBtn.classList.remove('disabled','opacity-50');
+        atcBtn.innerHTML = `Buy&nbsp;Now&nbsp;–&nbsp;<span id="new-price-total" class="fw-6">${newPriceEl.textContent}</span>`;
+        oosMsg?.classList.add('d-none');
+    }
+};
+
+const syncQtyButtons = (remain) => {
+    const cur = +qtyInput.value;
+    decBtn.disabled = cur <= 1;
+    incBtn.disabled = cur >= remain;
+};
+
+const recalc = () => {
+    const curVar = document.querySelector('input[name="variant_id"]:checked');
+    const unit   = curVar ? +curVar.dataset.price : baseUnitPrice;
+    const qty    = +qtyInput.value || 1;
+    const ship   = parseFloat(shipFeeInp?.value || '0');
+    const total  = (unit * qty + ship).toFixed(2);
+
+    priceEls.forEach(el => el.textContent = `RM ${unit.toFixed(2)}`);
+    newPriceEl.textContent = `RM ${total}`;
+
+    newQtyIn.value      = qty;
+    newDeliveryIn.value = document.querySelector('.ship-radio:checked')?.value || '';
+
+    const remain = curVar ? +curVar.dataset.remaining : globalStock;
+    setBtnState(remain);
+    syncQtyButtons(remain);
+    saveState();                     // <-- simpan setiap kali kira
+};
+
+/* ---------- state persistence ---------- */
+const STATE_KEY = `productState_${productId}`;
+
+const saveState = () => {
+    const state = {
+        variantId  : newVariantIn.value,
+        qty        : qtyInput.value,
+        deliveryId : newDeliveryIn.value
+    };
+    sessionStorage.setItem(STATE_KEY, JSON.stringify(state));
+};
+
+const restoreState = () => {
+    try {
+        const saved = JSON.parse(sessionStorage.getItem(STATE_KEY) || '{}');
+        if (!saved.variantId) return;
+
+        /* restore variant */
+        const radio = document.getElementById(`variant-${saved.variantId}`);
+        if (radio && !radio.disabled) {
+            radio.checked = true;
+            pickVariant(radio, /*skipSave*/true);
+        }
+
+        const curRadio   = document.querySelector('input[name="variant_id"]:checked');
+        const remaining  = curRadio ? +curRadio.dataset.remaining : globalStock;
+
+        let qty = +saved.qty || 1;
+        if (qty > remaining) qty = remaining;              // <-- clamp
+        qtyInput.value = qty;
+        newQtyIn.value = qty;
+
+        /* restore shipping */
+        if (saved.deliveryId) {
+            const ship = document.querySelector(`.ship-radio[value="${saved.deliveryId}"]`);
+            if (ship) {
+                ship.checked = true;
+                shipFeeInp.value = ship.dataset.fee;
+                newDeliveryIn.value = ship.value;
+            }
+        }
+        recalc(); 
+    } catch (_) {/* ignore */}
+};
+
+/* ---------- variant change ---------- */
+const pickVariant = (radio, skipSave=false) => {
+    nameEl.textContent  = radio.dataset.name;
+    stockEl.textContent = radio.dataset.remaining;
+    qtyInput.max        = radio.dataset.remaining;
+    if (+qtyInput.value > +qtyInput.max) qtyInput.value = qtyInput.max;
+
+    baseUnitPrice       = +radio.dataset.price;
+    newVariantIn.value  = radio.value;
+    recalc();
+    if (!skipSave) saveState();
+};
+radios.forEach(r => r.addEventListener('change', () => pickVariant(r)));
+
+/* ---------- qty (+ / –) ---------- */
+incBtn.addEventListener('click', () => {
+    if (+qtyInput.value < +qtyInput.max) qtyInput.value++;
+    newQtyIn.value = qtyInput.value;
+    recalc();
+});
+decBtn.addEventListener('click', () => {
+    if (+qtyInput.value > 1) qtyInput.value--;
+    newQtyIn.value = qtyInput.value;
+    recalc();
 });
 
-document.addEventListener('DOMContentLoaded', () => {
+/* ---------- shipping ---------- */
+const syncDelivery = () => {
     const checked = document.querySelector('.ship-radio:checked');
     if (checked) {
-        document.getElementById('new-addcart-delivery').value = checked.value;
+        shipFeeInp.value    = checked.dataset.fee ?? shipFeeInp.value;
+        newDeliveryIn.value = checked.value;
+        recalc();
     }
+};
+shipRadios.forEach(r => r.addEventListener('change', syncDelivery));
 
-    // listener sedia ada
-    document.querySelectorAll('.ship-radio').forEach(r =>
-        r.addEventListener('change', () => {
-            document.getElementById('new-addcart-delivery').value = r.value;
-        })
-    );
+/* ---------- initial ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+    restoreState();                   // <-- cuba pulihkan dahulu
+
+    const initVar = document.querySelector('input[name="variant_id"]:checked');
+    if (initVar) pickVariant(initVar, /*skipSave*/true);
+    else          recalc();
+
+    syncDelivery();                   // pastikan shipping padan
 });
+</script>
+
+<script>
+    document.querySelectorAll('.ship-radio').forEach(radio => {
+        radio.addEventListener('change', () => {
+            // salin nilai radio terpilih ke hidden field dalam form
+            const hidden = document.getElementById('new-addcart-delivery');
+            if (hidden) hidden.value = radio.value;
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const checked = document.querySelector('.ship-radio:checked');
+        if (checked) {
+            document.getElementById('new-addcart-delivery').value = checked.value;
+        }
+
+        // listener sedia ada
+        document.querySelectorAll('.ship-radio').forEach(r =>
+            r.addEventListener('change', () => {
+                document.getElementById('new-addcart-delivery').value = r.value;
+            })
+        );
+    });
 </script>
 
 

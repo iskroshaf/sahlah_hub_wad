@@ -12,6 +12,8 @@ from decimal import Decimal
 from django.contrib.auth.decorators import login_required
 from _customer_app.decorators import customer_requirements_complete
 from _shop_app.utils import get_shipping_options_for_shop
+from _cart_app.services import _get_cart           # ✅
+from _cart_app.models    import CartItem 
 
 def customer_register_view(request):
     title = "Register"
@@ -40,6 +42,7 @@ def customer_register_view(request):
 
     context = {"title": title, "theme": theme, "form": form}
     return render(request, "_customer_app/customer_register.html", context)
+
 
 
 @login_required
@@ -227,53 +230,73 @@ def delete_shipping_address(request, pk):
 #     fee0 = sd0.method.base_price + sd0.extra_surcharge
 #     return qs, sd0, fee0
 
+
+
 @login_required
 def customer_product_detail(request, product_id):
     theme = "customer_theme"
-    
-    product = get_object_or_404(Product.objects.select_related("shop"), product_id=product_id, product_availability="available",shop__shop_status=1,)
-    
+
+    product = get_object_or_404(
+        Product.objects.select_related("shop"),
+        product_id           = product_id,
+        product_availability = "available",
+        shop__shop_status    = 1,
+    )
+
+    # shipping helpers (unchanged)
     shop_deliveries, default_sd, default_fee = get_shipping_options_for_shop(product.shop)
 
-  
-    images_main = list(product.images.all()) or [
-        ProductImage(image="images/placeholder.png")
-    ]
-
-   
+    # ---------- variants ----------
     if product.no_variant:
-        default_var = product.variants.first() or ProductVariant.objects.create(
-            product          = product,
-            variant_name     = "Default",
-            variant_price    = product.product_price,
-            variant_quantity = product.product_quantity,
-            is_active        = True,
+        default_var = (
+            product.variants.first()
+            or ProductVariant.objects.create(
+                product          = product,
+                variant_name     = "Default",
+                variant_price    = product.product_price,
+                variant_quantity = product.product_quantity,
+                is_active        = True,
+            )
         )
-        variant_list       = [default_var]
-        global_qty         = product.product_quantity
-        checked_id         = default_var.id
-        selected_variant   = default_var
+        variant_qs       = [default_var]
+        global_qty       = default_var.variant_quantity
+        checked_id       = default_var.id
+        selected_variant = default_var
     else:
-        variant_list = product.variants.filter(is_active=True)
-        global_qty   = variant_list.aggregate(
+        variant_qs = list(product.variants.filter(is_active=True))
+        global_qty = product.variants.filter(is_active=True).aggregate(
             Sum("variant_quantity")
         )["variant_quantity__sum"] or 0
-        checked_id   = next((v.id for v in variant_list if v.variant_quantity > 0), None)
-        selected_variant = next(
-            (v for v in variant_list if v.id == checked_id), None
-        )
 
-    
+        checked_id = next((v.id for v in variant_qs if v.variant_quantity > 0), None)
+        selected_variant = next((v for v in variant_qs if v.id == checked_id), None)
+
+    # ---------- how much of every variant is already in this user’s cart ----------
+    cart = _get_cart(request)
+    cart_map = (
+        CartItem.objects
+        .filter(cart=cart, variant__in=variant_qs)
+        .values("variant_id")
+        .annotate(total=Sum("quantity"))
+    )
+    in_cart_dict = {row["variant_id"]: row["total"] for row in cart_map}
+
+    # attach helper attrs to every variant object  ➜ v.incart & v.remaining
+    for v in variant_qs:
+        v.incart     = in_cart_dict.get(v.id, 0)
+        v.remaining  = max(v.variant_quantity - v.incart, 0)
+
     context = {
-        "product"           : product,
-        "variant_list"      : variant_list,
-        "global_qty"        : global_qty,
-        "images_main"       : images_main,
-         'theme'            : 'customer_theme',
-        "checked_variant_id": checked_id,
-        "selected_variant"  : selected_variant,
-        "shop_deliveries"   : shop_deliveries,   
-        "default_ship"      : default_sd,        
-        "default_ship_fee"  : default_fee,
+        "product"            : product,
+        "variant_list"       : variant_qs,
+        "global_qty"         : global_qty,
+        "images_main"        : list(product.images.all()) or [ProductImage(image="images/placeholder.png")],
+        "theme"              : theme,
+        "checked_variant_id" : checked_id,
+        "selected_variant"   : selected_variant,
+        "shop_deliveries"    : shop_deliveries,
+        "default_ship"       : default_sd,
+        "default_ship_fee"   : default_fee,
+        "in_cart_dict"       : in_cart_dict,
     }
     return render(request, "_customer_app/customer_product_detail.html", context)
