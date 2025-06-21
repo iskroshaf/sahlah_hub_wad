@@ -69,8 +69,8 @@
                     <div class="card-product style-list" data-availability="{{ product.product_availability }}"
                         data-brand="{{ product.brand }}">
                         <div class="card-product-wrapper">
-                            <a href="{% url 'customer_product_detail' product.product_id %}" class="product-img">
-                                {% comment %} Ambil dua gambar pertama, kalau ada {% endcomment %}
+                            <a href="{% url 'customer_product_detail' product.pk %}" class="product-img">
+                                {% comment %} Ambil duaproduct_detail gambar pertama, kalau ada {% endcomment %}
                                 {% with product.images.all|slice:":2" as imgs %}
                                 {% if imgs %}
                                 {# Gambar utama #}
@@ -90,7 +90,7 @@
                         </div>
                         <div class="card-product-info">
                             <!-- Gunakan product.product_name -->
-                            <a href="{% url 'product_detail' product.product_id %}" class="title link">
+                            <a href="{% url 'customer_product_detail' product.pk %}" class="title link">
                                 {{ product.product_name }}
                             </a>
 
@@ -143,7 +143,7 @@
                     <div class="card-product grid" data-availability="{{ product.product_availability }}"
                         data-brand="{{ product.brand }}">
                         <div class="card-product-wrapper">
-                            <a href="{% url 'customer_product_detail' product.product_id %}" class="product-img">
+                            <a href="{% url 'customer_product_detail' product.pk %}" class="product-img">
                                 {% with product.images.all|slice:":2" as imgs %}
                                 {% if imgs %}
                                 <!-- gambar utama -->
@@ -176,7 +176,7 @@
                         </div>
 
                         <div class="card-product-info">
-                            <a href="{% url 'product_detail' product.product_id %}" class="title link">
+                            <a href="{% url 'customer_product_detail' product.pk %}" class="title link">
                                 {{ product.product_name }}
                             </a>
                             <span class="price current-price">${{ product.product_price }}</span>

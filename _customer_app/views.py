@@ -11,6 +11,7 @@ from types import SimpleNamespace
 from decimal import Decimal
 from django.contrib.auth.decorators import login_required
 from _customer_app.decorators import customer_requirements_complete
+from _shop_app.utils import get_shipping_options_for_shop
 
 def customer_register_view(request):
     title = "Register"
@@ -196,48 +197,43 @@ def delete_shipping_address(request, pk):
     return render(request, "_customer_app/customer_delete_address.html", {"address": address})
 ################################################ End Delete Address Customer #############################################
 
-@login_required
-def get_shipping_options(shop):
+# @login_required
+# def get_shipping_options(shop):
     
    
-    if shop.delivery_price_type == "custom":
-        fee = Decimal(shop.shop_delivery_fee or 0)
-        return [], None, fee
+#     if shop.delivery_price_type == "custom":
+#         fee = Decimal(shop.shop_delivery_fee or 0)
+#         return [], None, fee
 
-    qs = (
-        shop.shopdelivery_set
-        .select_related("method")
-        .filter(method__is_active=True)
-        .order_by("method__name")
-    )
+#     qs = (
+#         shop.shopdelivery_set
+#         .select_related("method")
+#         .filter(method__is_active=True)
+#         .order_by("method__name")
+#     )
 
-    # Fallback → gunakan semua DeliveryMethod aktif, surcharge 0
-    if not qs.exists():
-        qs = [
-            SimpleNamespace(
-                method=dm,
-                extra_surcharge=Decimal("0.00"),
-                id=f"dm-{dm.id}",                # pseudo-id utk HTML
-            )
-            for dm in DeliveryMethod.objects.filter(is_active=True).order_by("name")
-        ]
+#     # Fallback → gunakan semua DeliveryMethod aktif, surcharge 0
+#     if not qs.exists():
+#         qs = [
+#             SimpleNamespace(
+#                 method=dm,
+#                 extra_surcharge=Decimal("0.00"),
+#                 id=f"dm-{dm.id}",                # pseudo-id utk HTML
+#             )
+#             for dm in DeliveryMethod.objects.filter(is_active=True).order_by("name")
+#         ]
 
-    sd0  = qs[0]
-    fee0 = sd0.method.base_price + sd0.extra_surcharge
-    return qs, sd0, fee0
+#     sd0  = qs[0]
+#     fee0 = sd0.method.base_price + sd0.extra_surcharge
+#     return qs, sd0, fee0
 
 @login_required
 def customer_product_detail(request, product_id):
     theme = "customer_theme"
     
-    product = get_object_or_404(
-        Product.objects.select_related("shop"),
-        product_id=product_id,
-        product_availability="available",
-        shop__shop_status=1,
-    )
-
-    shop_deliveries, default_sd, default_fee = get_shipping_options(product.shop)
+    product = get_object_or_404(Product.objects.select_related("shop"), product_id=product_id, product_availability="available",shop__shop_status=1,)
+    
+    shop_deliveries, default_sd, default_fee = get_shipping_options_for_shop(product.shop)
 
   
     images_main = list(product.images.all()) or [
@@ -269,18 +265,15 @@ def customer_product_detail(request, product_id):
 
     
     context = {
-        "product":            product,
-        "variant_list":       variant_list,
-        "global_qty":         global_qty,
-        "images_main":        images_main,
-         'theme': 'customer_theme',
+        "product"           : product,
+        "variant_list"      : variant_list,
+        "global_qty"        : global_qty,
+        "images_main"       : images_main,
+         'theme'            : 'customer_theme',
         "checked_variant_id": checked_id,
-        "selected_variant":   selected_variant,
-
-        "shop_deliveries":    shop_deliveries,   
-        "default_ship":       default_sd,        
-        "default_ship_fee":   default_fee,
+        "selected_variant"  : selected_variant,
+        "shop_deliveries"   : shop_deliveries,   
+        "default_ship"      : default_sd,        
+        "default_ship_fee"  : default_fee,
     }
-    return render(request,
-                  "_customer_app/customer_product_detail.html",
-                  context)
+    return render(request, "_customer_app/customer_product_detail.html", context)
