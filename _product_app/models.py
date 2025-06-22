@@ -3,7 +3,6 @@ from django.db import models
 from parler.models import TranslatableModel, TranslatedFields
 from _core_app.utils import generate_unique_id
 from django.utils.translation import get_language
-from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 
@@ -209,21 +208,3 @@ class ProductVariant(models.Model):
 
     class Meta:
             db_table = "product_variant"
-
-
-
-# ── signal handler ──────────────────────────────────────────
-
-def update_parent_stock(product):
-    total = product.variants.aggregate(
-        total_qty=models.Sum('variant_quantity')
-    )['total_qty'] or 0
-    Product.objects.filter(pk=product.pk).update(product_quantity=total)
-
-@receiver(post_save, sender=ProductVariant)
-def on_variant_save(sender, instance, **kwargs):
-    update_parent_stock(instance.product)
-
-@receiver(post_delete, sender=ProductVariant)
-def on_variant_delete(sender, instance, **kwargs):
-    update_parent_stock(instance.product)

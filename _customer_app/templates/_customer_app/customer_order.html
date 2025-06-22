@@ -1,0 +1,97 @@
+{% extends '_core_app/base.html' %}
+
+{% block title %}Sahlan Hub - {{ title }} {% endblock title %}
+
+{% block content %}
+
+{% load static %}
+
+<section class="flat-spacing">
+    <div class="container">
+        <div class="my-account-wrap">
+            {% include "_customer_app/account_sidebar.html" %}
+            <div class="my-account-content">
+                <div class="account-details">
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    <form method="POST" enctype="multipart/form-data" class="form-has-password">
+                        {% csrf_token %}
+                        <div class="account-password">
+                            <h5 class="title">Change Password</h5>
+                            <fieldset class="position-relative password-item mb_20">
+                                <input class="input-password" type="password" placeholder="Password*"
+                                    name="current_password" tabindex="2" value="" aria-required="true" required="">
+                                <span class="toggle-password unshow">
+                                    <i class="icon-eye-hide-line"></i>
+                                </span>
+                            </fieldset>
+                            <fieldset class="position-relative password-item mb_20">
+                                <input class="input-password" type="password" placeholder="New Password*"
+                                    name="new_password" tabindex="2" value="" aria-required="true" required="">
+                                <span class="toggle-password unshow">
+                                    <i class="icon-eye-hide-line"></i>
+                                </span>
+                            </fieldset>
+                            <fieldset class="position-relative password-item">
+                                <input class="input-password" type="password" placeholder="Confirm Password*"
+                                    name="confirm_password" tabindex="2" value="" aria-required="true" required="">
+                                <span class="toggle-password unshow">
+                                    <i class="icon-eye-hide-line"></i>
+                                </span>
+                            </fieldset>
+                        </div>
+
+                        
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-select.min.js"></script>
+<script type="text/javascript" src="js/lazysize.min.js"></script>
+<script type="text/javascript" src="js/wow.min.js"></script>
+<script type="text/javascript" src="js/count-down.js"></script>
+<script type="text/javascript" src="js/swiper-bundle.min.js"></script>
+<script type="text/javascript" src="js/carousel.js"></script>
+<script type="text/javascript" src="js/multiple-modal.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+
+<script src="js/sibforms.js" defer></script>
+
+<script>
+    window.REQUIRED_CODE_ERROR_MESSAGE = 'Please choose a country code';
+    window.LOCALE = 'en';
+    window.EMAIL_INVALID_MESSAGE = window.SMS_INVALID_MESSAGE = "The information provided is invalid. Please review the field format and try again.";
+
+    window.REQUIRED_ERROR_MESSAGE = "This field cannot be left blank. ";
+
+    window.GENERIC_INVALID_MESSAGE = "The information provided is invalid. Please review the field format and try again.";
+
+    window.translation = {
+        common: {
+            selectedList: '{quantity} list selected',
+            selectedLists: '{quantity} lists selected'
+        }
+    };
+
+    var AUTOHIDE = Boolean(0);
+
+    const dateInput = document.getElementById('dob');
+    dateInput.addEventListener('change', function () {
+        const date = new Date(dateInput.value);
+        console.log(`User picked: ${date.toDateString()}`);
+    });
+</script>
+
+
+{% endblock %}
