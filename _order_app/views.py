@@ -9,8 +9,6 @@ def order_detail(request, order_id):
     order = get_object_or_404(Order, pk=order_id)
     return render(request, 'order_detail.html', {'order': order})
 
-
-
 @login_required
 def order_review(request, order_id):
     theme = "customer_theme"

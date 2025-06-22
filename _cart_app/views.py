@@ -76,6 +76,12 @@ def cart_page(request):
       • delivery_price_type = 'custom' -> guna shop.shop_delivery_fee
     """
     qs = get_items(request)
+    for ci in qs:
+      max_qty = ci.variant.variant_quantity
+      if ci.quantity > max_qty:
+         ci.quantity = max_qty
+         ci.save(update_fields=["quantity"])
+         messages.warning(request, f"Kuanti {ci.variant} dikurangkan kepada {max_qty} (stok terhad).")
     theme = "customer_theme"
     cart_items = [
         {

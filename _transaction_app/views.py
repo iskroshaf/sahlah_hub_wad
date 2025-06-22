@@ -10,9 +10,12 @@ from json import JSONDecodeError
 import requests
 import re
 import json
-
+import logging
 from .models import Transaction
 from _order_app.models import Order
+from _order_app.services import lock_and_deduct_stock
+from django.core.exceptions import ValidationError
+
 
 def create_payment(request, order_id):
 
@@ -99,29 +102,58 @@ def create_payment(request, order_id):
         
 @csrf_exempt
 def payment_callback(request):
-    bill_code = request.POST.get('billcode')
-    status    = request.POST.get('paymentStatus')
-    if not bill_code:
-        return HttpResponse(status=400)
+    logger = logging.getLogger(__name__)
 
-    txn = get_object_or_404(Transaction, bill_code=bill_code)
+    # ---- ambil semua parameter sekali gus (POST > GET) -------------
+    data = request.POST.dict()
+    if not data:                       # Sandbox kadang hantar GET
+        data = request.GET.dict()
+
+    logger.info("CALLBACK DATA: %s", data)
+
+    bill_code = data.get("billcode")
+    status    = data.get("paymentStatus") or data.get("status_id")  # sokong kedua-dua
+
+    if not bill_code:
+        return HttpResponse("No billcode", status=400)
+
+    txn   = get_object_or_404(Transaction, bill_code=bill_code)
     order = getattr(txn, "order", None)
 
+    # --------------- STATUS “1”  (bayaran berjaya) ------------------
     if status == "1":
-        txn.status   = Transaction.Status.SUCCESS
-        txn.paid_at  = timezone.now()
-        if order:
-            order.status = Order.Status.PAID
-            order.save()
+        try:
+            if order:
+                logger.info("▶️ Order %s : mula tolak stok", order.id)
+                lock_and_deduct_stock(order)          # tolak stok & clamp troli
+                logger.info("✅ Order %s : stok dikemas kini", order.id)
+
+            txn.mark_success()                       # set SUCCESS + paid_at
+
+            if order:
+                order.status = Order.Status.PAID
+                order.save(update_fields=["status"])
+
+        except ValidationError as e:
+            logger.error("Stock error: %s", e)
+            txn.mark_failed()
+            if order:
+                order.status = Order.Status.FAILED
+                order.save(update_fields=["status"])
+            return HttpResponse(f"Stock error: {e}", status=422)
+
+    # --------------- STATUS “3”  (dibatalkan / gagal) ---------------
     elif status == "3":
-        txn.status   = Transaction.Status.FAILED
+        txn.status = Transaction.Status.FAILED
         if order:
             order.status = Order.Status.FAILED
-            order.save()
-    else:                          
+            order.save(update_fields=["status"])
+
+    # --------------- STATUS lain  (pending) -------------------------
+    else:
         txn.status = Transaction.Status.PENDING
 
-    txn.save()
+    txn.save(update_fields=["status", "paid_at", "updated_at"])
     return HttpResponse("OK")
 
 
