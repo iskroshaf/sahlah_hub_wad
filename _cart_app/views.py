@@ -14,6 +14,7 @@ from _product_app.models import ProductVariant
 from _delivery_app.models import DeliveryMethod
 from _order_app.models import Order, OrderItem,OrderShipping
 from _transaction_app.models import Transaction
+from .utils import clamp_cart
 
 
 # ────────────────────────────────────────────────────────────────────
@@ -33,7 +34,7 @@ def add_to_cart_view(request):
     request.session["ship_sel"] = ship_sel
 
     add_to_cart(request, variant_id, qty)
-    messages.success(request, "Ditambah ke troli!")
+    messages.success(request, "Add to the Cart!")
     return redirect("cart:view")
 
 
@@ -69,19 +70,9 @@ def ajax_remove_item(request, variant_id):
 
 # ────────────────────────────────────────────────────────────────────
 def cart_page(request):
-    """
-    Papar troli + blok penghantaran setiap kedai.
-    Kedai boleh sama ada:
-      • delivery_price_type = 'admin'  -> senarai DeliveryMethod aktif
-      • delivery_price_type = 'custom' -> guna shop.shop_delivery_fee
-    """
+ 
     qs = get_items(request)
-    for ci in qs:
-      max_qty = ci.variant.variant_quantity
-      if ci.quantity > max_qty:
-         ci.quantity = max_qty
-         ci.save(update_fields=["quantity"])
-         messages.warning(request, f"Kuanti {ci.variant} dikurangkan kepada {max_qty} (stok terhad).")
+    clamp_cart(request, _get_cart(request))
     theme = "customer_theme"
     cart_items = [
         {
@@ -156,6 +147,10 @@ def checkout(request):
     if not cart.items.exists():
         messages.error(request, "Troli kosong.")
         return redirect("cart:view")
+    
+    if clamp_cart(request, cart):     # ← jika ada perubahan
+        return redirect("cart:view")
+
 
     # ── 1) Kedai admin-price: ship_sel_<shop_pk>=<dm_pk> ────────────
     sel_map = {
