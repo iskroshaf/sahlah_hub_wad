@@ -27,7 +27,7 @@
             <div class="col-md-12">
                 <nav aria-label="breadcrumb">
                     <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                        <li class="breadcrumb-item">Home</li>
                         <li class="breadcrumb-item"><a href="#">Shop Management</a></li>
                         <li class="breadcrumb-item active">Shop List</li>
                     </ul>
@@ -199,11 +199,11 @@
                             
                             {% if shop.shop_status == '1' %}
                                 <a href="{% url 'shop_dashboard' shop.shop_id %}" class="btn btn-secondary">
-                                Pergi ke Senarai Produk
+                                Product List
                                 </a>
                             {% else %}
                                 <button type="button" class="btn btn-secondary" disabled>
-                                Pergi ke Senarai Produk
+                                Product List
                                 </button>
                             {% endif %}
 

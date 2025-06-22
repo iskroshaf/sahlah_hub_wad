@@ -20,13 +20,13 @@
         <div class="container">
             <div class="tf-shop-control">
                 <div class="tf-control-filter">
-                    <a href="#filterShop" data-bs-toggle="offcanvas" aria-controls="filterShop" class="tf-btn-filter">
+                    <!-- <a href="#filterShop" data-bs-toggle="offcanvas" aria-controls="filterShop" class="tf-btn-filter">
                         <span class="icon icon-filter"></span><span class="text">Filters</span>
                     </a>
                     <div class="d-none d-lg-flex shop-sale-text">
                         <i class="icon icon-checkCircle"></i>
                         <p class="text-caption-1">Shop sale items only</p>
-                    </div>
+                    </div> -->
                 </div>
                 <ul class="tf-control-layout">
                     <li class="tf-view-layout-switch sw-layout-list list-layout" data-value-layout="list">
@@ -46,11 +46,11 @@
                     </li>
                 </ul>
                 <div class="tf-control-sorting">
-                    <p class="d-none d-lg-block text-caption-1">Sort by:</p>
+                    <!-- <p class="d-none d-lg-block text-caption-1">Sort by:</p>
                     <div class="tf-dropdown-sort" data-bs-toggle="dropdown">
                         <div class="btn-select">...</div>
                         <div class="dropdown-menu">...</div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <div class="wrapper-control-shop">
@@ -106,13 +106,8 @@
 
                             <!-- Butang & ikon seperti biasa -->
                             <div class="list-product-btn">
-                                <a href="#shoppingCart" data-bs-toggle="modal" class="btn-main-product">Add To Cart</a>
-                                <a href="#" class="box-icon wishlist btn-icon-action"><span
-                                        class="icon icon-heart"></span></a>
-                                <a href="#compare" data-bs-toggle="offcanvas"
-                                    class="box-icon compare btn-icon-action"><span class="icon icon-gitDiff"></span></a>
-                                <a href="#quickView" data-bs-toggle="modal" class="box-icon quickview"><span
-                                        class="icon icon-eye"></span></a>
+                                <a href="{% url 'customer_product_detail' product.pk %}" data-bs-toggle="" class="btn-main-product">Product Detail</a>
+                                
                             </div>
 
                             <!-- Badge status: perhatikan huruf besar -->
@@ -197,10 +192,7 @@
                         </div>
                     </div>
                     {% endfor %}
-
-
                 </div>
-
             </div>
             {% if is_paginated %}
             <ul class="wg-pagination justify-content-center">
