@@ -10,7 +10,9 @@ from django.views.i18n import set_language
 urlpatterns = [
     # path('admin/', admin.site.urls),
 
+    
     path('', include('_core_app.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
     path('user/', include('_user_app.urls')),
     path('customer/', include('_customer_app.urls')),
     path('seller/', include('_seller_app.urls')),

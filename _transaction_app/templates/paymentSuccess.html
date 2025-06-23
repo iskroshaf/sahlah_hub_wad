@@ -1,11 +1,11 @@
 {% extends "_core_app/base.html" %}
 {% load static %}
-{% block title %}Pembayaran Berjaya{% endblock %}
+{% block title %}Payment Successful{% endblock %}
 
 {% block content %}
 
 <style>
-/* ----------  VARIABEL & RESET RINGAN  ---------- */
+/* ----------  VARIABLES & LIGHT RESET  ---------- */
 :root{
   --clr-bg:          #f9fafc;
   --clr-card:        #ffffff;
@@ -20,7 +20,6 @@
 *,*::before,*::after{box-sizing:border-box}
 body{background:var(--clr-bg);font-family:"Inter",system-ui,-apple-system,sans-serif;color:var(--clr-text)}
 
-
 .page-wrap{
   min-height:65vh;
   display:flex;
@@ -28,7 +27,6 @@ body{background:var(--clr-bg);font-family:"Inter",system-ui,-apple-system,sans-s
   justify-content:center;
   padding:2rem 1rem;
 }
-
 
 .card{
   width:100%;
@@ -44,7 +42,6 @@ body{background:var(--clr-bg);font-family:"Inter",system-ui,-apple-system,sans-s
   .card{padding:2rem 1.25rem}
 }
 
-
 .tick-wrap{
   width:86px;height:86px;
   display:flex;align-items:center;justify-content:center;
@@ -54,10 +51,8 @@ body{background:var(--clr-bg);font-family:"Inter",system-ui,-apple-system,sans-s
 }
 .tick-wrap svg{width:52px;height:52px;stroke:var(--clr-success)}
 
-
 h1{font-size:1.6rem;font-weight:600;margin-bottom:.5rem}
 p.lead{color:var(--clr-muted);margin-bottom:2rem}
-
 
 .receipt-row{
   display:flex;justify-content:space-between;gap:1rem;
@@ -90,39 +85,40 @@ p.lead{color:var(--clr-muted);margin-bottom:2rem}
 <section class="page-wrap">
   <div class="card">
 
-    <!-- ikon -->
+    <!-- icon -->
     <div class="tick-wrap">
       <svg fill="none" viewBox="0 0 24 24" stroke-width="3">
         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
       </svg>
     </div>
 
-    <h1>Pembayaran Berjaya!</h1>
-    <p class="lead">Terima kasih, pembayaran anda telah diterima.</p>
+    <h1>Payment Successful!</h1>
+    <p class="lead">Thank you, your payment has been received.</p>
 
-    <!-- resit -->
+    <!-- receipt -->
     <div class="receipt">
-      <div class="receipt-row"><span>No. Pesanan</span><span>#{{ order.id }}</span></div>
+      <div class="receipt-row"><span>Order No.</span><span>#{{ order.id }}</span></div>
       <div class="receipt-row"><span>Bill Code</span><span>{{ transaction.bill_code }}</span></div>
-      <div class="receipt-row"><span>Amaun Dibayar</span><span>RM {{ transaction.amount|floatformat:2 }}</span></div>
-      <div class="receipt-row"><span>Tarikh</span><span>{{ transaction.paid_at|date:"d M Y, h:i A" }}</span></div>
+      <div class="receipt-row"><span>Amount Paid</span><span>RM {{ transaction.amount|floatformat:2 }}</span></div>
+      <div class="receipt-row"><span>Date</span><span>{{ transaction.paid_at|date:"d M Y, h:i A" }}</span></div>
     </div>
 
     <!-- CTA -->
-    <a href="" class="btn-primary">Lihat Butiran Pesanan</a>
+    <a href="{% url 'order_detail' order.id %}" class="btn-primary">View Order Details</a>
 
     <!-- progress + auto-redirect -->
     <div class="progress-box">
       <div class="bar"><div id="barFill"></div></div>
-      <p class="countdown">Anda akan dialihkan ke halaman utama dalam
-        <span id="sec">{{ redirect_seconds }}</span> saat…
+      <p class="countdown">You will be redirected to the homepage in
+        <span id="sec">{{ redirect_seconds }}</span> seconds…
       </p>
     </div>
 
   </div>
 </section>
 
-<!-- <script>
+<!--
+<script>
 (function(){
   const total={{ redirect_seconds|default:10 }};
   let current=0;
@@ -140,5 +136,6 @@ p.lead{color:var(--clr-muted);margin-bottom:2rem}
     }
   },1000);
 })();
-</script> -->
+</script>
+-->
 {% endblock %}

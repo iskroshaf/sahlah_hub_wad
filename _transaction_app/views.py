@@ -15,6 +15,7 @@ from .models import Transaction
 from _order_app.models import Order
 from _order_app.services import lock_and_deduct_stock
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 
 
 def create_payment(request, order_id):
@@ -158,20 +159,31 @@ def payment_callback(request):
 
 
 def payment_success(request):
-    theme="customer_theme"
-
     bill_code = request.GET.get('billcode')
-    txn = get_object_or_404(Transaction, bill_code=bill_code)
-    order = getattr(txn, "order", None)
+    txn       = get_object_or_404(Transaction, bill_code=bill_code)
+    order     = getattr(txn, "order", None)
 
+    # ❶      Jika datang dari ngrok host, redirect ke localhost
+    host = request.get_host()
+    if "ngrok-free.app" in host:
+        # bina URL baru ganti host ngrok kepada localhost:8000
+        new_url = request.build_absolute_uri().replace(host, "localhost:8000")
+        return redirect(new_url)
 
+    # ❷      Refresh status kalau masih pending
     if txn.status == Transaction.Status.PENDING:
-        refresh_transaction(bill_code)                   
+        from _transaction_app.utils import refresh_transaction
+        refresh_transaction(bill_code)
+        txn.refresh_from_db()
 
-    return render(request, "paymentSuccess.html",{
-        "transaction": txn,
-        "order": order,
+    # ❸      Sediakan URL detail order (protected oleh login_required)
+    detail_url = reverse('order_detail', args=[order.id]) if order else '#'
+
+    return render(request, "paymentSuccess.html", {
+        "transaction":     txn,
+        "order":           order,
         "redirect_seconds": 10,
+        "detail_url":      detail_url,
     })
 
 def payment_failed(request):
