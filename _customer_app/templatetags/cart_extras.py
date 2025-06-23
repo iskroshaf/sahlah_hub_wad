@@ -7,8 +7,11 @@ def get_item(d, k):
 
 @register.filter
 def subtract(value, arg):
-    
     try:
         return value - arg
     except Exception:
         return value
+
+@register.filter
+def mul(value, arg):
+    return value * arg

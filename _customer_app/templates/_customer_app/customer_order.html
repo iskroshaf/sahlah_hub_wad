@@ -10,51 +10,65 @@
     <div class="container">
         <div class="my-account-wrap">
             {% include "_customer_app/account_sidebar.html" %}
+
             <div class="my-account-content">
-                <div class="account-details">
-                    {% if messages %}
-                    {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">
-                        {{ message }}
+                <div class="account-orders">
+                    <div class="wrap-account-order">
+
+                        {% if orders %}
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="fw-6">Order</th>
+                                    <th class="fw-6">Date</th>
+                                    <th class="fw-6">Status</th>
+                                    <th class="fw-6">Total</th>
+                                    <th class="fw-6">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                <tr class="tf-order-item">
+                                    <td>#{{ order.id }}</td>
+                                    <td>{{ order.created_at|date:"d M Y, H:i" }}</td>
+                                    <td>
+                                        <span class="badge 
+                        {% if order.status == 'PAID' %}
+                          bg-success
+                        {% elif order.status == 'PENDING' %}
+                          bg-warning text-dark
+                        {% else %}
+                          bg-danger
+                        {% endif %}
+                      ">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        RM {{ order.total_products|add:order.shipping_fee|floatformat:2 }}
+                                        for {{ order.items.count }} item{% if order.items.count > 1 %}s{% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'order_detail' order.id %}" class="tf-btn btn-fill radius-4">
+                                            <span class="text">View</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p class="text-muted">You have not made any orders yet.</p>
+                        {% endif %}
+
                     </div>
-                    {% endfor %}
-                    {% endif %}
-                    <form method="POST" enctype="multipart/form-data" class="form-has-password">
-                        {% csrf_token %}
-                        <div class="account-password">
-                            <h5 class="title">Change Password</h5>
-                            <fieldset class="position-relative password-item mb_20">
-                                <input class="input-password" type="password" placeholder="Password*"
-                                    name="current_password" tabindex="2" value="" aria-required="true" required="">
-                                <span class="toggle-password unshow">
-                                    <i class="icon-eye-hide-line"></i>
-                                </span>
-                            </fieldset>
-                            <fieldset class="position-relative password-item mb_20">
-                                <input class="input-password" type="password" placeholder="New Password*"
-                                    name="new_password" tabindex="2" value="" aria-required="true" required="">
-                                <span class="toggle-password unshow">
-                                    <i class="icon-eye-hide-line"></i>
-                                </span>
-                            </fieldset>
-                            <fieldset class="position-relative password-item">
-                                <input class="input-password" type="password" placeholder="Confirm Password*"
-                                    name="confirm_password" tabindex="2" value="" aria-required="true" required="">
-                                <span class="toggle-password unshow">
-                                    <i class="icon-eye-hide-line"></i>
-                                </span>
-                            </fieldset>
-                        </div>
-
-                        
-                    </form>
-
                 </div>
             </div>
 
         </div>
     </div>
 </section>
+
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="js/bootstrap-select.min.js"></script>
@@ -71,11 +85,13 @@
 <script>
     window.REQUIRED_CODE_ERROR_MESSAGE = 'Please choose a country code';
     window.LOCALE = 'en';
-    window.EMAIL_INVALID_MESSAGE = window.SMS_INVALID_MESSAGE = "The information provided is invalid. Please review the field format and try again.";
+    window.EMAIL_INVALID_MESSAGE = window.SMS_INVALID_MESSAGE =
+        "The information provided is invalid. Please review the field format and try again.";
 
     window.REQUIRED_ERROR_MESSAGE = "This field cannot be left blank. ";
 
-    window.GENERIC_INVALID_MESSAGE = "The information provided is invalid. Please review the field format and try again.";
+    window.GENERIC_INVALID_MESSAGE =
+        "The information provided is invalid. Please review the field format and try again.";
 
     window.translation = {
         common: {

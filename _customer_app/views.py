@@ -12,8 +12,10 @@ from decimal import Decimal
 from django.contrib.auth.decorators import login_required
 from _customer_app.decorators import customer_requirements_complete
 from _shop_app.utils import get_shipping_options_for_shop
-from _cart_app.services import _get_cart           # ✅
+from _cart_app.services import _get_cart           
 from _cart_app.models    import CartItem 
+from _order_app.models import Order
+
 
 def customer_register_view(request):
     title = "Register"
@@ -300,3 +302,39 @@ def customer_product_detail(request, product_id):
         "in_cart_dict"       : in_cart_dict,
     }
     return render(request, "_customer_app/customer_product_detail.html", context)
+
+
+@login_required
+def customer_order_history(request):
+   
+    orders = (
+        Order.objects
+        .filter(user=request.user)
+        .select_related('transaction')
+        .prefetch_related('items__variant__product', 'shippings__shop')
+        .order_by('-created_at')
+    )
+    return render(request, "_customer_app/customer_order.html", {
+        "orders": orders,
+        "theme": "customer_theme",
+        "title": "Order History",
+    })
+
+@login_required
+def customer_order_detail(request, order_id):
+    """
+    Papar butiran satu pesanan.
+    """
+    order = get_object_or_404(
+        Order.objects
+             .select_related('transaction', 'shipping_address')
+             .prefetch_related('items__variant__product', 'shippings__shop'),
+        pk=order_id,
+        user=request.user
+    )
+    return render(request, "_customer_app/customer_order_detail.html", {
+        "order": order,
+        "theme": "customer_theme",
+        "title": f"Pesanan #{order.id}",
+    })
+

@@ -13,7 +13,8 @@ urlpatterns = [
     path('addresses/edit/<int:address_id>/', views.edit_shipping_address, name='customer_edit_address'),
     path("addresses/delete/<int:pk>/", views.delete_shipping_address, name="customer_delete_address"),
     path("product/<str:product_id>/", views.customer_product_detail,name="customer_product_detail"),
-
+    path('orders/', views.customer_order_history, name='order_history'),
+    path('orders/<int:order_id>/', views.customer_order_detail, name='order_detail'),
 ]
 
 if settings.DEBUG:

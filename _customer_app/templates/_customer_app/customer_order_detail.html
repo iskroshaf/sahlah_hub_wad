@@ -1,0 +1,234 @@
+{% extends "_core_app/base.html" %}
+{% load static cart_extras %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+
+<section class="flat-spacing">
+    <div class="container">
+        <div class="my-account-wrap">
+
+            {% include "_customer_app/account_sidebar.html" %}
+
+            <div class="my-account-content">
+                <div class="account-order-details">
+                    <div class="wd-form-order">
+
+                        {# ─── Order Header ───────────────────────────── #}
+                        <div class="order-head d-flex align-items-center">
+                            <figure class="img-product me-4">
+                                {% with first=order.items.all|first %}
+                                {% if first %}
+                                {% with img=first.variant.product.images.all|first %}
+                                {% if img %}
+                                <img src="{{ img.image.url }}" alt="{{ first.variant.product.product_name }}">
+                                {% else %}
+                                <img src="{% static 'images/placeholder.png' %}" alt="No image">
+                                {% endif %}
+                                {% endwith %}
+                                {% endif %}
+                                {% endwith %}
+
+                            </figure>
+                            <div class="content">
+                                <div class="badge 
+                     {% if order.status == 'PAID' %}
+                       bg-success
+                     {% elif order.status == 'PENDING' %}
+                       bg-warning text-dark
+                     {% else %}
+                       bg-danger
+                     {% endif %}
+                ">
+                                    {{ order.get_status_display }}
+                                </div>
+                                <h6 class="mt-2 fw-5">Order #{{ order.id }}</h6>
+                                <small class="text-muted">
+                                    {{ order.created_at|date:"d M Y, H:i" }}
+                                </small>
+                            </div>
+                        </div>
+
+                        {# ─── Summary Grid ───────────────────────────── #}
+                        <div class="tf-grid-layout md-col-2 gap-15 mt-4">
+                            <div class="item">
+                                <div class="text-2 text_black-2">Items</div>
+                                <div class="text-2 mt_4 fw-6">{{ order.items.count }}</div>
+                            </div>
+                            <div class="item">
+                                <div class="text-2 text_black-2">Total Paid</div>
+                                <div class="text-2 mt_4 fw-6">
+                                    RM {{ order.total_products|add:order.shipping_fee|floatformat:2 }}
+                                </div>
+                            </div>
+                            <div class="item">
+                                <div class="text-2 text_black-2">Payment Time</div>
+                                <div class="text-2 mt_4 fw-6">
+                                    {% if order.transaction.paid_at %}
+                                    {{ order.transaction.paid_at|date:"d M Y, H:i" }}
+                                    {% else %}
+                                    – Not paid yet –
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="item">
+                                <div class="text-2 text_black-2">Shipping Address</div>
+                                <div class="text-2 mt_4 fw-6">
+                                    {% if order.shipping_address %}
+                                    {{ order.shipping_address.full_name }}<br>
+                                    {{ order.shipping_address.address_line1 }}
+                                    {% if order.shipping_address.address_line2 %},
+                                    {{ order.shipping_address.address_line2 }}{% endif %}<br>
+                                    {{ order.shipping_address.postcode }} {{ order.shipping_address.city }},
+                                    {{ order.shipping_address.state }}<br>
+                                    Tel: {{ order.shipping_address.phone }}
+                                    {% else %}
+                                    – No address –
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        {# ─── Tabs ─────────────────────────────────────── #}
+                        <div class="widget-tabs style-3 widget-order-tab mt-5">
+                            <ul class="widget-menu-tab">
+                                <li class="item-title active"><span class="inner">Order History</span></li>
+                                <li class="item-title"><span class="inner">Item Details</span></li>
+                                <li class="item-title"><span class="inner">Courier</span></li>
+                                <li class="item-title"><span class="inner">Receiver</span></li>
+                            </ul>
+
+                            <div class="widget-content-tab">
+
+                                {# ─── Order History Timeline ───────────────── #}
+                                <div class="widget-content-inner active">
+                                    <div class="widget-timeline">
+                                        <ul class="timeline">
+                                            <li>
+                                                <div class="timeline-badge success"></div>
+                                                <div class="timeline-box">
+                                                    <div class="text-2 fw-6">Order Placed</div>
+                                                    <span>{{ order.created_at|date:"d/m/Y, H:i" }}</span>
+                                                </div>
+                                            </li>
+                                            {% if order.transaction.paid_at %}
+                                            <li>
+                                                <div class="timeline-badge success"></div>
+                                                <div class="timeline-box">
+                                                    <div class="text-2 fw-6">Payment Received</div>
+                                                    <span>{{ order.transaction.paid_at|date:"d/m/Y, H:i" }}</span>
+                                                </div>
+                                            </li>
+                                            {% endif %}
+                                            {% for shipping in order.shippings.all %}
+                                            <li>
+                                                <div class="timeline-badge"></div>
+                                                <div class="timeline-box">
+                                                    <div class="text-2 fw-6">Shipped via {{ shipping.method.name }}
+                                                    </div>
+                                                    <span>
+                                                        <!-- you could store & show a shipped_at field here --></span>
+                                                </div>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {# ─── Item Details ─────────────────────────── #}
+                                <div class="widget-content-inner">
+                                    {% for item in order.items.all %}
+                                    <div class="order-head d-flex align-items-center mb-4">
+                                        <figure class="img-product me-3">
+                                            {% with img=item.variant.product.images.all.0 %}
+                                            {% if img %}
+                                            <img src="{{ img.image.url }}" alt="">
+                                            {% else %}
+                                            <img src="{% static 'images/placeholder.png' %}" alt="">
+                                            {% endif %}
+                                            {% endwith %}
+                                        </figure>
+                                        <div class="content">
+                                            <div class="text-2 fw-6">{{ item.variant.product.product_name }}</div>
+                                            <div class="mt_4"><span class="fw-6">Variant:</span>
+                                                {{ item.variant.variant_name }}</div>
+                                            <div class="mt_4"><span class="fw-6">Quantity:</span> {{ item.quantity }}
+                                            </div>
+                                            <div class="mt_4"><span class="fw-6">Unit Price:</span> RM
+                                                {{ item.unit_price|floatformat:2 }}</div>
+                                            <div class="mt_4"><span class="fw-6">Subtotal:</span> RM
+                                                {{ item.quantity|mul:item.unit_price|floatformat:2 }}</div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                    <ul>
+                                        <li class="d-flex justify-content-between text-2">
+                                            <span>Total Products</span>
+                                            <span class="fw-6">RM {{ order.total_products|floatformat:2 }}</span>
+                                        </li>
+                                        <li class="d-flex justify-content-between text-2 mt_4 pb_8 line-bt">
+                                            <span>Shipping Fee</span>
+                                            <span class="fw-6">RM {{ order.shipping_fee|floatformat:2 }}</span>
+                                        </li>
+                                        <li class="d-flex justify-content-between text-2 mt_8">
+                                            <span>Order Total</span>
+                                            <span class="fw-6">RM
+                                                {{ order.total_products|add:order.shipping_fee|floatformat:2 }}</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                {# ─── Courier Info ─────────────────────────── #}
+                                <div class="widget-content-inner">
+                                    {% for shipping in order.shippings.all %}
+                                    <p class="text-2"><strong>Shop:</strong> {{ shipping.shop.name }}</p>
+                                    <p class="text-2"><strong>Method:</strong> {{ shipping.method.name }}</p>
+                                    <p class="text-2"><strong>Fee:</strong> RM {{ shipping.fee|floatformat:2 }}</p>
+                                    <hr>
+                                    {% empty %}
+                                    <p class="text-2">No courier info available.</p>
+                                    {% endfor %}
+                                </div>
+
+                                {# ─── Receiver / Address ───────────────────── #}
+                                <div class="widget-content-inner">
+                                    {% if order.shipping_address %}
+                                    <ul class="mt_20">
+                                        <li>Order Number: <span class="fw-7">#{{ order.id }}</span></li>
+                                        <li>Date: <span class="fw-7">{{ order.created_at|date:"d/m/Y, H:i" }}</span>
+                                        </li>
+                                        <li>Total: <span class="fw-7">RM
+                                                {{ order.total_products|add:order.shipping_fee|floatformat:2 }}</span>
+                                        </li>
+                                        <li>Payment Method: <span
+                                                class="fw-7">{{ order.transaction.get_gateway_display }}</span></li>
+                                        <li>Receiver: <span class="fw-7">{{ order.shipping_address.full_name }}</span>
+                                        </li>
+                                        <li>Address:
+                                            <span class="fw-7">
+                                                {{ order.shipping_address.address_line1 }}
+                                                {% if order.shipping_address.address_line2 %},
+                                                {{ order.shipping_address.address_line2 }}{% endif %},
+                                                {{ order.shipping_address.city }}, {{ order.shipping_address.state }},
+                                                {{ order.shipping_address.postcode }}
+                                            </span>
+                                        </li>
+                                        <li>Phone: <span class="fw-7">{{ order.shipping_address.phone }}</span></li>
+                                    </ul>
+                                    {% else %}
+                                    <p class="text-2">No receiver address on file.</p>
+                                    {% endif %}
+                                </div>
+
+                            </div>
+                        </div>
+                        {# /widget-tabs #}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
