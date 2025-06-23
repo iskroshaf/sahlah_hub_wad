@@ -5,6 +5,11 @@ from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from _seller_app.models import Seller
+from django.contrib.auth.decorators import login_required
+from _order_app.models  import Order, OrderItem, OrderShipping
+from django.db.models      import Sum, DecimalField
+
+
 
 def seller_register_view(request):
     title = "Seller Register"
@@ -170,3 +175,56 @@ def seller_approval_toggle_view(request, seller_id, action):
     messages.success(request, f"Peniaga {seller.username} telah {msg}.")
 
     return redirect("seller_approval_list")
+
+@login_required
+def seller_order_list(request):
+    # kedai yang dimiliki user (anda mungkin pakai field lain, ubah ikut model)
+    shops = Shop.objects.filter(seller=request.user)
+
+    orders = (
+        Order.objects
+             .filter(shippings__shop__in=shops)        # ikut shop seller sahaja
+             .distinct()
+             .select_related("transaction", "user")    # kurangkan query
+             .prefetch_related(
+                 "items__variant__product",
+                 "shippings__shop",
+             )
+             .order_by("-created_at")
+    )
+
+    return render(request, "_seller_app/order_list.html", {
+        "orders": orders,
+        "title":  "Orders",
+        "theme":  "admin_seller_theme",})
+
+
+# -------- butiran satu order -----------------------------------------
+@login_required
+def seller_order_detail(request, order_id):
+    shops = Shop.objects.filter(seller=request.user)
+
+    order = get_object_or_404(
+        Order.objects
+             .select_related("transaction", "user", "shipping_address")
+             .prefetch_related(
+                 "items__variant__product",
+                 "shippings__shop",
+             ),
+        pk=order_id,
+        shippings__shop__in=shops   # pastikan order ini milik seller
+    )
+
+    # jumlah item utk paparan cepat
+    total_items = (
+        order.items.aggregate(
+            qty=Sum("quantity", output_field=DecimalField())
+        )["qty"] or 0
+    )
+
+    return render(request, "_seller_app/order_detail.html", {
+        "order":        order,
+        "total_items":  total_items,
+        "title":        f"Order #{order.id}",
+        "theme":        "admin_seller_theme",
+    })

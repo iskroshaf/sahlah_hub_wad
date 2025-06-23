@@ -1,0 +1,61 @@
+{% extends "_core_app/base.html" %}
+{% load static  cart_extras%}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="container my-5">
+  <a href="{% url 'order_list_seller' %}" class="btn btn-sm btn-link mb-3">&larr; Back to Orders</a>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="m-0">Order #{{ order.id }}</h3>
+    <span class="badge
+        {% if order.status == 'PAID' %}bg-success
+        {% elif order.status == 'PENDING' %}bg-warning text-dark
+        {% else %}bg-danger{% endif %}">
+      {{ order.get_status_display }}
+    </span>
+  </div>
+
+  <!-- Ringkasan pelanggan -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <strong>Customer:</strong> {{ order.user.get_full_name|default:"Guest" }}<br>
+      <strong>Email:</strong> {{ order.user.email|default:"-" }}<br>
+      <strong>Placed at:</strong> {{ order.created_at|date:"d M Y, H:i" }}<br>
+      <strong>Total paid:</strong> RM {{ order.total_products|add:order.shipping_fee|floatformat:2 }}
+    </div>
+  </div>
+
+  <!-- Item -->
+  <div class="card mb-4">
+    <div class="card-header"><h5 class="m-0">Items ({{ total_items }})</h5></div>
+    <ul class="list-group list-group-flush">
+      {% for it in order.items.all %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          {{ it.variant.product.product_name }} –
+          <small class="text-muted">{{ it.variant.variant_name }}</small>
+        </div>
+        <div>
+          {{ it.quantity }} × RM {{ it.unit_price|floatformat:2 }} =
+          <strong>RM {{ it.quantity|mul:it.unit_price|floatformat:2 }}</strong>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Penghantaran -->
+  <div class="card">
+    <div class="card-header"><h5 class="m-0">Shipping per Shop</h5></div>
+    <ul class="list-group list-group-flush">
+      {% for s in order.shippings.all %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>{{ s.shop.shop_name }} – {{ s.method|default:"Flat Rate" }}</div>
+        <strong>RM {{ s.fee|floatformat:2 }}</strong>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endblock %}

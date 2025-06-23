@@ -29,6 +29,9 @@ urlpatterns = [
     path('seller-approval/', views.seller_approval_list_view, name='seller_approval_list'),
     path('seller-approval/<str:seller_id>/<str:action>/',views.seller_approval_toggle_view, name='seller_approval_toggle'),
 
+    path("orders/",               views.seller_order_list,   name="order_list_seller"),
+    path("orders/<int:order_id>/", views.seller_order_detail, name="order_detail_seller"),
+
 
 
 # password modified

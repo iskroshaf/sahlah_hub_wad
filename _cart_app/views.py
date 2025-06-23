@@ -236,7 +236,7 @@ def checkout(request):
     order.save()
 
     # ── Bersih troli & tamat ───────────────────────────────────────
-    #cart.items.all().delete()
+    cart.items.all().delete()
     messages.success(request, "Pesanan diterima!")
     return redirect('order-review', order_id=order.id)
 

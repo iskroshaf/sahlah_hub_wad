@@ -1,0 +1,54 @@
+{% extends "_core_app/base.html" %}
+{% load static %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="container my-5">
+  <h2 class="mb-4">{{ title }}</h2>
+
+  {% if orders %}
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Shop</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th class="text-end">Total (RM)</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td>{{ o.id }}</td>
+          <td>
+            {{ o.shippings.all.0.shop.shop_name }}
+            {% if o.shippings.count > 1 %}<span class="badge bg-info">+{{ o.shippings.count|add:"-1" }} more</span>{% endif %}
+          </td>
+          <td>{{ o.created_at|date:"d M Y, H:i" }}</td>
+          <td>
+            <span class="badge
+              {% if o.status == 'PAID' %}bg-success
+              {% elif o.status == 'PENDING' %}bg-warning text-dark
+              {% else %}bg-danger{% endif %}">
+              {{ o.get_status_display }}
+            </span>
+          </td>
+          <td class="text-end">{{ o.total_products|add:o.shipping_fee|floatformat:2 }}</td>
+          <td>
+            <a href="{% url 'order_detail_seller' o.id %}" class="btn btn-sm btn-outline-primary">
+              View
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="text-muted">No orders yet.</p>
+  {% endif %}
+</section>
+{% endblock %}
