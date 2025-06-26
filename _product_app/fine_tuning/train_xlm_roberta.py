@@ -113,7 +113,7 @@ import evaluate
 # CLI
 # -----------------------------------------------------------------------------
 parser = argparse.ArgumentParser()
-parser.add_argument("--csv", type=str, default="data/halal_haram.csv",
+parser.add_argument("--csv", type=str, default="data/halal_haram_mashbooh_dataset.csv",
                     help="Path to the CSV dataset. Must contain columns 'text' and 'label'.")
 parser.add_argument("--output", type=str, default="./fine_tuned_xlm",
                     help="Directory to save checkpoints and final model.")

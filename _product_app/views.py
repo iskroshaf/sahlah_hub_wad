@@ -12,10 +12,7 @@ import os
 import csv
 import requests
 from django.conf import settings
-
 import builtins 
-
-
 from pprint import pprint
 import json  
 
@@ -24,24 +21,36 @@ logger = logging.getLogger(__name__)
 FASTAPI_URL = "http://127.0.0.1:8001/predict/"
 
 NEGATION_WORDS = [
-    # Melayu
-    "tidak", "tanpa", "bukan", "bebas dari", "tidak ada", "tidak termasuk", "dikecualikan", "diasingkan",
-    "bukan dari", "tiada", "tidak pernah", "tidak wujud", "tidak terkandung", "bukan sebahagian dari",
-    "dikeluarkan dari", "bukan bahan utama", "sifar", "tidak dibuat dengan", "tidak mengandungi",
-    "tidak diproses dengan", "tidak bersentuhan dengan", "tidak terdapat dalam", "tiada dalam senarai",
-    "bukan sebahagian",
+    # 🇲🇾 Melayu
+    "tidak", "tiada", "sifar", "bukan", "tanpa",
+    "sama sekali tidak", "mutlak tiada", "langsung tiada", "langsung tidak",
+    "bebas sepenuhnya", "terjamin bebas", "dikecualikan sepenuhnya", "kecuali",
+    "tidak mengandungi", "tidak dibuat dengan", "tidak diproses dengan",
+    "tidak pernah", "tidak termasuk", "tidak terdapat dalam senarai",
+    "tidak bersentuhan dengan", "tak", "takde", "tiadalah", "zero",
+    "100% bebas", "0% kandungan", "kosong", "jarang", "hampir tidak",
+    "kurang", "selain daripada", "saling terasing",
 
-    # Inggeris
-    "no", "not", "without", "free from", "does not contain", "excluded", "separated from", "absent of",
-    "none", "never", "does not exist", "not included", "not part of", "removed from", "zero",
-    "not made with", "does not have", "is not processed with", "not in contact with",
-    "not found in", "not listed in", "not used in", "not a component of",
+    # 🇬🇧 English
+    "no", "not", "none", "zero",
+    "absolutely no", "not at all", "in no way", "never ever",
+    "free from", "devoid of", "absent", "excluded entirely",
+    "does not contain", "not made with", "not processed with",
+    "not included", "removed from", "not part of", "not listed in",
+    "not in contact with", "nope", "nah", "ain't",
+    "100% free of", "zero traces", "completely free of",
+    "hardly", "scarcely", "barely", "rarely", "lacks", "omits", "minus",
 
-    # Arab
-    "لا", "ليس", "بدون", "خالي من", "لا يحتوي على", "مستبعد", "معزول", "لا يوجد", "غير موجود",
-    "لم يكن", "لم يتم تضمينه", "ليس جزءًا من", "تم إزالته", "صفر", "لم يُصنع بـ", "لا يمتلك",
-    "لا يُعالج بـ", "لم يكن ملامسًا", "غير مدرج في القائمة", "لم يُستخدم", "ليس عنصرًا من"
+    # 🇸🇦 العربية
+    "لا", "ليس", "صفر", "خالي",
+    "على الإطلاق لا", "مطلقاً لا", "تماماً بدون", "جملة وتفصيلاً لا",
+    "خالٍ تماماً", "خالٍ بالكامل", "مستثنى بالكامل",
+    "لا يحتوي على", "ليس جزءًا من", "لم يُعالج بـ", "لم يتم تصنيعه بـ",
+    "لم يُستخدم في", "غير مدرج في القائمة",
+    "مافيه", "ما في", "ولا",
+    "خالٍ بنسبة 100%", "بلا أي أثر", "مش", "مافيش", "غير موجود"
 ]
+
 
 
 def product_category_management_view(request):
@@ -230,7 +239,7 @@ def product_register_view(request, pk):
                     is_mashbooh = any(word in text for words in mashbooh_keywords.values() for word in words)
                     contains_negation = any(neg in text for neg in NEGATION_WORDS)
 
-                    # Determine halal_status
+                    
                     if is_haram and not contains_negation:
                         product.halal_status = "Haram"
                     elif is_halal and not contains_negation:
@@ -242,7 +251,7 @@ def product_register_view(request, pk):
                     elif is_mashbooh:
                         product.halal_status = "Mashbooh"
                     elif "tidak diketahui" in text or "meragukan" in text:
-                        product.halal_status = "Mashbooh"
+                         product.halal_status = "Mashbooh"
                     elif ai_prediction in ["Halal", "Haram"]:
                         product.halal_status = ai_prediction
                     else:

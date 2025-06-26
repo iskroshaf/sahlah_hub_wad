@@ -17,19 +17,19 @@ from _transaction_app.models import Transaction
 from .utils import clamp_cart
 
 
-# ────────────────────────────────────────────────────────────────────
+
 @require_POST
 def add_to_cart_view(request):
    
-    """Tambah item ke troli & simpan pilihan courier kedai berkenaan."""
+   
     variant_id = request.POST["variant_id"]
     qty = int(request.POST.get("quantity", request.POST.get("qty", 1)))
 
-    # ── simpan pilihan delivery kedai ini ──
+   
     shop_pk = ProductVariant.objects.get(pk=variant_id).product.shop.pk
     chosen_dm = request.POST.get("delivery_method_id", "")
 
-    ship_sel = request.session.get("ship_sel", {})  # {shop_pk:str(dm_pk)}
+    ship_sel = request.session.get("ship_sel", {})  
     ship_sel[str(shop_pk)] = chosen_dm
     request.session["ship_sel"] = ship_sel
 
@@ -38,13 +38,13 @@ def add_to_cart_view(request):
     return redirect("cart:view")
 
 
-# ────────────────────────────────────────────────────────────────────
+
 @require_POST
 def ajax_set_qty(request, variant_id):
     data = json.loads(request.body or "{}")
     qty = int(data.get("qty", 0))
     try:
-        item = set_quantity(request, variant_id, qty)  # None jika delete
+        item = set_quantity(request, variant_id, qty) 
         total = cart_total_fn(request)
         if item is None:
             return JsonResponse({"total": f"{total:.2f}"})
@@ -61,14 +61,13 @@ def ajax_set_qty(request, variant_id):
         return JsonResponse({"error": str(e)}, status=400)
 
 
-# ────────────────────────────────────────────────────────────────────
 @require_POST
 def ajax_remove_item(request, variant_id):
     set_quantity(request, variant_id, 0)
     return JsonResponse({"total": f"{cart_total_fn(request):.2f}"})
 
 
-# ────────────────────────────────────────────────────────────────────
+
 def cart_page(request):
  
     qs = get_items(request)
@@ -85,25 +84,25 @@ def cart_page(request):
     ]
     cart_sum = cart_total_fn(request)
 
-    # ── kumpulkan item ikut kedai ─────────────────────────────
+    
     shop_blocks = defaultdict(list)
     for it in cart_items:
         shop_blocks[it["shop"]].append(it)
 
-    # ── bina struktur utk template ───────────────────────────
-    selected_map = request.session.get("ship_sel", {})   # {shop_pk: dm_pk}
+   
+    selected_map = request.session.get("ship_sel", {})   
     shops_data   = []
     grand_ship_fee = Decimal("0.00")
 
     for shop, items in shop_blocks.items():
 
         if shop.delivery_price_type == "custom" and shop.shop_delivery_fee:
-            # kedai tetapkan caj tersuai
-            methods = []                      # tiada radio
-            sel_id  = ""                      # kosong
-            fee_sel = shop.shop_delivery_fee  # flat fee
+      
+            methods = []                     
+            sel_id  = ""                      
+            fee_sel = shop.shop_delivery_fee  
         else:
-            # kedai ikut senarai DeliveryMethod admin
+           
             methods = DeliveryMethod.objects.filter(is_active=True).order_by("id")
             sel_id  = (
                 selected_map.get(str(shop.pk))
@@ -119,9 +118,9 @@ def cart_page(request):
         shops_data.append(
             {
                 "shop":         shop,
-                "methods":      methods,     # mungkin []
-                "selected_id":  sel_id,      # '' utk custom
-                "selected_fee": fee_sel,     # sentiasa ada nilai
+                "methods":      methods,     
+                "selected_id":  sel_id,      
+                "selected_fee": fee_sel,     
             }
         )
 
@@ -138,45 +137,48 @@ def cart_page(request):
     )
 
 
-# ────────────────────────────────────────────────────────────────────
+
 @require_POST
 @transaction.atomic
 def checkout(request):
-   
+
+    if request.user.role != "C":
+        raise ValueError("only customer allowed")
+
     cart = _get_cart(request)
     if not cart.items.exists():
         messages.error(request, "Troli kosong.")
         return redirect("cart:view")
     
-    if clamp_cart(request, cart):     # ← jika ada perubahan
+    if clamp_cart(request, cart):    
         return redirect("cart:view")
 
 
-    # ── 1) Kedai admin-price: ship_sel_<shop_pk>=<dm_pk> ────────────
+  
     sel_map = {
         k.replace("ship_sel_", ""): v                    
         for k, v in request.POST.items()
         if k.startswith("ship_sel_") and v                
     }
 
-    # ── 2) Kedai flat-rate: flat_fee_shop<shop_pk>=<fee> ───────────
+ 
     flat_map = {
         k.replace("flat_fee_shop", ""): Decimal(v)        
         for k, v in request.POST.items()
         if k.startswith("flat_fee_shop")
     }
 
-    # ── Kira jumlah caj penghantaran ───────────────────────────────
+   
     total_ship_fee = Decimal("0.00")
 
-    # 1) admin-price
+
     methods_chosen = []
     for dm_pk in sel_map.values():
         dm = get_object_or_404(DeliveryMethod, pk=dm_pk)
         total_ship_fee += dm.base_price
         methods_chosen.append(dm)
 
-    # 2) flat-rate
+
     total_ship_fee += sum(flat_map.values())
 
 
@@ -188,7 +190,7 @@ def checkout(request):
         status         = Order.Status.PENDING,
     )
 
-    # ── OrderItem ───────────────────────────────────────────────────
+   
     OrderItem.objects.bulk_create([
         OrderItem(
             order      = order,
@@ -199,10 +201,10 @@ def checkout(request):
         for ci in cart.items.select_related("variant")
     ])
 
-    # ── OrderShipping (simpan per-kedai) ───────────────────────────
+   
     shipping_rows = []
 
-    # 1) admin-price
+   
     for shop_pk, dm_pk in sel_map.items():
         dm = DeliveryMethod.objects.get(pk=dm_pk)
         shipping_rows.append(
@@ -214,13 +216,13 @@ def checkout(request):
             )
         )
 
-    # 2) flat-rate
+   
     for shop_pk, fee in flat_map.items():
         shipping_rows.append(
             OrderShipping(
                 order    = order,
                 shop_id  = shop_pk,
-                method   = None,   # atau biar kosong jika field nullable
+                method   = None,   
                 fee      = fee,
             )
         )
@@ -235,11 +237,11 @@ def checkout(request):
     order.transaction = txn
     order.save()
 
-    # ── Bersih troli & tamat ───────────────────────────────────────
+  
     cart.items.all().delete()
-    messages.success(request, "Pesanan diterima!")
+    messages.success(request, "Order Accepted!")
     return redirect('order-review', order_id=order.id)
 
 
 
-# ────────────────────────────────────────────────────────────────────
+

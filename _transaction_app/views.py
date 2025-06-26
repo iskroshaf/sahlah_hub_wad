@@ -1,4 +1,4 @@
-# _transaction_app/views.py
+
 
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
@@ -16,15 +16,16 @@ from _order_app.models import Order
 from _order_app.services import lock_and_deduct_stock
 from django.core.exceptions import ValidationError
 from django.urls import reverse
+from django.contrib import messages
 
 
 def create_payment(request, order_id):
-
+    
     order = get_object_or_404(
         Order, pk=order_id, status=Order.Status.PENDING
     )
 
-    # ── pilih alamat dipilih / fallback ke profil ──────────────────
+  
     alamat = None
     if request.POST.get('alamat_id'):
         alamat = get_object_or_404(
@@ -35,10 +36,10 @@ def create_payment(request, order_id):
 
     bill_name  = (alamat.full_name if alamat else order.user.get_full_name())
     bill_phone = (alamat.phone if alamat else getattr(order.user, 'phone_number', ''))
-    bill_phone = re.sub(r'\D', '', bill_phone)      # digit sahaja
+    bill_phone = re.sub(r'\D', '', bill_phone)
     bill_email = order.user.email
 
-    # ── cipta rekod transaksi awal ────────────────────────────────
+  
     txn = order.transaction
     if not txn:
         txn = Transaction.objects.create(
@@ -56,10 +57,10 @@ def create_payment(request, order_id):
         'billName':         f"Sahlan Order #{order.id}",
         'billDescription':  f"Pembayaran untuk order #{order.id} di Sahlan Hub",
         'billPriceSetting': 1,
-        'billPayorInfo':    1,          # papar borang + pre-isi
+        'billPayorInfo':    1,         
         'billTo': '',
-        'billPaymentChannel': '',      # 1 = Online Banking (FPX) sahaja
-        'billAmount':       str(int(txn.amount * 100)),  # sen
+        'billPaymentChannel': '',      
+        'billAmount':       str(int(txn.amount * 100)),  
         'billChargeToCustomer':0,
         'billReturnUrl':    settings.TOYYIBPAY_RETURN_URL,
         'billCallbackUrl':  settings.TOYYIBPAY_CALLBACK_URL,
@@ -84,9 +85,9 @@ def create_payment(request, order_id):
     #     print("ToyyibPay body  :", resp.text[:300])   
     #     resp.raise_for_status()
     
-    #     data = resp.json()                   # kalau JSON sah, teruskan
+    #     data = resp.json()                 
     except json.JSONDecodeError:
-        print("Not JSON =>", resp.text)      # debug cepat
+        print("Not JSON =>", resp.text)      
         return None
 
     except Exception as exc:
@@ -105,15 +106,14 @@ def create_payment(request, order_id):
 def payment_callback(request):
     logger = logging.getLogger(__name__)
 
-    # ---- ambil semua parameter sekali gus (POST > GET) -------------
     data = request.POST.dict()
-    if not data:                       # Sandbox kadang hantar GET
+    if not data:                     
         data = request.GET.dict()
 
     logger.info("CALLBACK DATA: %s", data)
 
     bill_code = data.get("billcode")
-    status    = data.get("paymentStatus") or data.get("status_id")  # sokong kedua-dua
+    status    = data.get("paymentStatus") or data.get("status_id")  
 
     if not bill_code:
         return HttpResponse("No billcode", status=400)
@@ -121,15 +121,15 @@ def payment_callback(request):
     txn   = get_object_or_404(Transaction, bill_code=bill_code)
     order = getattr(txn, "order", None)
 
-    # --------------- STATUS “1”  (bayaran berjaya) ------------------
+    
     if status == "1":
         try:
             if order:
                 logger.info("▶️ Order %s : mula tolak stok", order.id)
-                lock_and_deduct_stock(order)          # tolak stok & clamp troli
+                lock_and_deduct_stock(order)          
                 logger.info("✅ Order %s : stok dikemas kini", order.id)
 
-            txn.mark_success()                       # set SUCCESS + paid_at
+            txn.mark_success()                       
 
             if order:
                 order.status = Order.Status.PAID
@@ -143,14 +143,14 @@ def payment_callback(request):
                 order.save(update_fields=["status"])
             return HttpResponse(f"Stock error: {e}", status=422)
 
-    # --------------- STATUS “3”  (dibatalkan / gagal) ---------------
+ 
     elif status == "3":
         txn.status = Transaction.Status.FAILED
         if order:
             order.status = Order.Status.FAILED
             order.save(update_fields=["status"])
 
-    # --------------- STATUS lain  (pending) -------------------------
+   
     else:
         txn.status = Transaction.Status.PENDING
 
@@ -163,22 +163,21 @@ def payment_success(request):
     txn       = get_object_or_404(Transaction, bill_code=bill_code)
     order     = getattr(txn, "order", None)
 
-    # ❶      Jika datang dari ngrok host, redirect ke localhost
     host = request.get_host()
     if "ngrok-free.app" in host:
-        # bina URL baru ganti host ngrok kepada localhost:8000
+       
         new_url = request.build_absolute_uri().replace(host, "localhost:8000")
         return redirect(new_url)
 
-    # ❷      Refresh status kalau masih pending
     if txn.status == Transaction.Status.PENDING:
         from _transaction_app.utils import refresh_transaction
         refresh_transaction(bill_code)
         txn.refresh_from_db()
 
-    # ❸      Sediakan URL detail order (protected oleh login_required)
+  
     detail_url = reverse('order_detail', args=[order.id]) if order else '#'
 
+    messages.success(request, "Order Accepted!")
     return render(request, "paymentSuccess.html", {
         "transaction":     txn,
         "order":           order,

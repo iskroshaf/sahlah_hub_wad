@@ -115,7 +115,7 @@
                   Conditions</a></label>
             </div>
             <button type="submit" id="btn-checkout" class="btn btn-success w-100 mb-2" {% if not cart_items %} disabled{% endif %}>Proceed to Checkout</button>
-            <a href="{}" class="btn btn-outline-secondary w-100">Continue Shopping</a>
+            <a href="{% url 'customer_home'  %}" class="btn btn-outline-secondary w-100">Continue Shopping</a>
           </div>
         </div>
 

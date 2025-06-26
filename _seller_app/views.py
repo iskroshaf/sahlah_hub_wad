@@ -8,7 +8,7 @@ from _seller_app.models import Seller
 from django.contrib.auth.decorators import login_required
 from _order_app.models  import Order, OrderItem, OrderShipping
 from django.db.models      import Sum, DecimalField
-
+from django.http import Http404
 
 
 def seller_register_view(request):
@@ -202,6 +202,35 @@ def seller_order_list(request):
 # -------- butiran satu order -----------------------------------------
 @login_required
 def seller_order_detail(request, order_id):
+    shops = Shop.objects.filter(seller=request.user)
+
+    try:
+        order = Order.objects.select_related(
+                    "transaction", "user", "shipping_address"
+                ).prefetch_related(
+                    "items__variant__product",
+                    "shippings__shop",
+                ).get(pk=order_id)
+    except Order.DoesNotExist:
+        raise Http404("Order not found.")
+
+    # Check if seller really owns this order via any of the shippings
+    if not order.shippings.filter(shop__in=shops).exists():
+        return render(request, "_seller_app/unauthorized.html", status=403)
+
+    total_items = (
+        order.items.aggregate(
+            qty=Sum("quantity", output_field=DecimalField())
+        )["qty"] or 0
+    )
+
+    return render(request, "_seller_app/order_detail.html", {
+        "order":        order,
+        "total_items":  total_items,
+        "title":        f"Order #{order.id}",
+        "theme":        "admin_seller_theme",
+    })
+
     shops = Shop.objects.filter(seller=request.user)
 
     order = get_object_or_404(
