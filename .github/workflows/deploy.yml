@@ -6,11 +6,29 @@ on:
       - main
 
 jobs:
-  deploy:
+  connect:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup Environment
+      - name: Connect to VPS
+        env:
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key
+          chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -p 53090 -i private_key $VPS_USER@$VPS_IP << 'EOF'
+            echo "Successfully connected to VPS at $(hostname)"
+          EOF
+          rm private_key
+
+  pull:
+    runs-on: ubuntu-latest
+    needs: connect
+
+    steps:
+      - name: Pull Code
         env:
           VPS_IP: ${{ secrets.VPS_IP }}
           VPS_USER: ${{ secrets.VPS_USER }}
@@ -26,21 +44,17 @@ jobs:
               echo "Error: /home/khairuladzharvps/SAHLAN/sahlan_hub_CI_CD is not a Git repository"
               exit 1
             fi
-
-            # Create virtual environment if it doesn't exist
-            if [ ! -d "myenv" ]; then
-              echo "Creating virtual environment..."
-              python3 -m venv myenv
-            fi
-
-            # Activate virtual environment and install requirements
-            source myenv/bin/activate
-            python3 -m pip install -r V2requirements.txt
-            echo "Environment setup completed"
+            git pull origin main
+            echo "Pull completed"
           EOF
           rm private_key
 
-      - name: Pull Code
+  setup:
+    runs-on: ubuntu-latest
+    needs: pull
+
+    steps:
+      - name: Setup Environment and Install Requirements
         env:
           VPS_IP: ${{ secrets.VPS_IP }}
           VPS_USER: ${{ secrets.VPS_USER }}
@@ -52,11 +66,25 @@ jobs:
             echo "Current directory before cd: $(pwd)"
             cd /home/khairuladzharvps/SAHLAN/sahlan_hub_CI_CD
             echo "Current directory after cd: $(pwd)"
-            git pull origin main
-            echo "Pull completed"
+
+            # Create virtual environment if it doesn't exist
+            if [ ! -d "myenv" ]; then
+              echo "Creating virtual environment..."
+              python3 -m venv myenv
+            fi
+
+            # Activate virtual environment and install requirements
+            source myenv/bin/activate
+            python3 -m pip install -r V2requirements.txt
+            echo "Environment setup and requirements installed"
           EOF
           rm private_key
 
+  restart:
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
       - name: Restart Service
         env:
           VPS_IP: ${{ secrets.VPS_IP }}
@@ -72,9 +100,30 @@ jobs:
           EOF
           rm private_key
 
+      - name: Check MySQL Connection
+        env:
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+          MYSQL_DB: ${{ secrets.MYSQL_DB }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key
+          chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -p 53090 -i private_key $VPS_USER@$VPS_IP << 'EOF'
+            echo "Checking MySQL connection..."
+            cd /home/khairuladzharvps/SAHLAN/sahlan_hub_CI_CD
+            source myenv/bin/activate
+            python3 -c "import mysql.connector; conn = mysql.connector.connect(host='$MYSQL_HOST', database='$MYSQL_DB', user='$MYSQL_USER', password='$MYSQL_PASSWORD'); conn.close(); print('MySQL connection successful')"
+            echo "MySQL connection check completed"
+          EOF
+          rm private_key
+
   verify:
     runs-on: ubuntu-latest
-    needs: deploy  # Memastikan job ini berjalan selepas job 'deploy' selesai
+    needs: restart
 
     steps:
       - name: Verify Service Status
