@@ -71,3 +71,28 @@ jobs:
             echo "Service restarted"
           EOF
           rm private_key
+
+  verify:
+    runs-on: ubuntu-latest
+    needs: deploy  # Memastikan job ini berjalan selepas job 'deploy' selesai
+
+    steps:
+      - name: Verify Service Status
+        env:
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key
+          chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -p 53090 -i private_key $VPS_USER@$VPS_IP << 'EOF'
+            echo "Checking service status..."
+            STATUS=$(sudo systemctl is-active sahlanCICD.service)
+            if [ "$STATUS" = "active" ]; then
+              echo "Service is running successfully"
+            else
+              echo "Service is not active. Status: $STATUS"
+              exit 1
+            fi
+          EOF
+          rm private_key
