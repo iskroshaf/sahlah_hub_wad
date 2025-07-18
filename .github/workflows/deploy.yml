@@ -116,7 +116,7 @@ jobs:
             echo "Checking MySQL connection..."
             cd /home/khairuladzharvps/SAHLAN/sahlan_hub_CI_CD
             source myenv/bin/activate
-            python3 -c "import mysql.connector; conn = mysql.connector.connect(host='$MYSQL_HOST', database='$MYSQL_DB', user='$MYSQL_USER', password='$MYSQL_PASSWORD'); conn.close(); print('MySQL connection successful')"
+            python3 -c 'import mysql.connector; conn = mysql.connector.connect(host="$MYSQL_HOST", database="$MYSQL_DB", user="$MYSQL_USER", password="$MYSQL_PASSWORD"); conn.close(); print("MySQL connection successful")'
             echo "MySQL connection check completed"
           EOF
           rm private_key
