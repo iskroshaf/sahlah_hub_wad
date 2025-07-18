@@ -23,6 +23,28 @@ jobs:
           EOF
           rm private_key
 
+  check_domains:
+    runs-on: ubuntu-latest
+    needs: connect
+
+    steps:
+      - name: Check Domain Status
+        run: |
+          echo "Checking domain status..."
+          if curl -s -o /dev/null -w "%{http_code}" https://sahlan.shop | grep -q "^200"; then
+            echo "https://sahlan.shop is running (HTTP 200)"
+          else
+            echo "https://sahlan.shop is not running or returned non-200 status"
+            exit 1
+          fi
+          if curl -s -o /dev/null -w "%{http_code}" https://dev.sahlan.shop | grep -q "^200"; then
+            echo "https://dev.sahlan.shop is running (HTTP 200)"
+          else
+            echo "https://dev.sahlan.shop is not running or returned non-200 status"
+            exit 1
+          fi
+          echo "Domain checks completed"
+
   pull:
     runs-on: ubuntu-latest
     needs: connect
@@ -97,27 +119,6 @@ jobs:
             echo "Restarting systemd service..."
             sudo systemctl restart sahlanCICD.service
             echo "Service restarted"
-          EOF
-          rm private_key
-
-      - name: Check MySQL Connection
-        env:
-          VPS_IP: ${{ secrets.VPS_IP }}
-          VPS_USER: ${{ secrets.VPS_USER }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
-          MYSQL_DB: ${{ secrets.MYSQL_DB }}
-          MYSQL_USER: ${{ secrets.MYSQL_USER }}
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-        run: |
-          echo "$SSH_PRIVATE_KEY" > private_key
-          chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -p 53090 -i private_key $VPS_USER@$VPS_IP << 'EOF'
-            echo "Checking MySQL connection..."
-            cd /home/khairuladzharvps/SAHLAN/sahlan_hub_CI_CD
-            source myenv/bin/activate
-            python3 -c 'import mysql.connector; conn = mysql.connector.connect(host="$MYSQL_HOST", database="$MYSQL_DB", user="$MYSQL_USER", password="$MYSQL_PASSWORD"); conn.close(); print("MySQL connection successful")'
-            echo "MySQL connection check completed"
           EOF
           rm private_key
 
