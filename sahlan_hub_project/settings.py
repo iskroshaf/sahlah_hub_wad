@@ -67,6 +67,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -113,10 +114,10 @@ DATABASES = {
 
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sahlan_hub',
-        'USER': 'root',
+        'NAME': 'sahl_sahlah_hub',
+        'USER': 'sahl_sahlah_hub',
         'PASSWORD': '',
-        'HOST': 'localhost',   
+        'HOST': '',   
         'PORT': '3306',        
     }
 }
@@ -184,7 +185,6 @@ LOCALE_PATHS = [
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = '/static/'
-
 ##
 STATICFILES_DIRS = [
     BASE_DIR / "static",
@@ -207,6 +207,8 @@ INTERNAL_IPS = [
     "127.0.0.1",  # Localhost
 ]
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 GOOGLE_CLOUD_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_CLOUD_CREDENTIALS
@@ -217,11 +219,15 @@ TOYYIBPAY_SECRET_KEY    = "88zx3tvk-6uyr-a1g5-sdma-lcv6tpb7oul8"
 TOYYIBPAY_CATEGORY_CODE = "ee1zzpss"
 TOYYIBPAY_API_URL       = "https://dev.toyyibpay.com/index.php/api/createBill"
 TOYYIBPAY_BASE_URL      = "https://dev.toyyibpay.com"
-TOYYIBPAY_CALLBACK_URL  = "https://c318-103-198-52-234.ngrok-free.app/transaction/payment/callback/"
-TOYYIBPAY_RETURN_URL    = "https://c318-103-198-52-234.ngrok-free.app/transaction/payment/success/"
+TOYYIBPAY_CALLBACK_URL  = "https://sahlan.shop/transaction/payment/callback/"
+TOYYIBPAY_RETURN_URL    = "https://sahlan.shop/transaction/payment/success/"
 ALLOWED_HOSTS = ['*']
 
 LOGIN_URL = '/user/login/'
 
 
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://sahlan.shop",
+    "https://www.sahlan.shop",
+]

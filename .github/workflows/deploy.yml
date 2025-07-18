@@ -1,0 +1,32 @@
+name: Auto Pull Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS
+        env:
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key
+          chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -p 53090 -i private_key $VPS_USER@$VPS_IP << 'EOF'
+            echo "Current directory before cd: $(pwd)"
+            cd /home/khairuladzharvps/SAHLAN/sahlan_hub_CI_CD
+            echo "Current directory after cd: $(pwd)"
+            if [ ! -d "/home/khairuladzharvps/SAHLAN/sahlan_hub_CI_CD/.git" ]; then
+              echo "Error: /home/khairuladzharvps/SAHLAN/sahlan_hub_CI_CD is not a Git repository"
+              exit 1
+            fi
+            git pull origin main
+            echo "Pull completed"
+          EOF
+          rm private_key
