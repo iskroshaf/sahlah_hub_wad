@@ -1,4 +1,4 @@
-name: Auto Pull Pipeline
+name: Auto Pull and Deploy Pipeline
 
 on:
   push:
@@ -28,5 +28,19 @@ jobs:
             fi
             git pull origin main
             echo "Pull completed"
+
+            # Create virtual environment if it doesn't exist
+            if [ ! -d "myenv" ]; then
+              echo "Creating virtual environment..."
+              python3 -m venv myenv
+            fi
+
+            # Activate virtual environment and install requirements
+            source myenv/bin/activate
+            python3 -m pip install -r V2requirements.txt
+
+            # Restart systemd service
+            sudo systemctl restart sahlanCICD.service
+            echo "Service restarted"
           EOF
           rm private_key
