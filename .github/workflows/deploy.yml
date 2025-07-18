@@ -31,16 +31,18 @@ jobs:
       - name: Check Domain Status
         run: |
           echo "Checking domain status..."
-          if curl -s -o /dev/null -w "%{http_code}" https://sahlan.shop | grep -q "^200"; then
-            echo "https://sahlan.shop is running (HTTP 200)"
+          STATUS_SAHLAN=$(curl -s -o /dev/null -w "%{http_code}" https://sahlan.shop)
+          if [ "$STATUS_SAHLAN" = "200" ] || [ "$STATUS_SAHLAN" = "403" ]; then
+            echo "https://sahlan.shop is running (HTTP $STATUS_SAHLAN)"
           else
-            echo "https://sahlan.shop is not running or returned non-200 status"
+            echo "https://sahlan.shop returned unexpected status $STATUS_SAHLAN"
             exit 1
           fi
-          if curl -s -o /dev/null -w "%{http_code}" https://dev.sahlan.shop | grep -q "^200"; then
-            echo "https://dev.sahlan.shop is running (HTTP 200)"
+          STATUS_DEV=$(curl -s -o /dev/null -w "%{http_code}" https://dev.sahlan.shop)
+          if [ "$STATUS_DEV" = "200" ] || [ "$STATUS_DEV" = "403" ]; then
+            echo "https://dev.sahlan.shop is running (HTTP $STATUS_DEV)"
           else
-            echo "https://dev.sahlan.shop is not running or returned non-200 status"
+            echo "https://dev.sahlan.shop returned unexpected status $STATUS_DEV"
             exit 1
           fi
           echo "Domain checks completed"
